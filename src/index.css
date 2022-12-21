@@ -1,0 +1,51 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, Ubuntu, "Roboto", "Microsoft YaHei",
+    sans-serif;
+}
+
+.flex {
+  display: flex;
+}
+.flex-c {
+  display: flex;
+  flex-direction: column;
+}
+.flex-cr {
+  display: flex;
+  flex-direction: column-reverse;
+}
+.flex-r {
+  display: flex;
+  flex-direction: row;
+}
+.flex-rr {
+  display: flex;
+  flex-direction: row-reverse;
+}
+.flex-alc {
+  align-items: center;
+}
+.flex-als {
+  align-items: flex-start;
+}
+.flex-ale {
+  align-items: flex-end;
+}
+.flex-jcc {
+  justify-content: center;
+}
+.flex-jcs {
+  justify-content: flex-start;
+}
+.flex-jce {
+  justify-content: flex-end;
+}
+.flex-jcsa {
+  justify-content: space-around;
+}
+.flex-jcsb {
+  justify-content: space-between;
+}
