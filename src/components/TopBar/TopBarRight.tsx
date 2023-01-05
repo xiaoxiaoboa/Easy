@@ -7,7 +7,7 @@ import { BsFillChatDotsFill } from "react-icons/bs"
 const TopBarRight = () => {
   return (
     <Container className="flex flex-rr flex-alc flex-jce">
-      <Avatar />
+      <Avatar size="44"/>
       <TopBarRightButton handleFun={() => {}}>
         <MdNotificationsActive size="22" />
       </TopBarRightButton>
@@ -41,7 +41,7 @@ interface TopBarRightButtonProps {
 const TopBarRightButton: React.FC<TopBarRightButtonProps> = props => {
   const { children, handleFun, br, w, h } = props
   return (
-    <TopBarRightButtonContainer className="flex flex-alc flex-jcc">
+    <TopBarRightButtonContainer className="flex flex-alc flex-jcc click">
       <ButtonWrapper
         className="flex flex-alc flex-jcc"
         onClick={handleFun}
@@ -57,10 +57,6 @@ const TopBarRightButton: React.FC<TopBarRightButtonProps> = props => {
 }
 const TopBarRightButtonContainer = styled.div`
   position: relative;
-
-  &:active {
-    transform: scale(0.95);
-  }
 `
 interface ButtonWrapperProps {
   w?: string
@@ -71,7 +67,7 @@ const ButtonWrapper = styled.div<ButtonWrapperProps>`
   width: ${props => (props.w ? props.w : "42")}px;
   height: ${props => (props.h ? props.h : "42")}px;
   border-radius: ${props => (props.br ? props.br : "50%")};
-  background-color: #d8dadf;
+  background-color: ${props => props.theme.colors.nav_btn_bgcolor};
   cursor: pointer;
   transform-origin: center center;
 

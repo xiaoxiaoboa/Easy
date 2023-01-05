@@ -76,7 +76,7 @@ const Container = styled.div<ContainerStyleProps>`
     top: 6px;
 
     &:hover {
-      background-color: ${props => props.theme.colors.nav_middlehover};
+      background-color: ${props => props.theme.colors.hovercolor};
     }
   }
 `

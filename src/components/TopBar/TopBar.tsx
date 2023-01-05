@@ -22,6 +22,7 @@ const Nav = styled.nav`
   top: 0;
   width: 100%;
   height: 60px;
+  z-index: 1;
   background-color: ${props => props.theme.colors.nav_bg};
   box-shadow: ${props => props.theme.colors.nav_shadow};
 `

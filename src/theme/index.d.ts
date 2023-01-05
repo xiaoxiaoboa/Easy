@@ -6,13 +6,30 @@ declare module "styled-components" {
       color_scheme: string
 
       primary: string
+
+      hovercolor: string
+
       nav_bg: string
       nav_icon: string
       nav_shadow: string
       nav_left_shadow: string
       nav_left_close: string
       nav_inputbg: string
-      nav_middlehover: string
+      nav_btn_bgcolor: string
+
+      bgcolor: string
+
+      inputbtn_color: string
+      inputbtn_bg: string
+      inputbtn_hoverbg: string
+
+      fd_boxshadow: string
+      fd_toplightcolor: string
+      fd_cardfuncolor: string
+      fd_divisioncolor:string
+    }
+    icon: {
+      icons: string
     }
   }
 }
