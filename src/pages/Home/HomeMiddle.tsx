@@ -16,7 +16,6 @@ const HomeMiddle = () => {
       <Wrapper className="flex-c flex-alc">
         <Publish />
         <FeedCard />
-        <FeedCard />
       </Wrapper>
     </Container>
   )
@@ -182,7 +181,7 @@ const CardTop = styled.div`
   }
   & .cardtimestamp {
     font-size: 12px;
-    color: ${porps => porps.theme.colors.fd_toplightcolor};
+    color: ${porps => porps.theme.colors.secondary};
   }
   & .cardfun {
     border-radius: 50%;
@@ -195,7 +194,7 @@ const CardTop = styled.div`
     }
 
     & .FiMoreHorizontal {
-      color: ${porps => porps.theme.colors.fd_cardfuncolor};
+      color: ${porps => porps.theme.colors.secondary};
     }
   }
 `
@@ -244,7 +243,7 @@ const CardFunContainer = styled.div`
     padding: 6px 0;
     cursor: pointer;
     border-radius: 6px;
-    color: ${props => props.theme.colors.fd_cardfuncolor};
+    color: ${props => props.theme.colors.secondary};
 
     &:hover {
       background-color: ${props => props.theme.colors.hovercolor};
@@ -265,10 +264,14 @@ const Comment = () => {
   const [comments, setComment] = React.useState<string[]>([])
   const inputRef = React.useRef<HTMLDivElement>(null)
   const commentsRef = React.useRef<HTMLDivElement>(null)
+  const placeholderRef = React.useRef<HTMLSpanElement>(null)
+  const inputedValueRef = React.useRef<string>("")
 
   /* 输入表情 */
   const emojiInput = (clickData: EmojiClickData) => {
     if (inputRef.current) {
+      inputedValueRef.current += clickData.emoji
+      isShowPlaceHolder()
       inputRef.current.insertAdjacentText("beforeend", clickData.emoji)
       inputRef.current.focus()
 
@@ -278,12 +281,20 @@ const Comment = () => {
       range?.collapseToEnd()
     }
   }
-  /* 输入评论 */
-  const textInput: React.KeyboardEventHandler<HTMLDivElement> = e => {
+  /* 输入评论 onInput */
+  const text_input: React.FormEventHandler<HTMLDivElement> = e => {
+    const text: string = e.currentTarget.innerText
+    inputedValueRef.current = text
+    isShowPlaceHolder()
+  }
+  /* onkeyDown */
+  const text_keyDown: React.KeyboardEventHandler<HTMLDivElement> = e => {
+    const text = e.currentTarget.innerText.trim()
     if (e.key === "Enter" && !e.shiftKey) {
       /* 回车键发送 */
       e.preventDefault()
-      const text: string = e.currentTarget.innerHTML.trim()
+      if (text === "") return
+      console.log(inputedValueRef.current)
     }
   }
   /* 展开评论 */
@@ -291,13 +302,20 @@ const Comment = () => {
     commentsRef.current?.classList.add("unfold")
     e.currentTarget.style.display = "none"
   }
+  /* 控制placeholder显示 */
+  const isShowPlaceHolder = () => {
+    /* 有输入时，placeholder隐藏；否则显示*/
+    if (inputedValueRef.current === "") {
+      placeholderRef.current?.classList.remove("inputting")
+    } else {
+      placeholderRef.current?.classList.add("inputting")
+    }
+  }
 
   return (
     <CommentContainer>
       <CommentWrapper className="flex-c">
-        <p className="unfoldNotice" onClick={handleClickUnfold}>
-          查看剩余2条评论
-        </p>
+        <p onClick={handleClickUnfold}>查看剩余2条评论</p>
         <Comments className="flex-c" ref={commentsRef}>
           <AComment className="flex">
             <div className="avatar">
@@ -339,9 +357,11 @@ const Comment = () => {
               className="divinput"
               contentEditable
               suppressContentEditableWarning
-              onKeyDown={textInput}
+              onInput={text_input}
+              onKeyDown={text_keyDown}
               ref={inputRef}
             ></div>
+            <span ref={placeholderRef}>写下你的评论把~</span>
             <Emoji onEmojiClick={emojiInput} />
           </CommentInput>
         </WriteComment>
@@ -354,9 +374,9 @@ const CommentContainer = styled.div``
 const CommentWrapper = styled.div`
   padding: 0 15px;
 
-  & .unfoldNotice {
+  & > p {
     cursor: pointer;
-    color: ${props => props.theme.colors.fd_cardfuncolor};
+    color: ${props => props.theme.colors.secondary};
     &:hover {
       text-decoration: underline;
     }
@@ -375,6 +395,7 @@ const CommentInput = styled.div`
   outline: none;
   white-space: pre-wrap;
   word-break: break-all;
+  position: relative;
 
   & .divinput {
     width: 100%;
@@ -383,10 +404,13 @@ const CommentInput = styled.div`
     padding: 8px 0 8px 6px;
     font-size: 14px;
   }
-  & .emoj {
-    & .BiWinkSmile {
-      cursor: pointer;
-      color: ${props => props.theme.colors.fd_cardfuncolor};
+
+  & > span {
+    position: absolute;
+    left: 14px;
+
+    &.inputting {
+      display: none;
     }
   }
 `
@@ -433,16 +457,12 @@ const AComment = styled.div`
       cursor: pointer;
       transform: scale(0);
 
-      /* &:active {
-        transform: scale(0.9);
-      } */
-
       &:hover {
         background-color: ${props => props.theme.colors.inputbtn_bg};
       }
 
       & .MdDeleteForever {
-        color: ${props => props.theme.colors.fd_cardfuncolor};
+        color: ${props => props.theme.colors.secondary};
       }
     }
   }

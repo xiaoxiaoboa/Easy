@@ -6,6 +6,7 @@ export const lightTheme: DefaultTheme = {
     color_scheme: "light",
 
     primary: "#2374e1",
+    secondary: "#65676b",
 
     hovercolor: "#cccccc40",
 
@@ -24,8 +25,6 @@ export const lightTheme: DefaultTheme = {
     inputbtn_hoverbg: "#ededed",
 
     fd_boxshadow: "0 1px 2px rgba(0, 0, 0, 0.2)",
-    fd_toplightcolor: "#706b6b",
-    fd_cardfuncolor: "#65676b",
     fd_divisioncolor: "#e3e3e3"
   },
   icon: {
@@ -38,6 +37,7 @@ export const darkTheme: DefaultTheme = {
     color_scheme: "dark",
 
     primary: "#2374e1",
+    secondary: "",
 
     hovercolor: "",
 
@@ -56,8 +56,6 @@ export const darkTheme: DefaultTheme = {
     inputbtn_hoverbg: "",
 
     fd_boxshadow: "",
-    fd_toplightcolor: "",
-    fd_cardfuncolor: "",
     fd_divisioncolor: ""
   },
   icon: {

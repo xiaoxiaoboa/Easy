@@ -80,7 +80,7 @@ const Container = styled.div`
   cursor: pointer;
   position: relative;
   & .BiWinkSmile {
-    color: ${props => props.theme.colors.fd_cardfuncolor};
+    color: ${props => props.theme.colors.secondary};
   }
 `
 

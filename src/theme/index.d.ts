@@ -6,6 +6,7 @@ declare module "styled-components" {
       color_scheme: string
 
       primary: string
+      secondary:string
 
       hovercolor: string
 
@@ -24,8 +25,6 @@ declare module "styled-components" {
       inputbtn_hoverbg: string
 
       fd_boxshadow: string
-      fd_toplightcolor: string
-      fd_cardfuncolor: string
       fd_divisioncolor:string
     }
     icon: {
