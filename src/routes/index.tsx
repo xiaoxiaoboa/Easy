@@ -1,6 +1,6 @@
 import { useRoutes } from "react-router-dom"
 import Friends from "../pages/Friends/Friends"
-import Home from "../pages/Home/Home"
+import Home from "../pages/Home"
 
 const Routes = () => {
   const routes = useRoutes([

@@ -18,5 +18,5 @@ export default Home
 
 /* styled */
 const Container = styled.div`
-  position:relative;
+  /* position:relative; */
 `
