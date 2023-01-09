@@ -4,7 +4,7 @@ import { BiWinkSmile } from "react-icons/bi"
 import EmojiPicker, { Theme, EmojiStyle, EmojiClickData } from "emoji-picker-react"
 
 interface Props {
-  onEmojiClick: (clickData: EmojiClickData) => void
+  onEmojiClick: (emoji: EmojiClickData) => void
 }
 
 const Emoji: React.FC<Props> = props => {
@@ -14,7 +14,8 @@ const Emoji: React.FC<Props> = props => {
   let timer: number = 0
 
   /* 点击表情图标时触发 */
-  const handleClickEmojiIcon = () => {
+  const handleClickEmojiIcon: React.MouseEventHandler<HTMLDivElement> = e => {
+    e.stopPropagation()
     emojiLocationCalculation()
     emjiRef.current?.classList.add("emoji_active")
   }

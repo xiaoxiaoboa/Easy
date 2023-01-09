@@ -5,6 +5,7 @@ import FeedCard from "../../components/FeedCard"
 import ImagePreview from "../../components/ImagePreview"
 import MyInput from "../../components/MyInput/MyInput"
 import Upload from "../../components/Upload"
+import { MdClear } from "react-icons/md"
 
 const HomeMiddle = () => {
   return (
@@ -33,14 +34,23 @@ const Wrapper = styled.div`
 
 /* 顶部发布卡片 */
 const Publish = () => {
+  const [open, setOpen] = React.useState<boolean>(false)
+
+  const handleOpen = () => {
+    setOpen(true)
+  }
+
   return (
-    <PublishContainer className="flex-c">
-      <PublishLayer />
+    <PublishContainer className="flex-c test">
+      {open ? <PublishLayer handleClose={setOpen} /> : <></>}
+
       <div className="top flex-r flex-jcsb">
         <div className="avatar">
           <Avatar size="40" />
         </div>
-        <div className="inputbtn flex-r flex-alc">Xiaoxin Yuan，分享你的瞬间把！</div>
+        <div className="inputbtn flex-r flex-alc" onClick={handleOpen}>
+          Xiaoxin Yuan，分享你的瞬间把！
+        </div>
       </div>
       <div className="division"></div>
       <div className="option flex-r flex-alc flex-jcc">
@@ -129,30 +139,57 @@ const PublishContainer = styled.div`
   }
 `
 
+interface PublishLayerProps {
+  handleClose: React.Dispatch<React.SetStateAction<boolean>>
+}
 interface refProps {
   clickToFocus: () => void
+  inputValue: () => string
 }
-const PublishLayer = () => {
+
+const PublishLayer: React.FC<PublishLayerProps> = props => {
+  const { handleClose } = props
   const [files, setFiles] = React.useState<File[]>([])
   /* 子组件MyInput的ref */
   const ref = React.useRef<refProps>(null)
+
   /* 控制子组件input，在点击空白时聚焦到input */
   const handleClick: React.MouseEventHandler<HTMLDivElement> = e => {
     ref.current?.clickToFocus()
   }
 
+  /* 上传图片或视频 */
   const handleChange: React.ChangeEventHandler<HTMLInputElement> = e => {
     const newFiles = e.target.files
     if (newFiles) setFiles(prev => [...prev, ...newFiles])
   }
 
+  /* 发布 */
   const handleCommit = () => {
+    if (files.length < 1 && ref.current?.inputValue().trim() === "") return
     console.log(files)
+    console.log(ref.current?.inputValue())
+  }
+
+  /* 删除files列表中的某一项 */
+  const handleDeleteItem = React.useCallback(
+    (target: File) => {
+      const newFiles = files.filter(file => file !== target)
+      setFiles(newFiles)
+    },
+    [files]
+  )
+
+  const handleCloseSelf = () => {
+    handleClose(false)
   }
 
   return (
     <PublishLayerContainer className="flex-r flex-alc flex-jcc">
       <PublishLayerWrapper className="flex-c">
+        <ClosePublishLayer className="flex flex-alc click" onClick={handleCloseSelf}>
+          <MdClear size={22} />
+        </ClosePublishLayer>
         <div className="flex-r flex-jcc">
           <h3>创建瞬间</h3>
         </div>
@@ -182,7 +219,7 @@ const PublishLayer = () => {
 
       {files.length ? (
         <FilesPreview>
-          <ImagePreview images={files} />
+          <ImagePreview files={files} handleDeleteItem={handleDeleteItem} />
         </FilesPreview>
       ) : (
         <></>
@@ -201,15 +238,27 @@ const PublishLayerContainer = styled.div`
   z-index: 2;
 `
 const PublishLayerWrapper = styled.div`
+  position: relative;
   background-color: white;
   width: 500px;
   padding: 20px;
   overflow: hidden;
   gap: 10px;
   border-radius: 10px;
+  box-shadow: 0px 0px 8px 4px rgba(0, 0, 0, 0.18);
+`
+const ClosePublishLayer = styled.div`
+  position: absolute;
+  top: 12px;
+  right: 26px;
+  padding: 8px;
+  border-radius: 50%;
+  cursor: pointer;
+  background-color: ${props => props.theme.colors.nav_btn_bgcolor};
 `
 const PublishLayerMain = styled.div`
   flex: 1;
+  gap: 6px;
 `
 const UserInfo = styled.div`
   gap: 10px;

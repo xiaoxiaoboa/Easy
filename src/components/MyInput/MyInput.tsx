@@ -13,15 +13,15 @@ const MyInput = React.forwardRef((props: Props, ref) => {
   const placeholderRef = React.useRef<HTMLSpanElement>(null)
   const inputRef = React.useRef<HTMLDivElement>(null)
   const inputedValueRef = React.useRef<string>("")
+  const cursorRange = React.useRef<Range | null>(null)
 
   /* 使父组件可以拿到输入框的ref */
   React.useImperativeHandle(
     ref,
     () => {
       return {
-        clickToFocus() {
-          inputRef.current?.focus()
-        }
+        clickToFocus: () => inputRef.current?.focus(),
+        inputValue: (): string => inputedValueRef.current
       }
     },
     []
@@ -30,35 +30,46 @@ const MyInput = React.forwardRef((props: Props, ref) => {
   /* 输入表情 */
   const emojiInput = (clickData: EmojiClickData) => {
     if (inputRef.current) {
-      inputedValueRef.current += clickData.emoji
-      isShowPlaceHolder()
-      inputRef.current.insertAdjacentText("beforeend", clickData.emoji)
-      inputRef.current.focus()
-
-      /* 将光标移动至文本最后 */
+      /* 获取一个 Selection 对象，表示用户选择的文本范围或光标的当前位置 */
       const range = document.getSelection()
-      range?.selectAllChildren(inputRef.current)
-      range?.collapseToEnd()
+      /* 创建一个node */
+      const textNode = document.createTextNode(clickData.emoji)
+      /* 创建一个新range对象 */
+      const newRange = document.createRange()
+      /* 将node插入到光标位置 */
+      cursorRange.current?.insertNode(textNode)
+      /* 将某个node包裹 */
+      newRange.selectNodeContents(textNode)
+      /* 光标移动至node末尾，true为开头 */
+      newRange.collapse(false)
+      range?.removeAllRanges()
+      range?.addRange(newRange)
+
+      /* 缓存一下光标位置 */
+      handleCursorRange()
+      /* 文本框内的文本缓存起来 */
+      inputedValueRef.current = inputRef.current.innerText
+      isShowPlaceHolder()
     }
   }
-  /* 输入评论 onInput */
+  /* 输入 onInput */
   const text_input: React.FormEventHandler<HTMLDivElement> = e => {
     const text: string = e.currentTarget.innerText
     inputedValueRef.current = text
     isShowPlaceHolder()
+    handleCursorRange()
   }
   /* onkeyDown */
   const text_keyDown: React.KeyboardEventHandler<HTMLDivElement> = e => {
+    handleCursorRange()
     const text = inputRef.current?.innerText
     if (e.key === "Enter" && !e.shiftKey) {
       /* 回车键发送 */
       e.preventDefault()
       if (text === "") return
-      const newComment = {
-        id: nanoid(),
-        content: text
-      }
       e.currentTarget.innerHTML = ""
+      inputedValueRef.current = ""
+      isShowPlaceHolder()
     }
   }
   /* 控制placeholder显示 */
@@ -71,6 +82,12 @@ const MyInput = React.forwardRef((props: Props, ref) => {
     }
   }
 
+  /* 缓存光标位置 */
+  const handleCursorRange = () => {
+    const range = document.getSelection()
+    const rangeIndex = range?.getRangeAt(0)
+    cursorRange.current = rangeIndex!
+  }
   return (
     <Container className="flex-r flex-jce flex-alc">
       <EditableElement
@@ -79,6 +96,7 @@ const MyInput = React.forwardRef((props: Props, ref) => {
         onInput={text_input}
         onKeyDown={text_keyDown}
         ref={inputRef}
+        onClick={handleCursorRange}
       ></EditableElement>
       <PlaceHolder ref={placeholderRef}>{placeholder}</PlaceHolder>
       <Emoji onEmojiClick={emojiInput} />
@@ -113,6 +131,7 @@ const PlaceHolder = styled.span`
   left: 14px;
   z-index: 0;
   color: ${props => props.theme.colors.secondary};
+  user-select: none;
 
   &.inputting {
     display: none;

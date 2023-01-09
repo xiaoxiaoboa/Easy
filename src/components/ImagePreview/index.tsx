@@ -3,58 +3,71 @@ import { PhotoProvider, PhotoView } from "react-photo-view"
 import styled from "styled-components"
 import "react-photo-view/dist/react-photo-view.css"
 import { nanoid } from "nanoid"
+import { MdClear } from "react-icons/md"
 
 interface Props {
-  images: File[]
+  files: File[]
+  handleDeleteItem: (target: File) => void
 }
 
 const ImagePreview: React.FC<Props> = props => {
-  const { images } = props
+  const { files, handleDeleteItem } = props
 
   return (
     <PhotoProvider>
       <FilesPreview className="flex-c">
-        {images.map(image =>
-          image.type.includes("image") ? (
-            <PhotoView key={nanoid()} src={URL.createObjectURL(image)}>
-              <FileWrapper className="flex-c flex-alc">
-                <img src={URL.createObjectURL(image)} title="点击预览" />
-                <span>{image.name}</span>
-              </FileWrapper>
-            </PhotoView>
+        {files.map(file =>
+          file.type.includes("image") ? (
+            <FileWrapper key={nanoid()} className="flex-c flex-alc">
+              <PhotoView src={URL.createObjectURL(file)}>
+                <img src={URL.createObjectURL(file)} title="点击预览" />
+              </PhotoView>
+              <span>{file.name}</span>
+              <span
+                className="flex flex-alc deleteimg click"
+                onClick={() => handleDeleteItem(file)}
+              >
+                <MdClear size={22} />
+              </span>
+            </FileWrapper>
           ) : (
-            <PhotoView
-              key={nanoid()}
-              width={1000}
-              height={500}
-              render={({ scale, attrs }) => {
-                const width = attrs.style?.width as number
-                const offset = (width - 1000) / 1000
-                const childScale = scale === 1 ? scale + offset : 1 + offset
-                return (
-                  <div {...attrs}>
-                    <div
-                      style={{
-                        transform: `scale(${childScale})`,
-                        width: 1000,
-                        transformOrigin: "0 0"
-                      }}
-                    >
-                      <video
-                        controls
-                        src={URL.createObjectURL(image)}
-                        style={{ width: "100%" }}
-                      ></video>
+            <FileWrapper key={nanoid()} className="flex-c flex-alc">
+              <PhotoView
+                width={1000}
+                height={500}
+                render={({ scale, attrs }) => {
+                  const width = attrs.style?.width as number
+                  const offset = (width - 1000) / 1000
+                  const childScale = scale === 1 ? scale + offset : 1 + offset
+                  return (
+                    <div {...attrs}>
+                      <div
+                        style={{
+                          transform: `scale(${childScale})`,
+                          width: 1000,
+                          transformOrigin: "0 0"
+                        }}
+                      >
+                        <video
+                          controls
+                          src={URL.createObjectURL(file)}
+                          style={{ width: "100%" }}
+                        ></video>
+                      </div>
                     </div>
-                  </div>
-                )
-              }}
-            >
-              <FileWrapper className="flex-c flex-alc">
-                <video src={URL.createObjectURL(image)}></video>
-                <span>{image.name}</span>
-              </FileWrapper>
-            </PhotoView>
+                  )
+                }}
+              >
+                <video src={URL.createObjectURL(file)}></video>
+              </PhotoView>
+              <span>{file.name}</span>
+              <span
+                className="flex flex-alc deleteimg click"
+                onClick={() => handleDeleteItem(file)}
+              >
+                <MdClear size={22} />
+              </span>
+            </FileWrapper>
           )
         )}
       </FilesPreview>
@@ -69,11 +82,29 @@ const FilesPreview = styled.div`
 `
 
 const FileWrapper = styled.div`
+  position: relative;
+  gap: 4px;
   & img,
   & video {
     width: 300px;
     max-height: 200px;
     object-fit: cover;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  &:hover .deleteimg {
+    display: flex;
+  }
+
+  & .deleteimg {
+    display: none;
+    padding: 8px;
+    background-color: white;
+    border-radius: 50%;
+    position: absolute;
+    top: 10px;
+    right: 18px;
     cursor: pointer;
   }
 `
