@@ -11,7 +11,7 @@ const HomeLeft = () => {
       <Wrapper className="flex">
         <Ul className="flex-c">
           <Li>
-            <MyLink to="#" icon={<Avatar size="40" />} text="Xiaoxin Yuan" />
+            <MyLink to="profile" icon={<Avatar size="40" isOnline />} text="Xiaoxin Yuan" />
           </Li>
           <Li>
             <MyLink to="#" classname="friends" text="搜索好友" />

@@ -10,6 +10,7 @@ declare module "styled-components" {
 
       hovercolor: string
 
+
       nav_bg: string
       nav_icon: string
       nav_shadow: string
@@ -26,6 +27,8 @@ declare module "styled-components" {
 
       fd_boxshadow: string
       fd_divisioncolor:string
+
+      profile_cardbg:string
     }
     icon: {
       icons: string

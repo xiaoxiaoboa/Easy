@@ -25,7 +25,9 @@ export const lightTheme: DefaultTheme = {
     inputbtn_hoverbg: "#ededed",
 
     fd_boxshadow: "0 1px 2px rgba(0, 0, 0, 0.2)",
-    fd_divisioncolor: "#e3e3e3"
+    fd_divisioncolor: "#e3e3e3",
+
+    profile_cardbg: "#FFFFFF"
   },
   icon: {
     icons: `${icons}`
@@ -56,7 +58,8 @@ export const darkTheme: DefaultTheme = {
     inputbtn_hoverbg: "",
 
     fd_boxshadow: "",
-    fd_divisioncolor: ""
+    fd_divisioncolor: "",
+    profile_cardbg: ""
   },
   icon: {
     icons: ""
@@ -80,7 +83,11 @@ export const GlobalStyle = createGlobalStyle`
       transform: translateY(-3px);
     }
 
-    & .home:hover, & .friends:hover {
+    & .home:hover, 
+    & .friends:hover,
+    & .mymoment:hover,
+    & .myphoto:hover,
+    & .myvideo:hover{
         background-color: unset !important;
     }
   }

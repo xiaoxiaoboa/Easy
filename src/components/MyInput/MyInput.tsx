@@ -29,7 +29,7 @@ const MyInput = React.forwardRef((props: Props, ref) => {
 
   /* 输入表情 */
   const emojiInput = (clickData: EmojiClickData) => {
-    if (inputRef.current) {
+    if (inputRef.current && cursorRange.current) {
       /* 获取一个 Selection 对象，表示用户选择的文本范围或光标的当前位置 */
       const range = document.getSelection()
       /* 创建一个node */

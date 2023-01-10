@@ -58,7 +58,7 @@ const CardTop = styled.div`
   }
   & .carduser {
     font-size: 14px;
-    font-weight: 500;
+    /* font-weight: 500; */
   }
   & .cardtimestamp {
     font-size: 12px;
@@ -145,55 +145,7 @@ const CardFunContainer = styled.div`
 type commentType = { id: string; content: string }
 const Comment = () => {
   const [comments, setComment] = React.useState<commentType[]>([])
-  const inputRef = React.useRef<HTMLDivElement>(null)
   const commentsRef = React.useRef<HTMLDivElement>(null)
-  const placeholderRef = React.useRef<HTMLSpanElement>(null)
-  const inputedValueRef = React.useRef<string>("")
-
-  /* 输入表情 */
-  const emojiInput = (clickData: EmojiClickData) => {
-    if (inputRef.current) {
-      inputedValueRef.current += clickData.emoji
-      isShowPlaceHolder()
-      inputRef.current.insertAdjacentText("beforeend", clickData.emoji)
-      inputRef.current.focus()
-
-      /* 将光标移动至文本最后 */
-      const range = document.getSelection()
-      range?.selectAllChildren(inputRef.current)
-      range?.collapseToEnd()
-    }
-  }
-  /* 输入评论 onInput */
-  const text_input: React.FormEventHandler<HTMLDivElement> = e => {
-    const text: string = e.currentTarget.innerText
-    inputedValueRef.current = text
-    isShowPlaceHolder()
-  }
-  /* onkeyDown */
-  const text_keyDown: React.KeyboardEventHandler<HTMLDivElement> = e => {
-    const text = e.currentTarget.innerText.trim()
-    if (e.key === "Enter" && !e.shiftKey) {
-      /* 回车键发送 */
-      e.preventDefault()
-      if (text === "") return
-      const newComment = {
-        id: nanoid(),
-        content: text
-      }
-      setComment(prev => [...prev, newComment])
-      e.currentTarget.innerHTML = ""
-    }
-  }
-  /* 控制placeholder显示 */
-  const isShowPlaceHolder = () => {
-    /* 有输入时，placeholder隐藏；否则显示*/
-    if (inputedValueRef.current === "") {
-      placeholderRef.current?.classList.remove("inputting")
-    } else {
-      placeholderRef.current?.classList.add("inputting")
-    }
-  }
 
   return (
     <CommentContainer>
@@ -220,16 +172,6 @@ const Comment = () => {
         <WriteComment className="flex-r flex-alc">
           <Avatar size="32" />
           <CommentInput className="flex-r flex-jce flex-alc">
-            {/* <div
-              className="divinput"
-              contentEditable
-              suppressContentEditableWarning
-              onInput={text_input}
-              onKeyDown={text_keyDown}
-              ref={inputRef}
-            ></div>
-            <span ref={placeholderRef}>写下你的评论把~</span>
-            <Emoji onEmojiClick={emojiInput} /> */}
             <MyInput placeholder="写下你的评论把~" />
           </CommentInput>
         </WriteComment>
@@ -255,32 +197,9 @@ const WriteComment = styled.div`
   padding: 6px 0;
 `
 const CommentInput = styled.div`
-  /* gap: 10px; */
   background-color: ${props => props.theme.colors.inputbtn_bg};
-  /* padding: 0 8px; */
   border-radius: 22px;
   flex: 1;
-  /* outline: none;
-  white-space: pre-wrap;
-  word-break: break-all;
-  position: relative; */
-
-  & .divinput {
-    width: 100%;
-    line-height: 20px;
-    outline: none;
-    padding: 8px 0 8px 6px;
-    font-size: 14px;
-  }
-
-  & > span {
-    position: absolute;
-    left: 14px;
-
-    &.inputting {
-      display: none;
-    }
-  }
 `
 const Comments = styled.div`
   width: max-content;

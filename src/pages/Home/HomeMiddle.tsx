@@ -146,7 +146,6 @@ interface refProps {
   clickToFocus: () => void
   inputValue: () => string
 }
-
 const PublishLayer: React.FC<PublishLayerProps> = props => {
   const { handleClose } = props
   const [files, setFiles] = React.useState<File[]>([])
