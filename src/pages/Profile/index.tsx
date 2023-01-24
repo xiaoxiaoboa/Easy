@@ -129,10 +129,23 @@ const HeadContainer = styled.div`
 
 const Background = styled.div`
   position: relative;
+  width: 1100px;
+  height: 400px;
+
+  @media (max-width: 770px) {
+    height: 300px;
+  }
+  @media (max-width: 1100px) {
+    width: 100%;
+  }
+  @media (min-width: 1900px) {
+    height: 500px;
+    width: 1400px;
+  }
 
   & .bgwrapper {
-    width: 1100px;
-    height: 400px;
+    width: 100%;
+    height: 100%;
     border-bottom-left-radius: 10px;
     border-bottom-right-radius: 10px;
     overflow: hidden;
@@ -175,7 +188,7 @@ const UserInfo = styled.div`
   position: absolute;
   width: 100%;
   bottom: -108px;
-  padding: 0 60px;
+  padding: 0 24px;
   gap: 10px;
 
   & span {
