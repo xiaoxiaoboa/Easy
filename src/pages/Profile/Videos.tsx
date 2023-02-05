@@ -1,7 +1,9 @@
-import React from 'react'
+import React from "react"
+import { PhotosAndVideos } from "./Photos"
+import vae from "../../assets/Vae.mp4"
 
 const Videos = () => {
-  return <div>Videos</div>
+  return <PhotosAndVideos type="video" data={[vae]} />
 }
 
 export default Videos

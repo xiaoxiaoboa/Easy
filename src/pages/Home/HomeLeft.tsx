@@ -11,19 +11,23 @@ const HomeLeft = () => {
       <Wrapper className="flex">
         <Ul className="flex-c">
           <Li>
-            <MyLink to="profile" icon={<Avatar size="40" isOnline />} text="Xiaoxin Yuan" />
+            <MyLink
+              to="profile"
+              icon={<Avatar size="40" isOnline />}
+              text="Xiaoxin Yuan"
+            />
           </Li>
           <Li>
-            <MyLink to="#" classname="friends" text="搜索好友" />
+            <MyLink to="friends/list" classname="friends" text="搜索好友" />
           </Li>
           <Li>
-            <MyLink to="#" classname="favorite" text="收藏夹" />
+            <MyLink to="friends/favorites" classname="favorite" text="收藏夹" />
           </Li>
           <Li>
             <MyLink to="#" classname="message" text="Message" />
           </Li>
           <Li>
-            <MyLink to="#" classname="star" text="特别关注" />
+            <MyLink to="friends/liked" classname="star" text="特别关注" />
           </Li>
         </Ul>
       </Wrapper>

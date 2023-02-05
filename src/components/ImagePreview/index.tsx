@@ -10,12 +10,13 @@ interface Props {
   handleDeleteItem: (target: File) => void
 }
 
-const ImagePreview: React.FC<Props> = props => {
+const ImagePreview = React.forwardRef((props: Props, ref) => {
   const { files, handleDeleteItem } = props
+  const videoRef = React.useRef<HTMLDivElement>(null)
 
   return (
     <PhotoProvider>
-      <FilesPreview className="flex-c">
+      <FilesPreview className="flex-c" ref={videoRef}>
         {files.map(file =>
           file.type.includes("image") ? (
             <FileWrapper key={nanoid()} className="flex-c flex-alc">
@@ -73,9 +74,9 @@ const ImagePreview: React.FC<Props> = props => {
       </FilesPreview>
     </PhotoProvider>
   )
-}
+})
 
-export default React.memo(ImagePreview)
+export default ImagePreview
 
 const FilesPreview = styled.div`
   gap: 10px;

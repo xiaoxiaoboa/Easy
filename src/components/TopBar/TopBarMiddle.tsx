@@ -7,7 +7,11 @@ import styled from "styled-components"
 const TopBarMiddle = () => {
   const location = useLocation()
   const isHome = React.useMemo(() => location.pathname === "/", [location])
-  const isFriends = React.useMemo(() => location.pathname === "/friends", [location])
+  const isFriends = React.useMemo(
+    () => location.pathname.includes("/friends"),
+    [location]
+  )
+
   return (
     <Container className="flex flex-alc flex-jcc" isHome={isHome} isFriends={isFriends}>
       <div className="nav-btn flex-r flex-alc">

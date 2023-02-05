@@ -13,7 +13,6 @@ const Profile = () => {
     <Container>
       <Wrapper className="flex-c">
         <Head />
-
         <Outlet />
       </Wrapper>
     </Container>

@@ -1,17 +1,33 @@
 import React from "react"
 import styled from "styled-components"
-import bg from "../../assets/bg.jpg"
-import bg2 from "../../assets/temp.jpg"
-
-const imgAmount = 8
+import { PhotoProvider, PhotoView } from "react-photo-view"
+import { nanoid } from "nanoid"
 
 const Photos = () => {
+  return (
+    <PhotosAndVideos
+      type="photo"
+      data={[
+        "https://scontent-hkt1-2.xx.fbcdn.net/v/t39.30808-6/322331050_6370853882927898_3277033179577228949_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=19026a&_nc_ohc=VI-mN7BpYkcAX_nRbLu&tn=0O5GBqUNjW9LQkLS&_nc_ht=scontent-hkt1-2.xx&oh=00_AfDtSrr6RzsTL7nMZw323O-MKTBzWqD_xkMGirMzrgVYuw&oe=63DBC766"
+      ]}
+    />
+  )
+}
+
+export default Photos
+
+interface PhotosAndVideosProps {
+  type: "photo" | "video"
+  data: string[]
+}
+export const PhotosAndVideos: React.FC<PhotosAndVideosProps> = props => {
+  const { type, data } = props
   const contentsRef = React.useRef<HTMLDivElement>(null)
   const imgWrapperRef = React.useRef<HTMLDivElement>(null)
 
   React.useEffect(() => {
     generateElement()
-    
+
     let timer = -1
     window.onresize = () => {
       clearTimeout(timer)
@@ -30,7 +46,7 @@ const Photos = () => {
     /* 每行可以放进几张照片 */
     const perLineAmount = Math.floor(contentClientWidth / imgClientWidth)
     /* 最后一行多出来几张照片 */
-    const lastLineSurPlusImgAmount = Math.floor(imgAmount % perLineAmount)
+    const lastLineSurPlusImgAmount = Math.floor(data.length % perLineAmount)
 
     if (lastLineSurPlusImgAmount > 0) {
       /* 每行的数量 - 多出来的数量 = 需要补的空白的数量 */
@@ -66,51 +82,62 @@ const Photos = () => {
       }
     }
   }
-
   return (
-    <Container className="flex flex-jcc">
-      <Wrapper className="flex-c">
-        <h3>你的照片</h3>
-        <Contents ref={contentsRef} className="flex flex-alc">
-          <div ref={imgWrapperRef} className="flex">
-            <img src={bg} alt="" />
-          </div>
-          <div className="flex">
-            <img src={bg2} alt="" />
-          </div>
-          <div className="flex">
-            <img src={bg} alt="" />
-          </div>
-          <div className="flex">
-            <img src={bg} alt="" />
-          </div>
-          <div className="flex">
-            <img src={bg} alt="" />
-          </div>
-          <div className="flex">
-            <img src={bg} alt="" />
-          </div>
-          <div className="flex">
-            <img src={bg2} alt="" />
-          </div>
-          <div className="flex">
-            <img src={bg} alt="" />
-          </div>
-        </Contents>
-      </Wrapper>
-    </Container>
+    <PhotoProvider>
+      <Container className="flex flex-jcc">
+        <Wrapper className="flex-c">
+          <h3>{type === "photo" ? "你的照片" : "你的视频"}</h3>
+          <Contents ref={contentsRef} className="flex flex-alc">
+            {data.map(str => (
+              <div ref={imgWrapperRef} className="flex" key={nanoid()}>
+                {type === "photo" ? (
+                  <PhotoView src={str}>
+                    <img src={str} alt="" />
+                  </PhotoView>
+                ) : (
+                  <PhotoView
+                    width={1000}
+                    height={500}
+                    render={({ scale, attrs }) => {
+                      const width = attrs.style?.width as number
+                      const offset = (width - 1000) / 1000
+                      const childScale = scale === 1 ? scale + offset : 1 + offset
+                      return (
+                        <div {...attrs}>
+                          <div
+                            style={{
+                              transform: `scale(${childScale})`,
+                              width: 1000,
+                              transformOrigin: "0 0"
+                            }}
+                          >
+                            <video controls src={str} style={{ width: "100%" }}></video>
+                          </div>
+                        </div>
+                      )
+                    }}
+                  >
+                    <video  src={str} />
+                  </PhotoView>
+                )}
+              </div>
+            ))}
+          </Contents>
+        </Wrapper>
+      </Container>
+    </PhotoProvider>
   )
 }
 
-export default Photos
-
 const Container = styled.div`
   /* padding: 10px 270px; */
-  padding: 10px 0;
+  padding: 14px 0;
+  margin-bottom: 30px;
 `
 const Wrapper = styled.div`
   width: calc(1100px - 48px);
-  padding: 10px;
+  padding: 10px 20px 14px 20px;
+  gap: 10px;
   background-color: ${props => props.theme.colors.profile_cardbg};
 
   @media (max-width: 1100px) {
@@ -121,8 +148,6 @@ const Wrapper = styled.div`
   }
 `
 const Contents = styled.div`
-  /* display: grid;
-  grid-template-columns: repeat(5, 1fr); */
   flex-wrap: wrap;
 
   gap: 10px;
@@ -130,6 +155,7 @@ const Contents = styled.div`
   & div {
     flex: 1;
     min-width: 180px;
+    max-width: 220px;
     height: 190px;
     border-radius: 8px;
     overflow: hidden;
@@ -138,5 +164,6 @@ const Contents = styled.div`
   & img {
     width: 100%;
     object-fit: cover;
+    cursor: pointer;
   }
 `

@@ -142,32 +142,37 @@ const PublishContainer = styled.div`
 interface PublishLayerProps {
   handleClose: React.Dispatch<React.SetStateAction<boolean>>
 }
-interface refProps {
+interface childInputProps {
   clickToFocus: () => void
   inputValue: () => string
+}
+interface childVideoProps {
+  videoElement: () => NodeListOf<HTMLVideoElement>
 }
 const PublishLayer: React.FC<PublishLayerProps> = props => {
   const { handleClose } = props
   const [files, setFiles] = React.useState<File[]>([])
+
   /* 子组件MyInput的ref */
-  const ref = React.useRef<refProps>(null)
+  const childInputRef = React.useRef<childInputProps>(null)
 
   /* 控制子组件input，在点击空白时聚焦到input */
   const handleClick: React.MouseEventHandler<HTMLDivElement> = e => {
-    ref.current?.clickToFocus()
+    childInputRef.current?.clickToFocus()
   }
 
   /* 上传图片或视频 */
   const handleChange: React.ChangeEventHandler<HTMLInputElement> = e => {
     const newFiles = e.target.files
     if (newFiles) setFiles(prev => [...prev, ...newFiles])
+    e.target.value = ""
   }
 
   /* 发布 */
   const handleCommit = () => {
-    if (files.length < 1 && ref.current?.inputValue().trim() === "") return
+    if (files.length < 1 && childInputRef.current?.inputValue().trim() === "") return
     console.log(files)
-    console.log(ref.current?.inputValue())
+    console.log(childInputRef.current?.inputValue())
   }
 
   /* 删除files列表中的某一项 */
@@ -198,7 +203,7 @@ const PublishLayer: React.FC<PublishLayerProps> = props => {
             Xiaoxin Yuan
           </UserInfo>
           <EditableArea onClick={handleClick}>
-            <MyInput ref={ref} placeholder="Xiaoxin Yuan，分享你的瞬间把！" />
+            <MyInput ref={childInputRef} placeholder="Xiaoxin Yuan，分享你的瞬间把！" />
           </EditableArea>
         </PublishLayerMain>
         <Files className="flex">
@@ -218,7 +223,10 @@ const PublishLayer: React.FC<PublishLayerProps> = props => {
 
       {files.length ? (
         <FilesPreview>
-          <ImagePreview files={files} handleDeleteItem={handleDeleteItem} />
+          <ImagePreview
+            files={files}
+            handleDeleteItem={handleDeleteItem}
+          />
         </FilesPreview>
       ) : (
         <></>

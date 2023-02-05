@@ -23,6 +23,7 @@ const Nav = styled.nav`
   width: 100%;
   height: 60px;
   z-index: 1;
+  /* max-width:1536px; */
   background-color: ${props => props.theme.colors.nav_bg};
   box-shadow: ${props => props.theme.colors.nav_shadow};
 `
