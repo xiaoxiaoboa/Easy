@@ -1,18 +1,21 @@
 import React from "react"
 import { darkTheme, GlobalStyle, lightTheme } from "./theme"
 import { ThemeProvider as Theme } from "styled-components"
+import { MyContextProvider, MyContext } from "../context/context"
 
 interface Porps {
-  children: React.ReactElement
+  children: React.ReactNode
 }
 
 const ThemeProvider: React.FC<Porps> = ({ children }): React.ReactElement => {
-  const [mode, setMode] = React.useState<string>("light")
+  const { state } = React.useContext(MyContext)
   return (
-    <Theme theme={mode === "light" ? lightTheme : darkTheme}>
-      <GlobalStyle />
-      {children}
-    </Theme>
+    <MyContextProvider>
+      <Theme theme={state.theme === "light" ? lightTheme : darkTheme}>
+        <GlobalStyle />
+        {children}
+      </Theme>
+    </MyContextProvider>
   )
 }
 
