@@ -1,6 +1,6 @@
 import React from "react"
 import styled from "styled-components"
-import avatar from "../../assets/avatar.jpg"
+import avatar from "../../assets/avatar2.png"
 
 interface AvatarProps {
   size: string
@@ -32,6 +32,7 @@ const Wrapper = styled.div<WrapperPorps>`
   border-radius: 50%;
   overflow: hidden;
   cursor: pointer;
+  border:1px solid #ccc;
 
   & img {
     width: ${props => props.size}px;

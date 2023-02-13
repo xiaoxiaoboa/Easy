@@ -21,21 +21,17 @@ const useRequested = (): useRequested => {
 
   /* 登录响应 */
   const signInResponse = (params: ResponseType<unknown>) => {
-    const { code, message } = params
-    if (code === 0) {
-      openSnackbar(message, duration)
-      setLoading(false)
-      return
-    }
-    setLoading(false)
-    openSnackbar(message, duration)
-    navigate("/")
+    requestedOpt(params, () => navigate("/"))
   }
   /* 注册响应 */
   const signUpResponse = (
     params: ResponseType<unknown>,
     handler: React.Dispatch<React.SetStateAction<boolean>>
   ) => {
+    requestedOpt(params, () => handler(false))
+  }
+
+  const requestedOpt = (params: ResponseType<unknown>, option?: () => void) => {
     const { code, message } = params
     if (code === 0) {
       openSnackbar(message, duration)
@@ -44,7 +40,7 @@ const useRequested = (): useRequested => {
     }
     setLoading(false)
     openSnackbar(message, duration)
-    handler(false)
+    option && option()
   }
 
   return { loading, setLoading, signInResponse, signUpResponse }

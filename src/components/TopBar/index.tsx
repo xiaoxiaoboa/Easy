@@ -25,5 +25,6 @@ const Nav = styled.nav`
   z-index: 1;
   /* max-width:1536px; */
   background-color: ${props => props.theme.colors.nav_bg};
-  box-shadow: ${props => props.theme.colors.nav_shadow};
+  border-bottom: 1px solid;
+  border-color: ${props => props.theme.colors.nav_border_bottom};
 `

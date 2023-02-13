@@ -6,6 +6,8 @@ import { FieldValues, SubmitHandler } from "react-hook-form/dist/types"
 import { sign_in, sing_up } from "../../api/login"
 import Loading from "../../components/Loading/Loading"
 import useRequested from "../../hooks/useRequested"
+import { MyContext } from "../../context/context"
+import { ActionTypes } from "../../types/reducer/index"
 
 interface LoginFormProps {
   email: string
@@ -17,11 +19,14 @@ const Login = () => {
   const { register, handleSubmit } = useForm<LoginFormProps>()
   const [openRegister, setOpenRegister] = React.useState<boolean>(false)
   const { loading, setLoading, signInResponse } = useRequested()
+  const { dispatch } = React.useContext(MyContext)
 
   const handleLoginSubmit: SubmitHandler<LoginFormProps> = (data: FieldValues) => {
     setLoading(true)
     sign_in(data).then(val => {
       signInResponse(val)
+      dispatch({ type: ActionTypes.USER_INFO, payload: val.data })
+      localStorage.setItem("user_info", JSON.stringify(val.data))
     })
   }
   return (
@@ -155,8 +160,13 @@ const Register = (props: RegisterProps) => {
   const { loading, setLoading, signUpResponse } = useRequested()
 
   const handleRegisterSubmit: SubmitHandler<RegisterFormProps> = (data: FieldValues) => {
+    const userData = {
+      ...data,
+      profile_img: "",
+      avatar: ""
+    }
     setLoading(true)
-    sing_up(data).then(val => signUpResponse(val, handleClose))
+    sing_up(userData).then(val => signUpResponse(val, handleClose))
   }
 
   return (

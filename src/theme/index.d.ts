@@ -13,7 +13,7 @@ declare module "styled-components" {
 
       nav_bg: string
       nav_icon: string
-      nav_shadow: string
+      nav_border_bottom:string
       nav_left_shadow: string
       nav_left_close: string
       nav_inputbg: string
@@ -29,6 +29,8 @@ declare module "styled-components" {
       fd_divisioncolor:string
 
       profile_cardbg:string
+
+      theme_btn_bg:string
     }
     icon: {
       icons: string

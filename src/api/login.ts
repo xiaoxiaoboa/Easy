@@ -1,11 +1,6 @@
 /* 登录 */
 import request from "../utils/request"
-import { ResponseType, UserType } from "../types/index"
-
-interface DataType {
-  result: UserType
-  token: string
-}
+import { ResponseType, UserType, DataType } from "../types/index"
 
 export const sign_in = <T>(params: T): Promise<ResponseType<DataType>> => {
   return request({ url: "/login", methods: "POST", body: params })

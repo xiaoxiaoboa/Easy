@@ -47,10 +47,7 @@ const Head = () => {
     <HeadContainer className="flex-c flex-jcsb flex-alc">
       <Background className="flex flex-alc">
         <div className="bgwrapper">
-          <img
-            src={uploadedCover ? URL.createObjectURL(uploadedCover) : bg}
-            alt=""
-          />
+          <img src={uploadedCover ? URL.createObjectURL(uploadedCover) : bg} alt="" />
         </div>
         <UserInfo className="flex-c flex-jce">
           <div className="flex flex-ale">
@@ -67,10 +64,7 @@ const Head = () => {
                 <GiConfirmed />
                 保存
               </div>
-              <div
-                className="flex flex-alc cancelupload click"
-                onClick={handleCancel}
-              >
+              <div className="flex flex-alc cancelupload click" onClick={handleCancel}>
                 <VscError />
                 放弃
               </div>
@@ -78,11 +72,7 @@ const Head = () => {
           ) : (
             <></>
           )}
-          <Upload
-            id="image"
-            accept="image/*"
-            handleChange={handleUploadChange}
-          >
+          <Upload id="image" accept="image/*" handleChange={handleUploadChange}>
             <div className="flex flex-alc changecover click">
               <ImCamera />
               更换封面
@@ -93,24 +83,15 @@ const Head = () => {
       <ProfileNav>
         <ProfileNavWrapper className="flex flex-jcc">
           <NavList className="flex flex-alc ">
-            <NavLink
-              to={"moments"}
-              className="momentwrapper"
-            >
+            <NavLink to={"moments"} className="momentwrapper">
               <li className="mymoment">我的瞬间</li>
               <div className="underline"></div>
             </NavLink>
-            <NavLink
-              to={"photos"}
-              className="photowrapper"
-            >
+            <NavLink to={"photos"} className="photowrapper">
               <li className="myphoto">照片</li>
               <div className="underline"></div>
             </NavLink>
-            <NavLink
-              to={"videos"}
-              className="videowrapper"
-            >
+            <NavLink to={"videos"} className="videowrapper">
               <li className="mymoment">视频</li>
               <div className="underline"></div>
             </NavLink>
@@ -174,6 +155,7 @@ const CoverButtons = styled.div`
     padding: 8px 10px;
     user-select: none;
     gap: 4px;
+    color: black; 
   }
   & .confirmupload {
     background-color: #66cdaa;

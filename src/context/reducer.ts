@@ -5,6 +5,8 @@ const reducer = (state: ReducerState, action: ActionsType) => {
   switch (type) {
     case ActionTypes.THEME:
       return { ...state, theme: payload }
+    case ActionTypes.USER_INFO:
+      return { ...state, user_info: payload }
     default:
       return state
   }

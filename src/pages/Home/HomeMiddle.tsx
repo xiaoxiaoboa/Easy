@@ -112,6 +112,8 @@ const PublishContainer = styled.div`
       padding: 6px 8px;
       border-radius: 8px;
       cursor: pointer;
+      font-weight: bold;
+      color: ${props => props.theme.colors.secondary};
 
       &:hover {
         background-color: ${props => props.theme.colors.hovercolor};

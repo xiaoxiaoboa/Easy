@@ -1,11 +1,13 @@
+import { UserType, ResponseType, DataType } from "../index"
+
 export interface createContextType {
   state: ReducerState
   dispatch: React.Dispatch<ActionsType>
 }
 
 export interface ReducerState {
+  user_info: DataType
   theme: "light" | "dark"
-  
 }
 
 export type ActionMap<M extends { [index: string]: any }> = {
@@ -20,6 +22,7 @@ export type ActionMap<M extends { [index: string]: any }> = {
 }
 
 export enum ActionTypes {
+  USER_INFO = "user_info",
   THEME = "theme"
 }
 
@@ -29,9 +32,8 @@ export interface ReducerActionType {
 }
 
 export interface ReducerPaylodType {
+  [ActionTypes.USER_INFO]: DataType
   [ActionTypes.THEME]: "light" | "dark"
 }
-
-// export type ReducerSnackbarType = ReducerActionType<boolean>
 
 export type ActionsType = ActionMap<ReducerPaylodType>[keyof ActionMap<ReducerPaylodType>]

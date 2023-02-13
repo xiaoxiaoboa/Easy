@@ -4,6 +4,7 @@ import ThemeProvider from "../theme/ThemeProvider"
 import TopBar from "../components/TopBar"
 import styled from "styled-components"
 import { Outlet } from "react-router-dom"
+import ToggleTheme from "../components/ToggleTheme/ToggleTheme"
 
 const MyApp = () => {
   return (
@@ -14,6 +15,7 @@ const MyApp = () => {
           <Wrapper>
             <Outlet />
           </Wrapper>
+          <ToggleTheme />
         </Childrens>
       </Container>
     </>

@@ -9,7 +9,13 @@ export interface UserType {
   user_id: string
   nick_name: string
   email: string
+  avatar: string
+  profile_img: string
   createAt: string
   updateAt: string
 }
 
+export interface DataType {
+  result: UserType
+  token: string
+}

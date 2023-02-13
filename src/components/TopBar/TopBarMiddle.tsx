@@ -63,11 +63,11 @@ const Container = styled.div<ContainerStyleProps>`
   }
   & .home > svg {
     color: ${props =>
-      props.isHome ? props.theme.colors.primary : props.theme.colors.secondary};
+      props.isHome ? props.theme.colors.primary : props.theme.colors.nav_icon};
   }
   .friends > svg {
     color: ${props =>
-      props.isFriends ? props.theme.colors.primary : props.theme.colors.secondary};
+      props.isFriends ? props.theme.colors.primary : props.theme.colors.nav_icon};
   }
 
   & .home,

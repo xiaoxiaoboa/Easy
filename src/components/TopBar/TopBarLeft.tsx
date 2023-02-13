@@ -21,17 +21,17 @@ const TopBarLeft = () => {
   }
 
   return (
-    <Container className="flex-c" isInput={isInput}>
+    <Container className="flex-c flex-jcc" isInput={isInput}>
       <LeftContainerTop className="flex-r flex-alc flex-jce" isInput={isInput}>
         <img src={logo} className="logo" />
         <div className="flex-r flex-alc flex-jcc close">
           <div className=" flex-r flex-alc flex-jcc closewrapper">
-            <BiArrowBack size="20" color="#7a7a7a" />
+            <BiArrowBack size="20" className="BiArrowBack" />
           </div>
         </div>
         <Input isInput={isInput}>
           <InputWrapper className="flex-r flex-alc wrapper">
-            <BiSearch size="20" color="#7a7a7a" className="BiSearch" />
+            <BiSearch size="20" className="BiSearch" />
             <input
               type="text"
               placeholder="搜索"
@@ -78,8 +78,9 @@ const LeftContainerTop = styled.div<LeftContainerTopStyleProps>`
   gap: 6px;
 
   & img {
-    width: 60px;
-    height: 60px;
+    width: 50px;
+    height: 50px;
+    margin: 10px;
   }
 
   &:focus-within {
@@ -112,6 +113,11 @@ const LeftContainerTop = styled.div<LeftContainerTopStyleProps>`
     &:hover {
       background-color: ${props => props.theme.colors.nav_left_close};
     }
+  }
+
+  & .BiArrowBack,
+  & .BiSearch {
+    color: ${props => props.theme.colors.nav_icon};
   }
 `
 interface LeftContainerBottomStyleProps {
@@ -154,5 +160,9 @@ const InputWrapper = styled.div`
     font-size: 16px;
     background-color: inherit;
     margin-left: 6px;
+
+    &::placeholder {
+      color: ${props => props.theme.colors.nav_icon};
+    }
   }
 `
