@@ -10,7 +10,6 @@ declare module "styled-components" {
 
       hovercolor: string
 
-
       nav_bg: string
       nav_icon: string
       nav_border_bottom:string
@@ -31,6 +30,8 @@ declare module "styled-components" {
       profile_cardbg:string
 
       theme_btn_bg:string
+
+      publish_layer_color:string
     }
     icon: {
       icons: string

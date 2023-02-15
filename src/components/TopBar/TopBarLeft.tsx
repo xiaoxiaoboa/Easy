@@ -68,6 +68,7 @@ interface ContainerStyleProps {
 const Container = styled.div<ContainerStyleProps>`
   position: relative;
   width: 310px;
+  z-index: 2;
 `
 
 interface LeftContainerTopStyleProps {

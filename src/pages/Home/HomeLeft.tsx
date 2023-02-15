@@ -4,8 +4,12 @@ import { Link } from "react-router-dom"
 import Avatar from "../../components/Avatar/Avatar"
 import { BsPeople, BsPeopleFill } from "react-icons/bs"
 import friendsIcon from "../../assets/friends.png"
+import getUnionUrl from "../../utils/getUnionUrl"
+import { MyContext } from "../../context/context"
 
 const HomeLeft = () => {
+  const { state } = React.useContext(MyContext)
+  console.log(getUnionUrl(state.user_info?.result.avatar))
   return (
     <Container>
       <Wrapper className="flex">
@@ -13,8 +17,14 @@ const HomeLeft = () => {
           <Li>
             <MyLink
               to="profile"
-              icon={<Avatar size="40" isOnline />}
-              text="Xiaoxin Yuan"
+              icon={
+                <Avatar
+                  src={getUnionUrl(state.user_info?.result.avatar)}
+                  size="40"
+                  isOnline
+                />
+              }
+              text={state.user_info?.result.nick_name || "请登录！"}
             />
           </Li>
           <Li>
@@ -39,8 +49,14 @@ export default HomeLeft
 
 /* styled */
 const Container = styled.div`
-  flex: 2;
   padding: 10px;
+  position: absolute;
+  left: 0;
+  width: 320px;
+
+  @media (max-width: 1100px) {
+    display: none;
+  }
 `
 const Wrapper = styled.div`
   position: sticky;

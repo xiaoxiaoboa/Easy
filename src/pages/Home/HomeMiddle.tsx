@@ -6,6 +6,8 @@ import ImagePreview from "../../components/ImagePreview"
 import MyInput from "../../components/MyInput/MyInput"
 import Upload from "../../components/Upload"
 import { MdClear } from "react-icons/md"
+import getUnionUrl from "../../utils/getUnionUrl"
+import { MyContext } from "../../context/context"
 
 const HomeMiddle = () => {
   return (
@@ -20,22 +22,18 @@ const HomeMiddle = () => {
 
 export default HomeMiddle
 
-const Container = styled.div`
-  flex: 4;
-  padding: 0 0 30px 40px;
-  /* overflow: hidden; */
-`
+const Container = styled.div``
 const Wrapper = styled.div`
   width: 100%;
   height: max-content;
-  padding-top: 20px;
+  padding: 20px 0 30px 0;
   gap: 20px;
 `
 
 /* 顶部发布卡片 */
 const Publish = () => {
+  const { state } = React.useContext(MyContext)
   const [open, setOpen] = React.useState<boolean>(false)
-
   const handleOpen = () => {
     setOpen(true)
   }
@@ -46,7 +44,7 @@ const Publish = () => {
 
       <div className="top flex-r flex-jcsb">
         <div className="avatar">
-          <Avatar size="40" />
+          <Avatar src={getUnionUrl(state.user_info?.result.avatar)} size="40" />
         </div>
         <div className="inputbtn flex-r flex-alc" onClick={handleOpen}>
           Xiaoxin Yuan，分享你的瞬间把！
@@ -153,6 +151,7 @@ interface childVideoProps {
 }
 const PublishLayer: React.FC<PublishLayerProps> = props => {
   const { handleClose } = props
+  const { state } = React.useContext(MyContext)
   const [files, setFiles] = React.useState<File[]>([])
 
   /* 子组件MyInput的ref */
@@ -201,7 +200,7 @@ const PublishLayer: React.FC<PublishLayerProps> = props => {
         </div>
         <PublishLayerMain className="flex-c">
           <UserInfo className="flex-r flex-alc">
-            <Avatar size="36" />
+            <Avatar src={getUnionUrl(state.user_info?.result.avatar)} size="36" />
             Xiaoxin Yuan
           </UserInfo>
           <EditableArea onClick={handleClick}>
@@ -225,10 +224,7 @@ const PublishLayer: React.FC<PublishLayerProps> = props => {
 
       {files.length ? (
         <FilesPreview>
-          <ImagePreview
-            files={files}
-            handleDeleteItem={handleDeleteItem}
-          />
+          <ImagePreview files={files} handleDeleteItem={handleDeleteItem} />
         </FilesPreview>
       ) : (
         <></>
@@ -243,12 +239,15 @@ const PublishLayerContainer = styled.div`
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(244, 244, 244, 0.8);
+  /* background-color: rgba(244, 244, 244, 0.8); */
+  background-color: ${props => props.theme.colors.publish_layer_color};
+
   z-index: 2;
 `
 const PublishLayerWrapper = styled.div`
   position: relative;
-  background-color: white;
+  /* background-color: white; */
+  background-color: ${props => props.theme.colors.nav_bg};
   width: 500px;
   padding: 20px;
   overflow: hidden;

@@ -12,7 +12,7 @@ export const lightTheme: DefaultTheme = {
 
     nav_bg: "#ffffff",
     nav_icon: "rgb(137 133 133)",
-    nav_border_bottom: '#ccc',
+    nav_border_bottom: "#ccc",
     nav_left_shadow: "-4px 3px 6px 6px #c0c0c080",
     nav_left_close: "#d6d6d65c",
     nav_inputbg: "#f0f2f5",
@@ -29,7 +29,9 @@ export const lightTheme: DefaultTheme = {
 
     profile_cardbg: "#FFFFFF",
 
-    theme_btn_bg: 'white'
+    theme_btn_bg: "white",
+
+    publish_layer_color: "rgba(244, 244, 244, 0.8)"
   },
   icon: {
     icons: `${icons}`
@@ -64,7 +66,9 @@ export const darkTheme: DefaultTheme = {
 
     profile_cardbg: "#242526",
 
-    theme_btn_bg: "#242526"
+    theme_btn_bg: "#242526",
+
+    publish_layer_color: "rgba(11, 11, 11, 0.8)"
   },
   icon: {
     icons: `${icons}`

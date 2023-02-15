@@ -1,12 +1,14 @@
 import React from "react"
 import styled from "styled-components"
-import bg from "../../assets/bg.jpg"
 import Avatar from "../../components/Avatar/Avatar"
 import { ImCamera } from "react-icons/im"
 import { GiConfirmed } from "react-icons/gi"
 import { VscError } from "react-icons/vsc"
 import Upload from "../../components/Upload"
 import { NavLink, Outlet } from "react-router-dom"
+import getUnionUrl from "../../utils/getUnionUrl"
+import { MyContext } from "../../context/context"
+import bg from "../../assets/bg2.png"
 
 const Profile = () => {
   return (
@@ -28,6 +30,7 @@ const Container = styled.div`
 const Wrapper = styled.div``
 
 const Head = () => {
+  const { state } = React.useContext(MyContext)
   const [uploadedCover, setUploadedCover] = React.useState<File | null>(null)
 
   /* 更改封面 */
@@ -45,16 +48,27 @@ const Head = () => {
 
   return (
     <HeadContainer className="flex-c flex-jcsb flex-alc">
+      <div className="blurbglayer"></div>
+      <div className="blurbg">
+        <img src={getUnionUrl(state.user_info?.result.profile_blurImg)} alt="" />
+      </div>
       <Background className="flex flex-alc">
         <div className="bgwrapper">
-          <img src={uploadedCover ? URL.createObjectURL(uploadedCover) : bg} alt="" />
+          <img
+            src={
+              uploadedCover
+                ? URL.createObjectURL(uploadedCover)
+                : getUnionUrl(state.user_info?.result.profile_img)
+            }
+            alt=""
+          />
         </div>
         <UserInfo className="flex-c flex-jce">
           <div className="flex flex-ale">
             <AvatarWrapper>
-              <Avatar size="160" />
+              <Avatar src={getUnionUrl(state.user_info?.result.avatar)} size="160" />
             </AvatarWrapper>
-            <span>Xiaoxin Yuan</span>
+            <span>{state.user_info?.result.nick_name}</span>
           </div>
         </UserInfo>
         <CoverButtons className="flex flex-alc ">
@@ -105,12 +119,42 @@ const Head = () => {
 const HeadContainer = styled.div`
   background-color: ${props => props.theme.colors.profile_cardbg};
   gap: 110px;
+  position: relative;
+
+  & .blurbglayer {
+    width: 100%;
+    height: 400px;
+    position: absolute;
+    top: 0;
+    z-index: 2;
+    background-image: linear-gradient(
+      to top,
+      #ffffff,
+      rgba(255, 255, 255.9),
+      rgba(255, 255, 255, 0.7),
+      rgba(255, 255, 255, 0.4),
+      rgba(255, 255, 255, 0)
+    );
+  }
+  & .blurbg {
+    width: 100%;
+    height: 400px;
+    position: absolute;
+    top: 0;
+    z-index: 1;
+
+    & img {
+      width: inherit;
+      height: inherit;
+    }
+  }
 `
 
 const Background = styled.div`
   position: relative;
   width: 1100px;
   height: 400px;
+  z-index: 3;
 
   @media (max-width: 770px) {
     height: 300px;
@@ -155,7 +199,7 @@ const CoverButtons = styled.div`
     padding: 8px 10px;
     user-select: none;
     gap: 4px;
-    color: black; 
+    color: black;
   }
   & .confirmupload {
     background-color: #66cdaa;

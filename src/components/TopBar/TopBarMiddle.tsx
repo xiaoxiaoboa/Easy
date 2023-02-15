@@ -39,6 +39,8 @@ interface ContainerStyleProps {
 }
 const Container = styled.div<ContainerStyleProps>`
   width: 100%;
+  position: absolute;
+  height:100%;
 
   & .nav-btn {
     height: 100%;

@@ -1,6 +1,7 @@
 import React from "react"
 import styled from "styled-components"
 import Avatar from "../../components/Avatar/Avatar"
+import getUnionUrl from "../../utils/getUnionUrl"
 
 const HomeRight = () => {
   return (
@@ -11,13 +12,10 @@ const HomeRight = () => {
             <span>好友请求</span>
             <span>查看全部</span>
           </RequestHead>
-          <RequestMain>
-            <UserItem isShowTimeStamp />
-          </RequestMain>
+          <RequestMain></RequestMain>
         </FriendsRequest>
         <Contacts className="flex-c">
           <ContactsHead>联系人</ContactsHead>
-          <UserItem />
         </Contacts>
       </Wrapper>
     </Container>
@@ -27,11 +25,17 @@ const HomeRight = () => {
 export default HomeRight
 
 const Container = styled.div`
-  flex: 2;
+  position: absolute;
+  right: 0;
+  width: 340px;
+  margin-right: 30px;
+
+  @media (max-width: 1400px) {
+    display: none;
+  }
 `
 const Wrapper = styled.div`
   padding: 20px 10px;
-  /* height: 100%; */
   position: sticky;
   top: 60px;
   gap: 20px;
@@ -72,13 +76,14 @@ const ContactsHead = styled.div`
 
 interface UserItemPorps {
   isShowTimeStamp?: boolean
+  avatarUrl: string
 }
 const UserItem: React.FC<UserItemPorps> = props => {
-  const { isShowTimeStamp = false } = props
+  const { isShowTimeStamp = false, avatarUrl } = props
   return (
     <ItemContainer className="flex flex-alc flex-jcsb" title="点击查看">
       <div className="flex flex-alc">
-        <Avatar size="36" isOnline isShowOnline />
+        <Avatar src={avatarUrl} size="36" isOnline isShowOnline />
         <span>Xiaoxin Yuan</span>
       </div>
       {isShowTimeStamp ? <span className="reqtimestamp">1天前</span> : <></>}

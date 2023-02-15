@@ -6,7 +6,7 @@ export interface createContextType {
 }
 
 export interface ReducerState {
-  user_info: DataType
+  user_info: DataType | null
   theme: "light" | "dark"
 }
 
@@ -32,7 +32,7 @@ export interface ReducerActionType {
 }
 
 export interface ReducerPaylodType {
-  [ActionTypes.USER_INFO]: DataType
+  [ActionTypes.USER_INFO]: DataType | null
   [ActionTypes.THEME]: "light" | "dark"
 }
 

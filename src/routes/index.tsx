@@ -1,4 +1,4 @@
-import { useRoutes } from "react-router-dom"
+import { Navigate, useRoutes } from "react-router-dom"
 import MyApp from "../pages"
 import Favorites from "../pages/Friends/Favorites"
 import Friends from "../pages/Friends/Friends"
@@ -11,6 +11,7 @@ import Profile from "../pages/Profile"
 import Moments from "../pages/Profile/Moments"
 import Photos from "../pages/Profile/Photos"
 import Videos from "../pages/Profile/Videos"
+import RouterAuth from "../components/RouterAuth/RouterAuth"
 
 const Routes = () => {
   const routes = useRoutes([
@@ -24,7 +25,11 @@ const Routes = () => {
         },
         {
           path: "friends",
-          element: <Friends />,
+          element: (
+            <RouterAuth>
+              <Friends />
+            </RouterAuth>
+          ),
           children: [
             {
               path: "list",
@@ -46,7 +51,11 @@ const Routes = () => {
         },
         {
           path: "profile",
-          element: <Profile />,
+          element: (
+            <RouterAuth>
+              <Profile />
+            </RouterAuth>
+          ),
           children: [
             {
               path: "moments",

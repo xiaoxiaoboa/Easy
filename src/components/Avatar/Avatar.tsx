@@ -1,18 +1,19 @@
 import React from "react"
 import styled from "styled-components"
-import avatar from "../../assets/avatar2.png"
+import avatar from "../../assets/avatar.png"
 
 interface AvatarProps {
+  src: string | undefined
   size: string
   isShowOnline?: boolean
   isOnline?: boolean
 }
 const Avatar: React.FC<AvatarProps> = props => {
-  const { size, isOnline, isShowOnline = false } = props
+  const { src = avatar, size, isOnline, isShowOnline = false } = props
   return (
     <Container className="flex flex-alc flex-jcc">
       <Wrapper className="flex flex-alc flex-jcc" size={size}>
-        <img src={avatar} alt="" />
+        <img src={src} alt="" />
       </Wrapper>
       {isShowOnline ? <Mark isOnline={isOnline}></Mark> : <></>}
     </Container>
@@ -23,7 +24,7 @@ export default Avatar
 
 const Container = styled.div`
   position: relative;
-  user-select:none;
+  user-select: none;
 `
 interface WrapperPorps {
   size: string
@@ -32,7 +33,7 @@ const Wrapper = styled.div<WrapperPorps>`
   border-radius: 50%;
   overflow: hidden;
   cursor: pointer;
-  border:1px solid #ccc;
+  border: 1px solid #ccc;
 
   & img {
     width: ${props => props.size}px;

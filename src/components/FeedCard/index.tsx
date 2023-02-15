@@ -8,15 +8,17 @@ import { FaRegComment, FaRegThumbsUp } from "react-icons/fa"
 import { TiArrowForwardOutline } from "react-icons/ti"
 import { EmojiClickData } from "emoji-picker-react"
 import { MdDeleteForever } from "react-icons/md"
-import temp from "../../assets/temp.jpg"
 import MyInput from "../MyInput/MyInput"
+import getUnionUrl from "../../utils/getUnionUrl"
+import { MyContext } from "../../context/context"
 
 const FeedCard = () => {
+  const { state } = React.useContext(MyContext)
   return (
     <FeedCardContainer>
       <FeedCardWrapper className="flex-c">
         <CardTop className="flex-r flex-alc">
-          <Avatar size="40" />
+          <Avatar src={getUnionUrl(state.user_info?.result.avatar)} size="40" />
           <div className="cardinfo flex-c">
             <div className="carduser">Xiaoxin Yuan</div>
             <div className="cardtimestamp">1分钟</div>
@@ -28,7 +30,7 @@ const FeedCard = () => {
         <CardContent>
           <TextAndEmoj>Hello</TextAndEmoj>
           <PicAndVid className="flex flex-jcc">
-            <img src={temp} alt="" />
+            <img src={""} alt="" />
           </PicAndVid>
         </CardContent>
         <CardFun />
@@ -45,13 +47,13 @@ const FeedCardContainer = styled.div`
   width: 600px;
 `
 const FeedCardWrapper = styled.div`
-  /* gap: 6px; */
+  padding: 10px 0;
   background-color: ${props => props.theme.colors.nav_bg};
   border-radius: 8px;
   box-shadow: ${props => props.theme.colors.fd_boxshadow};
 `
 const CardTop = styled.div`
-  padding: 10px 20px;
+  padding: 0 20px;
   & .cardinfo {
     margin-left: 10px;
     gap: 4px;
@@ -88,7 +90,9 @@ const TextAndEmoj = styled.div`
   word-wrap: break-word;
   padding: 0 20px 12px 20px;
 `
-const PicAndVid = styled.div``
+const PicAndVid = styled.div`
+  user-select: none;
+`
 
 /* card点赞、评论、分享功能 */
 const CardFun = () => {
@@ -146,6 +150,7 @@ type commentType = { id: string; content: string }
 const Comment = () => {
   const [comments, setComment] = React.useState<commentType[]>([])
   const commentsRef = React.useRef<HTMLDivElement>(null)
+  const { state } = React.useContext(MyContext)
 
   return (
     <CommentContainer>
@@ -155,7 +160,7 @@ const Comment = () => {
           {comments.map(comment => (
             <AComment key={comment.id} className="flex">
               <div className="avatar">
-                <Avatar size="32" />
+                <Avatar src={getUnionUrl(state.user_info?.result.avatar)} size="32" />
               </div>
               <div className="text flex-c">
                 <span>Xiaoxin Yuan</span>
@@ -170,7 +175,7 @@ const Comment = () => {
           ))}
         </Comments>
         <WriteComment className="flex-r flex-alc">
-          <Avatar size="32" />
+          <Avatar src={getUnionUrl(state.user_info?.result.avatar)} size="32" />
           <CommentInput className="flex-r flex-jce flex-alc">
             <MyInput placeholder="写下你的评论把~" />
           </CommentInput>
@@ -194,7 +199,7 @@ const CommentWrapper = styled.div`
 `
 const WriteComment = styled.div`
   gap: 10px;
-  padding: 6px 0;
+  padding: 10px 0;
 `
 const CommentInput = styled.div`
   background-color: ${props => props.theme.colors.inputbtn_bg};

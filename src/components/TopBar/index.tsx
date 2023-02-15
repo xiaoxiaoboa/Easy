@@ -3,13 +3,17 @@ import styled from "styled-components"
 import TopBarLeft from "./TopBarLeft"
 import TopBarMiddle from "./TopBarMiddle"
 import TopBarRight from "./TopBarRight"
+import getLocalData from "../../utils/getLocalData"
+import { DataType } from "../../types/index"
 
 const TopBar = () => {
+  const userData = getLocalData("user_info") as DataType | null
+
   return (
     <Nav className="flex-r">
       <TopBarLeft />
       <TopBarMiddle />
-      <TopBarRight />
+      {userData && <TopBarRight />}
     </Nav>
   )
 }

@@ -11,6 +11,7 @@ export interface UserType {
   email: string
   avatar: string
   profile_img: string
+  profile_blurImg: string
   createAt: string
   updateAt: string
 }

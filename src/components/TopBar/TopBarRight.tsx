@@ -3,11 +3,14 @@ import styled from "styled-components"
 import Avatar from "../Avatar/Avatar"
 import { MdNotificationsActive } from "react-icons/md"
 import { BsFillChatDotsFill } from "react-icons/bs"
+import { MyContext } from "../../context/context"
+import getUnionUrl from "../../utils/getUnionUrl"
 
 const TopBarRight = () => {
+  const { state } = React.useContext(MyContext)
   return (
-    <Container className="flex flex-rr flex-alc flex-jce">
-      <Avatar size="44"/>
+    <Container className="flex flex-rr flex-alc flex-jcs">
+      <Avatar src={getUnionUrl(state.user_info.result.avatar)} size="44" />
       <TopBarRightButton handleFun={() => {}}>
         <MdNotificationsActive size="22" />
       </TopBarRightButton>
@@ -15,7 +18,7 @@ const TopBarRight = () => {
         <BsFillChatDotsFill size="20" />
       </TopBarRightButton>
       <TopBarRightButton handleFun={() => {}} w="90" h="38" br="22px">
-        <span style={{fontWeight: 'bold'}}>搜索好友</span>
+        <span style={{ fontWeight: "bold" }}>搜索好友</span>
       </TopBarRightButton>
     </Container>
   )
@@ -25,9 +28,13 @@ export default TopBarRight
 
 /* styled */
 const Container = styled.div`
-  width: 280px;
-  gap:10px;
-  padding-right:10px;
+  /* width: 280px; */
+  height: 100%;
+  /* width:100%; */
+  right: 0;
+  gap: 10px;
+  padding-right: 10px;
+  position: absolute;
 `
 
 /* 导航栏右侧功能键 */
