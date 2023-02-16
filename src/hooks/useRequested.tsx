@@ -11,7 +11,10 @@ type useRequested = {
     params: ResponseType<unknown>,
     handler: React.Dispatch<React.SetStateAction<boolean>>
   ) => void
+  alterationCoverResponse: (params: ResponseType<unknown>) => void
 }
+
+/* 消息栏持时间 */
 const duration = 3000
 
 const useRequested = (): useRequested => {
@@ -30,7 +33,12 @@ const useRequested = (): useRequested => {
   ) => {
     requestedOpt(params, () => handler(false))
   }
+  /* 修改封面后的响应 */
+  const alterationCoverResponse = (params: ResponseType<unknown>) => {
+    requestedOpt(params)
+  }
 
+  /* 通用处理函数 */
   const requestedOpt = (params: ResponseType<unknown>, option?: () => void) => {
     const { code, message } = params
     if (code === 0) {
@@ -43,7 +51,13 @@ const useRequested = (): useRequested => {
     option && option()
   }
 
-  return { loading, setLoading, signInResponse, signUpResponse }
+  return {
+    loading,
+    setLoading,
+    signInResponse,
+    signUpResponse,
+    alterationCoverResponse
+  }
 }
 
 export default useRequested

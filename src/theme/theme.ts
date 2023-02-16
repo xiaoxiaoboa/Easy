@@ -31,7 +31,17 @@ export const lightTheme: DefaultTheme = {
 
     theme_btn_bg: "white",
 
-    publish_layer_color: "rgba(244, 244, 244, 0.8)"
+    publish_layer_color: "rgba(244, 244, 244, 0.8)",
+
+    profileImg_loading_color: "#828282d4",
+    profileBlurImg_gradient_color: `linear-gradient(
+      to top,
+      #ffffff,
+      rgba(255, 255, 255.9),
+      rgba(255, 255, 255, 0.7),
+      rgba(255, 255, 255, 0.4),
+      rgba(255, 255, 255, 0)
+    )`
   },
   icon: {
     icons: `${icons}`
@@ -68,7 +78,17 @@ export const darkTheme: DefaultTheme = {
 
     theme_btn_bg: "#242526",
 
-    publish_layer_color: "rgba(11, 11, 11, 0.8)"
+    publish_layer_color: "rgba(11, 11, 11, 0.8)",
+
+    profileImg_loading_color: "#3f3f3fd4",
+    profileBlurImg_gradient_color: `linear-gradient(
+      to top,
+      #242526,
+      rgba(36, 37, 38, 0.9),
+      rgba(36, 37, 38, 0.7),
+      rgba(36, 37, 38, 0.4),
+      rgba(36, 37, 38, 0)
+    )`
   },
   icon: {
     icons: `${icons}`

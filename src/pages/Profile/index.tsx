@@ -8,7 +8,13 @@ import Upload from "../../components/Upload"
 import { NavLink, Outlet } from "react-router-dom"
 import getUnionUrl from "../../utils/getUnionUrl"
 import { MyContext } from "../../context/context"
-import bg from "../../assets/bg2.png"
+import Loading from "../../components/Loading/Loading"
+import compress from "../../api/compress.js"
+import useRequested from "../../hooks/useRequested"
+import { alterationCover } from "../../api/login.js"
+import { AlterationCoverType, DataType } from "../../types/index.js"
+import getBase64 from "../../utils/getBase64"
+import { ActionTypes } from "../../types/reducer"
 
 const Profile = () => {
   return (
@@ -30,19 +36,67 @@ const Container = styled.div`
 const Wrapper = styled.div``
 
 const Head = () => {
-  const { state } = React.useContext(MyContext)
+  const { state, dispatch } = React.useContext(MyContext)
+  const { loading, setLoading, alterationCoverResponse } = useRequested()
   const [uploadedCover, setUploadedCover] = React.useState<File | null>(null)
+  const [compressedCover, setCompressedCover] = React.useState<string | null>(null)
 
   /* 更改封面 */
   const handleUploadChange: React.ChangeEventHandler<HTMLInputElement> = e => {
     if (e.target.files) {
       const coverFile = e.target.files[0]
-      if (coverFile) setUploadedCover(coverFile)
+      if (coverFile) {
+        setLoading(true)
+        compress(state.user_info?.result.user_id!, coverFile).then(val => {
+          setUploadedCover(coverFile)
+          setCompressedCover(val.data.compressed)
+          setLoading(false)
+        })
+      }
     }
+  }
+
+  /* 保存更改 */
+  const handleSaveChange = async () => {
+    /* 获取base64码 */
+    const res = await getBase64(uploadedCover!)
+    /* 传给后端的信息，用户id和图片base64 */
+    const params: AlterationCoverType = {
+      user_id: state.user_info?.result.user_id!,
+      base64: {
+        background: res.base64 as string,
+        background_blur: compressedCover!
+      }
+    }
+    /* 开启loading */
+    setLoading(true)
+
+    /* 发送修改请求 */
+    const alterationRes = await alterationCover(params)
+
+    /* 修改本地state中用户信息 */
+    const user_info: DataType = {
+      result: alterationRes.data,
+      token: state.user_info?.token!
+    }
+    dispatch({
+      type: ActionTypes.USER_INFO,
+      payload: user_info
+    })
+
+    /* localStorage更改 */
+    localStorage.setItem("user_info", JSON.stringify(user_info))
+    setLoading(false)
+    alterationCoverResponse(alterationRes)
+
+    /* 将临时图片清空 */
+    setCompressedCover(null)
+    setUploadedCover(null)
   }
 
   /* 取消更改 */
   const handleCancel = () => {
+    setCompressedCover(null)
     setUploadedCover(null)
   }
 
@@ -50,9 +104,18 @@ const Head = () => {
     <HeadContainer className="flex-c flex-jcsb flex-alc">
       <div className="blurbglayer"></div>
       <div className="blurbg">
-        <img src={getUnionUrl(state.user_info?.result.profile_blurImg)} alt="" />
+        <img
+          src={compressedCover || getUnionUrl(state.user_info?.result.profile_blurImg)}
+          alt=""
+        />
       </div>
       <Background className="flex flex-alc">
+        {loading && (
+          <div className="loadingwrapper">
+            <Loading />
+          </div>
+        )}
+
         <div className="bgwrapper">
           <img
             src={
@@ -74,7 +137,10 @@ const Head = () => {
         <CoverButtons className="flex flex-alc ">
           {uploadedCover ? (
             <>
-              <div className="flex flex-alc confirmupload click">
+              <div
+                className="flex flex-alc confirmupload click"
+                onClick={handleSaveChange}
+              >
                 <GiConfirmed />
                 保存
               </div>
@@ -127,14 +193,7 @@ const HeadContainer = styled.div`
     position: absolute;
     top: 0;
     z-index: 2;
-    background-image: linear-gradient(
-      to top,
-      #ffffff,
-      rgba(255, 255, 255.9),
-      rgba(255, 255, 255, 0.7),
-      rgba(255, 255, 255, 0.4),
-      rgba(255, 255, 255, 0)
-    );
+    background-image: ${props => props.theme.colors.profileBlurImg_gradient_color};
   }
   & .blurbg {
     width: 100%;
@@ -180,6 +239,15 @@ const Background = styled.div`
       height: 100%;
       object-fit: cover;
     }
+  }
+
+  & .loadingwrapper {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: ${props => props.theme.colors.profileImg_loading_color};
+    /* background-color: #3f3f3fd4; */
   }
 `
 const CoverButtons = styled.div`

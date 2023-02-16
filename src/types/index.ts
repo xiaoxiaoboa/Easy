@@ -20,3 +20,15 @@ export interface DataType {
   result: UserType
   token: string
 }
+
+export interface CompressedType {
+  compressed: string
+}
+
+export interface AlterationCoverType {
+  user_id: string
+  base64: {
+    background: string
+    background_blur: string
+  }
+}

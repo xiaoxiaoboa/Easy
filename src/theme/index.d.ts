@@ -6,13 +6,13 @@ declare module "styled-components" {
       color_scheme: string
 
       primary: string
-      secondary:string
+      secondary: string
 
       hovercolor: string
 
       nav_bg: string
       nav_icon: string
-      nav_border_bottom:string
+      nav_border_bottom: string
       nav_left_shadow: string
       nav_left_close: string
       nav_inputbg: string
@@ -25,13 +25,16 @@ declare module "styled-components" {
       inputbtn_hoverbg: string
 
       fd_boxshadow: string
-      fd_divisioncolor:string
+      fd_divisioncolor: string
 
-      profile_cardbg:string
+      profile_cardbg: string
 
-      theme_btn_bg:string
+      theme_btn_bg: string
 
-      publish_layer_color:string
+      publish_layer_color: string
+
+      profileImg_loading_color: string
+      profileBlurImg_gradient_color:string
     }
     icon: {
       icons: string
