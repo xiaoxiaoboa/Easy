@@ -32,7 +32,7 @@ const ToggleTheme = () => {
 export default ToggleTheme
 
 const Container = styled.div`
-  position: absolute;
+  position: fixed;
   bottom: 30px;
   right: 50px;
   background-color: ${props => props.theme.colors.theme_btn_bg};

@@ -1,13 +1,12 @@
 import React from "react"
-import getLocalData from "../../utils/getLocalData"
-import { DataType } from "../../types/index"
 import { Navigate } from "react-router-dom"
+import { MyContext } from "../../context/context"
 
 type Props = { children: React.ReactNode }
 const RouterAuth = ({ children }: Props) => {
-  const value: DataType | null = getLocalData("user_info")
+  const { state } = React.useContext(MyContext)
 
-  return <>{value ? children : Navigate({ to: "/login" })}</>
+  return <>{state.user_info ? children : Navigate({ to: "/login", replace: true })}</>
 }
 
 export default RouterAuth

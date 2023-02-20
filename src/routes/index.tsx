@@ -50,7 +50,7 @@ const Routes = () => {
           ]
         },
         {
-          path: "profile",
+          path: "profile/:user_id",
           element: (
             <RouterAuth>
               <Profile />
@@ -74,7 +74,7 @@ const Routes = () => {
       ]
     },
     {
-      path: "login",
+      path: "/login",
       element: <Login />
     }
     // {

@@ -41,7 +41,9 @@ export const lightTheme: DefaultTheme = {
       rgba(255, 255, 255, 0.7),
       rgba(255, 255, 255, 0.4),
       rgba(255, 255, 255, 0)
-    )`
+    )`,
+    snackbar_bg: "#333",
+    snackbar_color: "white"
   },
   icon: {
     icons: `${icons}`
@@ -88,7 +90,9 @@ export const darkTheme: DefaultTheme = {
       rgba(36, 37, 38, 0.7),
       rgba(36, 37, 38, 0.4),
       rgba(36, 37, 38, 0)
-    )`
+    )`,
+    snackbar_bg: "white",
+    snackbar_color: "black"
   },
   icon: {
     icons: `${icons}`
@@ -97,7 +101,13 @@ export const darkTheme: DefaultTheme = {
 
 export const GlobalStyle = createGlobalStyle`
   html {
+    overflow-y:scroll;
     color-scheme: ${props => props.theme.colors.color_scheme};
+  }
+
+  body {
+    background-color: ${props => props.theme.colors.bgcolor};
+    
   }
 
   a:link{

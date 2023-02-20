@@ -10,7 +10,11 @@ const TopBarRight = () => {
   const { state } = React.useContext(MyContext)
   return (
     <Container className="flex flex-rr flex-alc flex-jcs">
-      <Avatar src={getUnionUrl(state.user_info.result.avatar)} size="44" />
+      <Avatar
+        src={state.user_info?.result.avatar}
+        size="44"
+        id={state.user_info?.result.user_id || ""}
+      />
       <TopBarRightButton handleFun={() => {}}>
         <MdNotificationsActive size="22" />
       </TopBarRightButton>

@@ -2,7 +2,7 @@ import React from "react"
 import styled from "styled-components"
 import { BiSearch, BiArrowBack } from "react-icons/bi"
 import logo from "../../assets/logo.svg"
-import { useNavigate } from "react-router-dom"
+import { NavLink } from "react-router-dom"
 
 const TopBarLeft = () => {
   const [isInput, setIsInput] = React.useState<boolean>(false)
@@ -23,7 +23,9 @@ const TopBarLeft = () => {
   return (
     <Container className="flex-c flex-jcc" isInput={isInput}>
       <LeftContainerTop className="flex-r flex-alc flex-jce" isInput={isInput}>
-        <img src={logo} className="logo" />
+        <NavLink to={"/"} className="logo flex">
+          <img src={logo} />
+        </NavLink>
         <div className="flex-r flex-alc flex-jcc close">
           <div className=" flex-r flex-alc flex-jcc closewrapper">
             <BiArrowBack size="20" className="BiArrowBack" />
@@ -78,22 +80,15 @@ const LeftContainerTop = styled.div<LeftContainerTopStyleProps>`
   position: relative;
   gap: 6px;
 
-  & img {
-    width: 50px;
-    height: 50px;
-    margin: 10px;
-  }
-
-  &:focus-within {
-    .wrapper {
-      transform: translateX(-26px);
-    }
-  }
-
   & .logo {
-    opacity: ${props => (props.isInput ? 0 : 1)};
-    z-index: ${props => (props.isInput ? -1 : 1)};
-    transition: opacity 0.1s linear;
+    margin: 0 10px;
+    & img {
+      width: 50px;
+      height: 50px;
+      opacity: ${props => (props.isInput ? 0 : 1)};
+      z-index: ${props => (props.isInput ? -1 : 1)};
+      transition: opacity 0.1s linear;
+    }
   }
 
   & .close {
@@ -146,6 +141,12 @@ const Input = styled.div<LeftContainerInputStyleProps>`
   border-radius: 20px;
   background-color: ${props => props.theme.colors.nav_inputbg};
   overflow: hidden;
+
+  &:focus-within {
+    .wrapper {
+      transform: translateX(-26px);
+    }
+  }
 `
 const InputWrapper = styled.div`
   width: 280px;

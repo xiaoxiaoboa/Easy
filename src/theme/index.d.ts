@@ -35,6 +35,9 @@ declare module "styled-components" {
 
       profileImg_loading_color: string
       profileBlurImg_gradient_color:string
+
+      snackbar_bg: string
+      snackbar_color:string
     }
     icon: {
       icons: string

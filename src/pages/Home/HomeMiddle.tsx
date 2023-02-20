@@ -8,12 +8,18 @@ import Upload from "../../components/Upload"
 import { MdClear } from "react-icons/md"
 import getUnionUrl from "../../utils/getUnionUrl"
 import { MyContext } from "../../context/context"
+import { UserType } from "../../types"
 
-const HomeMiddle = () => {
+interface HomeMiddleProps {
+  user_info: UserType | undefined
+}
+const HomeMiddle: React.FC<HomeMiddleProps> = porps => {
+  const { user_info } = porps
   return (
     <Container className="flex">
       <Wrapper className="flex-c flex-alc">
-        <Publish />
+        {user_info && <Publish user_info={user_info} />}
+
         <FeedCard />
       </Wrapper>
     </Container>
@@ -22,7 +28,9 @@ const HomeMiddle = () => {
 
 export default HomeMiddle
 
-const Container = styled.div``
+const Container = styled.div`
+  width: 100%;
+`
 const Wrapper = styled.div`
   width: 100%;
   height: max-content;
@@ -31,20 +39,24 @@ const Wrapper = styled.div`
 `
 
 /* 顶部发布卡片 */
-const Publish = () => {
-  const { state } = React.useContext(MyContext)
+interface PublishProps {
+  user_info: UserType | undefined
+}
+const Publish: React.FC<PublishProps> = props => {
+  const { user_info } = props
   const [open, setOpen] = React.useState<boolean>(false)
   const handleOpen = () => {
     setOpen(true)
+    document.documentElement.classList.add("forbid-scroll")
   }
 
   return (
     <PublishContainer className="flex-c test">
-      {open ? <PublishLayer handleClose={setOpen} /> : <></>}
+      {open ? <PublishLayer user_info={user_info} handleClose={setOpen} /> : <></>}
 
       <div className="top flex-r flex-jcsb">
         <div className="avatar">
-          <Avatar src={getUnionUrl(state.user_info?.result.avatar)} size="40" />
+          <Avatar id={user_info?.user_id} src={user_info?.avatar} size="40" />
         </div>
         <div className="inputbtn flex-r flex-alc" onClick={handleOpen}>
           Xiaoxin Yuan，分享你的瞬间把！
@@ -141,17 +153,14 @@ const PublishContainer = styled.div`
 
 interface PublishLayerProps {
   handleClose: React.Dispatch<React.SetStateAction<boolean>>
+  user_info: UserType | undefined
 }
 interface childInputProps {
   clickToFocus: () => void
   inputValue: () => string
 }
-interface childVideoProps {
-  videoElement: () => NodeListOf<HTMLVideoElement>
-}
 const PublishLayer: React.FC<PublishLayerProps> = props => {
-  const { handleClose } = props
-  const { state } = React.useContext(MyContext)
+  const { handleClose, user_info } = props
   const [files, setFiles] = React.useState<File[]>([])
 
   /* 子组件MyInput的ref */
@@ -187,6 +196,7 @@ const PublishLayer: React.FC<PublishLayerProps> = props => {
 
   const handleCloseSelf = () => {
     handleClose(false)
+    document.documentElement.classList.remove("forbid-scroll")
   }
 
   return (
@@ -200,7 +210,7 @@ const PublishLayer: React.FC<PublishLayerProps> = props => {
         </div>
         <PublishLayerMain className="flex-c">
           <UserInfo className="flex-r flex-alc">
-            <Avatar src={getUnionUrl(state.user_info?.result.avatar)} size="36" />
+            <Avatar src={user_info?.avatar} size="36" />
             Xiaoxin Yuan
           </UserInfo>
           <EditableArea onClick={handleClick}>
@@ -234,15 +244,14 @@ const PublishLayer: React.FC<PublishLayerProps> = props => {
 }
 
 const PublishLayerContainer = styled.div`
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
-  /* background-color: rgba(244, 244, 244, 0.8); */
+  bottom: 0;
+  right: 0;
   background-color: ${props => props.theme.colors.publish_layer_color};
 
-  z-index: 2;
+  z-index: 4;
 `
 const PublishLayerWrapper = styled.div`
   position: relative;

@@ -21,7 +21,7 @@ const TopBarMiddle = () => {
             {isHome ? <AiFillHome size="28" /> : <AiOutlineHome size="28" />}
           </div>
         </NavLink>
-        <NavLink to="friends" className="friendswrapper">
+        <NavLink to="friends" className="friendswrapper" >
           <div className="underline"></div>
           <div className="friends flex flex-alc flex-jcc" title="好友">
             {isFriends ? <BsPeopleFill size="28" /> : <BsPeople size="28" />}

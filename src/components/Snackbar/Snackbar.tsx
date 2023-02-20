@@ -1,5 +1,6 @@
 import React from "react"
 import { CSSTransition } from "react-transition-group"
+import styled from "styled-components"
 import "./style.css"
 
 export const defaultInterval = 250
@@ -64,13 +65,13 @@ const Snackbar = ({ children }: SnackbarProps) => {
         }}
       >
         <div ref={nodeRef}>
-          <div className="snackbar">
+          <SnackbarContainer className="snackbar">
             <div className="snackbar__text">{text}</div>
 
             <button className="snackbar__close" onClick={closeSnackbar}>
               <CloseIcon />
             </button>
-          </div>
+          </SnackbarContainer>
         </div>
       </CSSTransition>
     </SnackbarContext.Provider>
@@ -87,3 +88,12 @@ const CloseIcon = () => (
     />
   </svg>
 )
+const SnackbarContainer = styled.div`
+  background-color: ${props => props.theme.colors.snackbar_bg};
+  
+  & .snackbar__text,
+  & .snackbar__close {
+    
+    color: ${props => props.theme.colors.snackbar_color};
+  }
+`

@@ -61,7 +61,7 @@ export const Card = (props: CardProps) => {
     <CardContainer>
       <CardWrapper className="flex-c flex-alc">
         <UserAvatar>
-          <Avatar size="52" />
+          <Avatar src={undefined} size="52" />
         </UserAvatar>
         <Name>{name}</Name>
         <Desc>{desc}</Desc>

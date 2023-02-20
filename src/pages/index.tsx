@@ -1,6 +1,4 @@
 import React from "react"
-import Routes from "../routes"
-import ThemeProvider from "../theme/ThemeProvider"
 import TopBar from "../components/TopBar"
 import styled from "styled-components"
 import { Outlet } from "react-router-dom"
@@ -11,11 +9,12 @@ const MyApp = () => {
     <>
       <Container className="flex-c">
         <TopBar />
-        <Childrens className="flex flex-jcc">
+        <Childrens className="flex">
           <Wrapper>
             <Outlet />
           </Wrapper>
           <ToggleTheme />
+
         </Childrens>
       </Container>
     </>
@@ -24,17 +23,12 @@ const MyApp = () => {
 
 export default MyApp
 
-const Container = styled.div`
-  width: 100vw;
-  height: 100vh;
-  overflow-y: scroll;
-  background-color: ${props => props.theme.colors.bgcolor};
-`
+const Container = styled.div``
 
 const Childrens = styled.div`
-  height: 100%;
 `
 const Wrapper = styled.div`
   width: 100%;
   max-width: 1536px;
 `
+

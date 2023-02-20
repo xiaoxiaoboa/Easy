@@ -6,25 +6,22 @@ import { BsPeople, BsPeopleFill } from "react-icons/bs"
 import friendsIcon from "../../assets/friends.png"
 import getUnionUrl from "../../utils/getUnionUrl"
 import { MyContext } from "../../context/context"
+import { UserType } from "../../types"
 
-const HomeLeft = () => {
-  const { state } = React.useContext(MyContext)
-  console.log(getUnionUrl(state.user_info?.result.avatar))
+interface HomeLeftProps {
+  user_info: UserType | undefined
+}
+const HomeLeft: React.FC<HomeLeftProps> = props => {
+  const { user_info } = props
   return (
     <Container>
       <Wrapper className="flex">
         <Ul className="flex-c">
           <Li>
             <MyLink
-              to="profile"
-              icon={
-                <Avatar
-                  src={getUnionUrl(state.user_info?.result.avatar)}
-                  size="40"
-                  isOnline
-                />
-              }
-              text={state.user_info?.result.nick_name || "请登录！"}
+              to={`profile/${user_info?.user_id}`}
+              icon={<Avatar src={user_info?.avatar} size="40" isOnline />}
+              text={user_info!.nick_name}
             />
           </Li>
           <Li>
@@ -50,9 +47,10 @@ export default HomeLeft
 /* styled */
 const Container = styled.div`
   padding: 10px;
-  position: absolute;
+  position: fixed;
   left: 0;
   width: 320px;
+  height: 100%;
 
   @media (max-width: 1100px) {
     display: none;
@@ -67,7 +65,13 @@ const Ul = styled.ul`
   width: 100%;
   gap: 4px;
 `
-const Li = styled.li``
+const Li = styled.li`
+  border-radius: 8px;
+  z-index: 2;
+  &:hover {
+    background-color: ${props => props.theme.colors.hovercolor};
+  }
+`
 
 /* 封装NavLink */
 interface NavLinkProps {
@@ -91,7 +95,6 @@ const MyLink: React.FC<NavLinkProps> = props => {
 const NavLinkWrapper = styled.div`
   gap: 14px;
   padding: 8px;
-  border-radius: 8px;
 
   & .friends,
   & .favorite,
@@ -116,9 +119,5 @@ const NavLinkWrapper = styled.div`
   }
   & .star {
     background-position: center -135px;
-  }
-
-  &:hover {
-    background-color: ${props => props.theme.colors.hovercolor};
   }
 `

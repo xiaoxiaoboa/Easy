@@ -15,8 +15,10 @@ import { alterationCover } from "../../api/login.js"
 import { AlterationCoverType, DataType } from "../../types/index.js"
 import getBase64 from "../../utils/getBase64"
 import { ActionTypes } from "../../types/reducer"
+import { useParams } from "react-router-dom"
 
 const Profile = () => {
+  const params = useParams()
   return (
     <Container>
       <Wrapper className="flex-c">
@@ -73,6 +75,7 @@ const Head = () => {
 
     /* 发送修改请求 */
     const alterationRes = await alterationCover(params)
+    if (alterationRes.code === 0) return alterationCoverResponse(alterationRes)
 
     /* 修改本地state中用户信息 */
     const user_info: DataType = {
@@ -129,7 +132,7 @@ const Head = () => {
         <UserInfo className="flex-c flex-jce">
           <div className="flex flex-ale">
             <AvatarWrapper>
-              <Avatar src={getUnionUrl(state.user_info?.result.avatar)} size="160" />
+              <Avatar src={state.user_info?.result.avatar} size="160" />
             </AvatarWrapper>
             <span>{state.user_info?.result.nick_name}</span>
           </div>

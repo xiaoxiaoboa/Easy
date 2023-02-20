@@ -72,7 +72,7 @@ export default Login
 const Container = styled.div`
   height: 100vh;
   position: relative;
-  background-color: ${props => props.theme.colors.bgcolor};
+  background-color: #f0f2f5;
 `
 const Wrapper = styled.div`
   height: max-content;
@@ -105,6 +105,7 @@ const LoginForm = styled.div`
     width: 320px;
     border-radius: 6px;
     font-size: 18px;
+    background-color: transparent;
 
     &:focus {
       border-color: #2374e1;

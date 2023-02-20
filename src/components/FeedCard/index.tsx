@@ -11,6 +11,11 @@ import { MdDeleteForever } from "react-icons/md"
 import MyInput from "../MyInput/MyInput"
 import getUnionUrl from "../../utils/getUnionUrl"
 import { MyContext } from "../../context/context"
+import { UserType } from "../../types"
+import useSnackbar from "../../hooks/useSnackbar"
+
+const message = "请登录！"
+const duration = 3000
 
 const FeedCard = () => {
   const { state } = React.useContext(MyContext)
@@ -18,7 +23,7 @@ const FeedCard = () => {
     <FeedCardContainer>
       <FeedCardWrapper className="flex-c">
         <CardTop className="flex-r flex-alc">
-          <Avatar src={getUnionUrl(state.user_info?.result.avatar)} size="40" />
+          <Avatar src={state.user_info?.result.avatar} size="40" />
           <div className="cardinfo flex-c">
             <div className="carduser">Xiaoxin Yuan</div>
             <div className="cardtimestamp">1分钟</div>
@@ -30,11 +35,11 @@ const FeedCard = () => {
         <CardContent>
           <TextAndEmoj>Hello</TextAndEmoj>
           <PicAndVid className="flex flex-jcc">
-            <img src={""} alt="" />
+            <img src={getUnionUrl(state.user_info?.result.profile_img)} alt="" />
           </PicAndVid>
         </CardContent>
-        <CardFun />
-        <Comment />
+        <CardFun user_info={state.user_info?.result} />
+        <Comment user_info={state.user_info?.result} />
       </FeedCardWrapper>
     </FeedCardContainer>
   )
@@ -88,30 +93,43 @@ const TextAndEmoj = styled.div`
   height: auto;
   white-space: pre-wrap;
   word-wrap: break-word;
-  padding: 0 20px 12px 20px;
+  padding: 10px 20px 12px 20px;
 `
 const PicAndVid = styled.div`
   user-select: none;
+  & img {
+    width: 100%;
+  }
 `
 
 /* card点赞、评论、分享功能 */
-const CardFun = () => {
+type CardFunType = { user_info: UserType | undefined }
+const CardFun = React.memo(({ user_info }: CardFunType) => {
+  const [openSnackbar] = useSnackbar()
+  const handleLike = () => {
+    if (!user_info) return openSnackbar(message, duration)
+    console.log("like")
+  }
+  const handleShare = () => {
+    if (!user_info) return openSnackbar(message, duration)
+    console.log("share")
+  }
   return (
     <CardFunContainer className="flex flex-alc flex-jcc">
-      <div className="like click flex flex-alc flex-jcc">
+      <div className="like click flex flex-alc flex-jcc" onClick={handleLike}>
         <FaRegThumbsUp size="20" className="FaRegThumbsUp" />赞
       </div>
       <div className="comment flex flex-alc flex-jcc">
         <FaRegComment size="20" className="FaRegComment" />
         评论
       </div>
-      <div className="share flex flex-alc flex-jcc">
+      <div className="share flex flex-alc flex-jcc" onClick={handleShare}>
         <TiArrowForwardOutline size="24" className="TiArrowForwardOutline" />
         分享
       </div>
     </CardFunContainer>
   )
-}
+})
 
 /* styled */
 const CardFunContainer = styled.div`
@@ -147,10 +165,17 @@ const CardFunContainer = styled.div`
 
 /* 评论 */
 type commentType = { id: string; content: string }
-const Comment = () => {
+type CommentProps = { user_info: UserType | undefined }
+const Comment = ({ user_info }: CommentProps) => {
   const [comments, setComment] = React.useState<commentType[]>([])
   const commentsRef = React.useRef<HTMLDivElement>(null)
   const { state } = React.useContext(MyContext)
+  const [openSnackbar] = useSnackbar()
+
+  const handleKeyDown = (inputValue: string) => {
+    if (!user_info) return openSnackbar(message, duration)
+    console.log(inputValue)
+  }
 
   return (
     <CommentContainer>
@@ -160,7 +185,7 @@ const Comment = () => {
           {comments.map(comment => (
             <AComment key={comment.id} className="flex">
               <div className="avatar">
-                <Avatar src={getUnionUrl(state.user_info?.result.avatar)} size="32" />
+                <Avatar src={undefined} size="32" />
               </div>
               <div className="text flex-c">
                 <span>Xiaoxin Yuan</span>
@@ -175,9 +200,9 @@ const Comment = () => {
           ))}
         </Comments>
         <WriteComment className="flex-r flex-alc">
-          <Avatar src={getUnionUrl(state.user_info?.result.avatar)} size="32" />
+          <Avatar src={state.user_info?.result.avatar} size="32" />
           <CommentInput className="flex-r flex-jce flex-alc">
-            <MyInput placeholder="写下你的评论把~" />
+            <MyInput handleKeyDown={handleKeyDown} placeholder="写下你的评论把~" />
           </CommentInput>
         </WriteComment>
       </CommentWrapper>

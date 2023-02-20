@@ -40,9 +40,10 @@ const useRequested = (): useRequested => {
 
   /* 通用处理函数 */
   const requestedOpt = (params: ResponseType<unknown>, option?: () => void) => {
-    const { code, message } = params
+    const { code, message, data } = params
     if (code === 0) {
       openSnackbar(message, duration)
+      console.log(data)
       setLoading(false)
       return
     }

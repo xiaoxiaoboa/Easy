@@ -3,16 +3,21 @@ import styled from "styled-components"
 import HomeLeft from "./HomeLeft"
 import HomeMiddle from "./HomeMiddle"
 import HomeRight from "./HomeRight"
-import getLocalData from "../../utils/getLocalData"
-import { DataType } from "../../types/index"
+import { MyContext } from "../../context/context"
+import { NavLink } from "react-router-dom"
 
 const Home = () => {
-  const userData = getLocalData("user_info") as DataType | null
+  const { state } = React.useContext(MyContext)
   return (
     <Container className="flex flex-jcc">
-      <HomeLeft />
-      <HomeMiddle />
-      {userData && <HomeRight />}
+      {state.user_info ? (
+        <HomeLeft user_info={state?.user_info.result} />
+      ) : (
+        <LoginPrompt />
+      )}
+
+      <HomeMiddle user_info={state.user_info?.result} />
+      <HomeRight user_info={state.user_info?.result} />
     </Container>
   )
 }
@@ -21,7 +26,65 @@ export default Home
 
 /* styled */
 const Container = styled.div`
-  /* position:relative; */
-  height:100%;
-  width:100%;
+  width: 100%;
+`
+
+const LoginPrompt = () => {
+  return (
+    <LoginPromptContainer>
+      <LoginPromptWrapper className="flex-c">
+        <h3>第一次来这里？</h3>
+        <p>立即注册，开始你的精彩生活</p>
+        <Btns className="flex-c flex-alc">
+          <NavLink to={"login"}>登录</NavLink>
+          <NavLink to={"login"}>注册</NavLink>
+        </Btns>
+      </LoginPromptWrapper>
+    </LoginPromptContainer>
+  )
+}
+
+const LoginPromptContainer = styled.div`
+  position: fixed;
+  left: 0;
+  padding: 20px;
+  width: 300px;
+  margin: 20px 0 0 20px;
+  border-radius: 8px;
+  background-color: ${props => props.theme.colors.nav_bg};
+`
+const LoginPromptWrapper = styled.div`
+  gap: 10px;
+  & p {
+    font-size: 13px;
+    color: ${props => props.theme.colors.secondary};
+  }
+`
+const Btns = styled.div`
+  gap: 8px;
+  width: 100%;
+
+  & a {
+    flex: 1;
+    outline: none;
+    border: none;
+    padding: 10px;
+    width: 100%;
+    border-radius: 20px;
+    cursor: pointer;
+    background-color: transparent;
+    border: 1px solid #ccc;
+    text-align:center;
+  }
+
+  & a:first-child {
+    &:hover {
+      background-color: ${props => props.theme.colors.hovercolor};
+    }
+  }
+  & a:last-child {
+    &:hover {
+      background-color: ${props => props.theme.colors.hovercolor};
+    }
+  }
 `

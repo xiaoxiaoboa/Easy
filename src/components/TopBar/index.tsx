@@ -3,17 +3,16 @@ import styled from "styled-components"
 import TopBarLeft from "./TopBarLeft"
 import TopBarMiddle from "./TopBarMiddle"
 import TopBarRight from "./TopBarRight"
-import getLocalData from "../../utils/getLocalData"
-import { DataType } from "../../types/index"
+import { MyContext } from "../../context/context"
 
 const TopBar = () => {
-  const userData = getLocalData("user_info") as DataType | null
+  const { state } = React.useContext(MyContext)
 
   return (
     <Nav className="flex-r">
       <TopBarLeft />
       <TopBarMiddle />
-      {userData && <TopBarRight />}
+      {state.user_info && <TopBarRight />}
     </Nav>
   )
 }
@@ -26,8 +25,7 @@ const Nav = styled.nav`
   top: 0;
   width: 100%;
   height: 60px;
-  z-index: 1;
-  /* max-width:1536px; */
+  z-index: 4;
   background-color: ${props => props.theme.colors.nav_bg};
   border-bottom: 1px solid;
   border-color: ${props => props.theme.colors.nav_border_bottom};

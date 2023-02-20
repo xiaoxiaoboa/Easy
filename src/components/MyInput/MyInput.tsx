@@ -6,10 +6,11 @@ import { nanoid } from "nanoid"
 
 interface Props {
   placeholder: string
+  handleKeyDown?: (inputValue: string) => void
 }
 
 const MyInput = React.forwardRef((props: Props, ref) => {
-  const { placeholder } = props
+  const { placeholder, handleKeyDown } = props
   const placeholderRef = React.useRef<HTMLSpanElement>(null)
   const inputRef = React.useRef<HTMLDivElement>(null)
   const inputedValueRef = React.useRef<string>("")
@@ -66,10 +67,11 @@ const MyInput = React.forwardRef((props: Props, ref) => {
     if (e.key === "Enter" && !e.shiftKey) {
       /* 回车键发送 */
       e.preventDefault()
-      if (text === "") return
+      if (text === "" || !text || !handleKeyDown) return
       e.currentTarget.innerHTML = ""
       inputedValueRef.current = ""
       isShowPlaceHolder()
+      handleKeyDown(text)
     }
   }
   /* 控制placeholder显示 */
@@ -122,6 +124,7 @@ const EditableElement = styled.div`
   font-size: 14px;
   max-height: 400px;
   overflow-y: auto;
+  z-index: 2;
 
   white-space: pre-wrap;
   word-break: break-all;
@@ -132,6 +135,7 @@ const PlaceHolder = styled.span`
   z-index: 0;
   color: ${props => props.theme.colors.secondary};
   user-select: none;
+  /* z-index:-1; */
 
   &.inputting {
     display: none;
