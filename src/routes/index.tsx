@@ -1,4 +1,7 @@
+import React from "react"
 import { Navigate, useRoutes } from "react-router-dom"
+import Loading from "../components/Loading/Loading"
+import RouterAuth from "../components/RouterAuth/RouterAuth"
 import MyApp from "../pages"
 import Favorites from "../pages/Friends/Favorites"
 import Friends from "../pages/Friends/Friends"
@@ -11,7 +14,19 @@ import Profile from "../pages/Profile"
 import Moments from "../pages/Profile/Moments"
 import Photos from "../pages/Profile/Photos"
 import Videos from "../pages/Profile/Videos"
-import RouterAuth from "../components/RouterAuth/RouterAuth"
+// const MyApp = React.lazy(() => import("../pages"))
+// const Favorites = React.lazy(() => import("../pages/Friends/Favorites"))
+// const Friends = React.lazy(() => import("../pages/Friends/Friends"))
+// const Liked = React.lazy(() => import("../pages/Friends/Liked"))
+// const List = React.lazy(() => import("../pages/Friends/List"))
+// const Request = React.lazy(() => import("../pages/Friends/Request"))
+// const Home = React.lazy(() => import("../pages/Home"))
+// const Login = React.lazy(() => import("../pages/Login/Login"))
+// const Profile = React.lazy(() => import("../pages/Profile"))
+// const Moments = React.lazy(() => import("../pages/Profile/Moments"))
+// const Photos = React.lazy(() => import("../pages/Profile/Photos"))
+// const Videos = React.lazy(() => import("../pages/Profile/Videos"))
+// const RouterAuth = React.lazy(() => import("../components/RouterAuth/RouterAuth"))
 
 const Routes = () => {
   const routes = useRoutes([

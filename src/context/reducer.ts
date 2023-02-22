@@ -7,6 +7,8 @@ const reducer = (state: ReducerState, action: ActionsType) => {
       return { ...state, theme: payload }
     case ActionTypes.USER_INFO:
       return { ...state, user_info: payload }
+    case ActionTypes.HOME_FEEDS:
+      return { ...state, home_feeds: [...payload, ...state.home_feeds] }
     default:
       return state
   }

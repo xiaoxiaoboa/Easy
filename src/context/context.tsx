@@ -6,7 +6,8 @@ import getLocalData from "../utils/getLocalData"
 /* reducer初始化值 */
 const initialValue: ReducerState = {
   theme: "light",
-  user_info: getLocalData("user_info")
+  user_info: getLocalData("user_info"),
+  home_feeds: []
 }
 
 export const MyContext = React.createContext<createContextType>({

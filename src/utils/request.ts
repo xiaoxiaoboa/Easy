@@ -8,7 +8,7 @@ interface RequestType<T> {
 }
 
 const request = async <T>(props: RequestType<T>) => {
-  const { url, methods, body, token = '' } = props
+  const { url, methods, body, token = "" } = props
 
   try {
     const res = await fetch(base_url + url, {
@@ -16,7 +16,7 @@ const request = async <T>(props: RequestType<T>) => {
       body: JSON.stringify(body),
       headers: {
         "Content-Type": "application/json;charset=utf-8",
-        "Authorization": `Bearer ${token}`
+        Authorization: `Bearer ${token}`
       }
     })
     return await res.json()
@@ -26,3 +26,20 @@ const request = async <T>(props: RequestType<T>) => {
 }
 
 export default request
+
+export const uploadRequest = async (params: RequestType<FormData>) => {
+  const { url, methods, body, token = "" } = params
+
+  try {
+    const res = await fetch(base_url + url, {
+      method: methods,
+      body: body,
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+    return await res.json()
+  } catch (err) {
+    return err
+  }
+}

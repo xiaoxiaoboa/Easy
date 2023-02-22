@@ -1,7 +1,8 @@
 import React from "react"
 import styled from "styled-components"
 import Avatar from "../../components/Avatar/Avatar"
-import { UserType } from "../../types"
+import Division from "../../components/Division/Division"
+import { UserType } from "../../types/user.type"
 
 interface HomeRightProps {
   user_info: UserType | undefined
@@ -19,6 +20,7 @@ const HomeRight: React.FC<HomeRightProps> = props => {
             </RequestHead>
             <Main className="flex-c"></Main>
           </FriendsRequest>
+          <Division margin="0 0 4px 0"/>
           <Contacts className="flex-c">
             <ContactsHead>联系人</ContactsHead>
             <Main className="flex-c"></Main>
@@ -48,18 +50,12 @@ const Wrapper = styled.div`
 `
 const FriendsRequest = styled.div`
   gap: 8px;
-
-  &::after {
-    content: "";
-    width: 100%;
-    height: 1px;
-    background-color: ${props => props.theme.colors.fd_divisioncolor};
-  }
 `
 
 const RequestHead = styled.div`
-  padding: 0 8px;
-
+  & span {
+    font-weight: bold;
+  }
   & span:nth-child(1) {
     color: ${props => props.theme.colors.secondary};
   }
@@ -79,7 +75,7 @@ const Contacts = styled.div`
   gap: 8px;
 `
 const ContactsHead = styled.div`
-  padding: 0 8px;
+  font-weight: bold;
   color: ${props => props.theme.colors.secondary};
 `
 

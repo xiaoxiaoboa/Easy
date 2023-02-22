@@ -9,13 +9,14 @@ import { NavLink, Outlet } from "react-router-dom"
 import getUnionUrl from "../../utils/getUnionUrl"
 import { MyContext } from "../../context/context"
 import Loading from "../../components/Loading/Loading"
-import compress from "../../api/compress.js"
+import compress from "../../api/compress.api.js"
 import useRequested from "../../hooks/useRequested"
-import { alterationCover } from "../../api/login.js"
-import { AlterationCoverType, DataType } from "../../types/index.js"
+import { alterationCover } from "../../api/user.api.js"
+import { DataType } from "../../types/index.js"
 import getBase64 from "../../utils/getBase64"
 import { ActionTypes } from "../../types/reducer"
 import { useParams } from "react-router-dom"
+import { AlterationCoverType } from "../../types/user.type"
 
 const Profile = () => {
   const params = useParams()

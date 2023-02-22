@@ -8,19 +8,29 @@ import Upload from "../../components/Upload"
 import { MdClear } from "react-icons/md"
 import getUnionUrl from "../../utils/getUnionUrl"
 import { MyContext } from "../../context/context"
-import { UserType } from "../../types"
+import { UserType } from "../../types/user.type"
+import { publish } from "../../api/feeds.api"
+import { upload } from "../../api/upload.api"
+import { ActionTypes } from "../../types/reducer"
+import Division from "../../components/Division/Division"
 
 interface HomeMiddleProps {
   user_info: UserType | undefined
 }
 const HomeMiddle: React.FC<HomeMiddleProps> = porps => {
   const { user_info } = porps
+  const { state } = React.useContext(MyContext)
   return (
     <Container className="flex">
       <Wrapper className="flex-c flex-alc">
         {user_info && <Publish user_info={user_info} />}
-
-        <FeedCard />
+        {state.home_feeds.map(item => (
+          <FeedCard
+            key={item.feed.feed_id}
+            user_info={state.user_info?.result}
+            feed={item}
+          />
+        ))}
       </Wrapper>
     </Container>
   )
@@ -62,7 +72,7 @@ const Publish: React.FC<PublishProps> = props => {
           Xiaoxin Yuan，分享你的瞬间把！
         </div>
       </div>
-      <div className="division"></div>
+      <Division margin="10px 0 6px 0"/>
       <div className="option flex-r flex-alc flex-jcc">
         <div className="photo flex-r flex-alc flex-jcc">
           <div className="photoicon"></div>
@@ -103,13 +113,6 @@ const PublishContainer = styled.div`
     &:hover {
       background-color: ${props => props.theme.colors.inputbtn_hoverbg};
     }
-  }
-
-  & .division {
-    width: 100%;
-    height: 1px;
-    background-color: ${props => props.theme.colors.fd_divisioncolor};
-    margin: 10px 0;
   }
 
   & .option {
@@ -162,6 +165,7 @@ interface childInputProps {
 const PublishLayer: React.FC<PublishLayerProps> = props => {
   const { handleClose, user_info } = props
   const [files, setFiles] = React.useState<File[]>([])
+  const { dispatch } = React.useContext(MyContext)
 
   /* 子组件MyInput的ref */
   const childInputRef = React.useRef<childInputProps>(null)
@@ -181,8 +185,14 @@ const PublishLayer: React.FC<PublishLayerProps> = props => {
   /* 发布 */
   const handleCommit = () => {
     if (files.length < 1 && childInputRef.current?.inputValue().trim() === "") return
-    console.log(files)
-    console.log(childInputRef.current?.inputValue())
+    upload(files).then(val => {
+      const text = childInputRef.current?.inputValue()
+      publish({
+        user_id: user_info!.user_id,
+        feed_text: text!,
+        feed_attach: val.data
+      }).then(val => dispatch({ type: ActionTypes.HOME_FEEDS, payload: [val.data] }))
+    })
   }
 
   /* 删除files列表中的某一项 */

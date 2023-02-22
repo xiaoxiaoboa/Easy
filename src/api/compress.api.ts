@@ -1,7 +1,8 @@
 import getBase64 from "../utils/getBase64"
 import request from "../utils/request"
-import { ResponseType, CompressedType, DataType } from "../types/index"
+import { ResponseType, DataType } from "../types/index"
 import getLocalData from "../utils/getLocalData"
+import { CompressedType } from "../types/user.type"
 
 const compress = async (
   user_id: string,
@@ -17,7 +18,7 @@ const compress = async (
   return await request({
     url: "/compress",
     methods: "POST",
-    body: data,
+    body: { ...data },
     token: user_info.token
   })
 }

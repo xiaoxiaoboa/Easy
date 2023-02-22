@@ -2,7 +2,6 @@ import React from "react"
 import { FiMoreHorizontal } from "react-icons/fi"
 import Avatar from "../Avatar/Avatar"
 import styled from "styled-components"
-import { nanoid } from "nanoid"
 import Emoji from "../../components/Emoji"
 import { FaRegComment, FaRegThumbsUp } from "react-icons/fa"
 import { TiArrowForwardOutline } from "react-icons/ti"
@@ -10,36 +9,47 @@ import { EmojiClickData } from "emoji-picker-react"
 import { MdDeleteForever } from "react-icons/md"
 import MyInput from "../MyInput/MyInput"
 import getUnionUrl from "../../utils/getUnionUrl"
-import { MyContext } from "../../context/context"
-import { UserType } from "../../types"
 import useSnackbar from "../../hooks/useSnackbar"
+import { UserType } from "../../types/user.type"
+import { Feed, FeedType } from "../../types/feed.type"
+import Division from "../Division/Division"
 
 const message = "请登录！"
 const duration = 3000
 
-const FeedCard = () => {
-  const { state } = React.useContext(MyContext)
+type FeedCard = { user_info?: UserType; feed: Feed }
+const FeedCard: React.FC<FeedCard> = props => {
+  const {
+    user_info,
+    feed: { feed, feed_user }
+  } = props
+
   return (
     <FeedCardContainer>
       <FeedCardWrapper className="flex-c">
         <CardTop className="flex-r flex-alc">
-          <Avatar src={state.user_info?.result.avatar} size="40" />
+          <Avatar src={feed_user.avatar} size="40" />
           <div className="cardinfo flex-c">
-            <div className="carduser">Xiaoxin Yuan</div>
-            <div className="cardtimestamp">1分钟</div>
+            <div className="carduser">{feed_user.nick_name}</div>
+            <div className="cardtimestamp">{feed.updatedAt}</div>
           </div>
           <div className="cardfun click flex-r flex-alc">
             <FiMoreHorizontal size="22" className="FiMoreHorizontal" />
           </div>
         </CardTop>
+        <Division margin="6px 0 0 0" />
         <CardContent>
-          <TextAndEmoj>Hello</TextAndEmoj>
+          <TextAndEmoj>{feed.feed_text}</TextAndEmoj>
           <PicAndVid className="flex flex-jcc">
-            <img src={getUnionUrl(state.user_info?.result.profile_img)} alt="" />
+            {feed.feed_attach.map((attach, index) => (
+              <img key={index} src={getUnionUrl(attach)} alt="" />
+            ))}
           </PicAndVid>
         </CardContent>
-        <CardFun user_info={state.user_info?.result} />
-        <Comment user_info={state.user_info?.result} />
+        <Division />
+        <CardFun user_info={user_info} />
+        <Division padding="0 20px" margin="0 0 10px 0" />
+        <Comment user_info={user_info} feed={feed} feedUser={feed_user} />
       </FeedCardWrapper>
     </FeedCardContainer>
   )
@@ -97,8 +107,11 @@ const TextAndEmoj = styled.div`
 `
 const PicAndVid = styled.div`
   user-select: none;
+  width: 100%;
+  max-height: 400px;
   & img {
     width: 100%;
+    object-fit: cover;
   }
 `
 
@@ -137,7 +150,6 @@ const CardFunContainer = styled.div`
   gap: 4px;
   padding: 4px;
   position: relative;
-  margin-bottom: 10px;
 
   & .like,
   & .comment,
@@ -153,23 +165,18 @@ const CardFunContainer = styled.div`
       background-color: ${props => props.theme.colors.hovercolor};
     }
   }
-  &::after {
-    content: "";
-    position: absolute;
-    width: 567px;
-    height: 1px;
-    bottom: 0;
-    background-color: ${props => props.theme.colors.fd_divisioncolor};
-  }
 `
 
 /* 评论 */
-type commentType = { id: string; content: string }
-type CommentProps = { user_info: UserType | undefined }
-const Comment = ({ user_info }: CommentProps) => {
-  const [comments, setComment] = React.useState<commentType[]>([])
+type CommentProps = {
+  user_info: UserType | undefined
+  feedUser: UserType
+  feed: FeedType
+}
+const Comment: React.FC<CommentProps> = props => {
+  const { user_info, feedUser, feed } = props
+  const [comments, setComment] = React.useState<string[]>(feed.feed_comment)
   const commentsRef = React.useRef<HTMLDivElement>(null)
-  const { state } = React.useContext(MyContext)
   const [openSnackbar] = useSnackbar()
 
   const handleKeyDown = (inputValue: string) => {
@@ -182,14 +189,14 @@ const Comment = ({ user_info }: CommentProps) => {
       <CommentWrapper className="flex-c">
         <p>查看剩余1条评论</p>
         <Comments className="flex-c" ref={commentsRef}>
-          {comments.map(comment => (
-            <AComment key={comment.id} className="flex">
+          {comments.map((comment, index) => (
+            <AComment key={index} className="flex">
               <div className="avatar">
                 <Avatar src={undefined} size="32" />
               </div>
               <div className="text flex-c">
                 <span>Xiaoxin Yuan</span>
-                <p>{comment.content}</p>
+                <p>{comment}</p>
               </div>
               <div className="delete click flex flex-alc">
                 <span className="flex flex-alc">
@@ -200,7 +207,7 @@ const Comment = ({ user_info }: CommentProps) => {
           ))}
         </Comments>
         <WriteComment className="flex-r flex-alc">
-          <Avatar src={state.user_info?.result.avatar} size="32" />
+          <Avatar src={user_info?.avatar} size="32" />
           <CommentInput className="flex-r flex-jce flex-alc">
             <MyInput handleKeyDown={handleKeyDown} placeholder="写下你的评论把~" />
           </CommentInput>
@@ -212,7 +219,7 @@ const Comment = ({ user_info }: CommentProps) => {
 /* styled */
 const CommentContainer = styled.div``
 const CommentWrapper = styled.div`
-  padding: 0 15px;
+  padding: 0 20px;
 
   & > p {
     cursor: pointer;
