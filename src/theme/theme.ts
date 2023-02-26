@@ -102,12 +102,13 @@ export const darkTheme: DefaultTheme = {
 export const GlobalStyle = createGlobalStyle`
   html {
     overflow-y:scroll;
+    height:100%;
     color-scheme: ${props => props.theme.colors.color_scheme};
   }
-
+  
   body {
+    height:100%;
     background-color: ${props => props.theme.colors.bgcolor};
-    
   }
 
   a:link{

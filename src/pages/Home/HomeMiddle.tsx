@@ -1,36 +1,46 @@
 import React from "react"
 import styled from "styled-components"
 import Avatar from "../../components/Avatar/Avatar"
-import FeedCard from "../../components/FeedCard"
 import ImagePreview from "../../components/ImagePreview"
 import MyInput from "../../components/MyInput/MyInput"
 import Upload from "../../components/Upload"
 import { MdClear } from "react-icons/md"
-import getUnionUrl from "../../utils/getUnionUrl"
 import { MyContext } from "../../context/context"
 import { UserType } from "../../types/user.type"
-import { publish } from "../../api/feeds.api"
-import { upload } from "../../api/upload.api"
+import { feed_publish, feed_attach, feeds_all } from "../../api/feeds.api"
 import { ActionTypes } from "../../types/reducer"
 import Division from "../../components/Division/Division"
+import { Feed } from "../../types/feed.type"
+import LazyLoad from "../../components/LazyLoad/LazyLoad"
+import useRequested from "../../hooks/useRequested"
 
 interface HomeMiddleProps {
   user_info: UserType | undefined
 }
 const HomeMiddle: React.FC<HomeMiddleProps> = porps => {
   const { user_info } = porps
-  const { state } = React.useContext(MyContext)
+  const { state, dispatch } = React.useContext(MyContext)
+  const { loading, setLoading } = useRequested()
+
+  React.useEffect(() => {
+    setLoading(true)
+    feeds_all().then(val => {
+      dispatch({ type: ActionTypes.HOME_FEEDS, payload: val.data })
+      setLoading(false)
+    })
+  }, [])
+
+
   return (
     <Container className="flex">
       <Wrapper className="flex-c flex-alc">
         {user_info && <Publish user_info={user_info} />}
-        {state.home_feeds.map(item => (
-          <FeedCard
-            key={item.feed.feed_id}
-            user_info={state.user_info?.result}
-            feed={item}
-          />
-        ))}
+        <LazyLoad
+          data={state.home_feeds}
+          theme={state.theme}
+          user_info={state.user_info?.result!}
+          loading={loading}
+        />
       </Wrapper>
     </Container>
   )
@@ -72,7 +82,7 @@ const Publish: React.FC<PublishProps> = props => {
           Xiaoxin Yuan，分享你的瞬间把！
         </div>
       </div>
-      <Division margin="10px 0 6px 0"/>
+      <Division margin="10px 0 6px 0" />
       <div className="option flex-r flex-alc flex-jcc">
         <div className="photo flex-r flex-alc flex-jcc">
           <div className="photoicon"></div>
@@ -178,28 +188,33 @@ const PublishLayer: React.FC<PublishLayerProps> = props => {
   /* 上传图片或视频 */
   const handleChange: React.ChangeEventHandler<HTMLInputElement> = e => {
     const newFiles = e.target.files
-    if (newFiles) setFiles(prev => [...prev, ...newFiles])
-    e.target.value = ""
+    if (newFiles) setFiles(prev => [...newFiles, ...prev])
+    e.target.files = null
   }
 
   /* 发布 */
   const handleCommit = () => {
     if (files.length < 1 && childInputRef.current?.inputValue().trim() === "") return
-    upload(files).then(val => {
-      const text = childInputRef.current?.inputValue()
-      publish({
-        user_id: user_info!.user_id,
+    const text = childInputRef.current?.inputValue()
+    feed_attach(files).then(val => {
+      feed_publish({
+        feed_userID: user_info!.user_id,
         feed_text: text!,
         feed_attach: val.data
-      }).then(val => dispatch({ type: ActionTypes.HOME_FEEDS, payload: [val.data] }))
+      }).then(val => {
+        val.data.feed.createdAt = new Date(val.data.feed.createdAt)
+          .toLocaleString()
+          .replace(/\//g, "-")
+        dispatch({ type: ActionTypes.HOME_FEEDS, payload: [val.data] })
+      })
     })
   }
 
   /* 删除files列表中的某一项 */
   const handleDeleteItem = React.useCallback(
     (target: File) => {
-      const newFiles = files.filter(file => file !== target)
-      setFiles(newFiles)
+      // const newFiles = files.filter(file => file !== target)
+      setFiles(prev => prev.filter(file => file !== target))
     },
     [files]
   )
@@ -242,7 +257,7 @@ const PublishLayer: React.FC<PublishLayerProps> = props => {
         </PublishButton>
       </PublishLayerWrapper>
 
-      {files.length ? (
+      {files.length > 0 ? (
         <FilesPreview>
           <ImagePreview files={files} handleDeleteItem={handleDeleteItem} />
         </FilesPreview>

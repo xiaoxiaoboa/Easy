@@ -14,7 +14,6 @@ const MyApp = () => {
             <Outlet />
           </Wrapper>
           <ToggleTheme />
-
         </Childrens>
       </Container>
     </>
@@ -25,10 +24,8 @@ export default MyApp
 
 const Container = styled.div``
 
-const Childrens = styled.div`
-`
+const Childrens = styled.div``
 const Wrapper = styled.div`
   width: 100%;
   max-width: 1536px;
 `
-

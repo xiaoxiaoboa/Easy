@@ -3,10 +3,7 @@ import styled from "styled-components"
 import { Link } from "react-router-dom"
 import Avatar from "../../components/Avatar/Avatar"
 import { BsPeople, BsPeopleFill } from "react-icons/bs"
-import friendsIcon from "../../assets/friends.png"
-import getUnionUrl from "../../utils/getUnionUrl"
-import { MyContext } from "../../context/context"
-import { UserType } from "../../types"
+import { UserType } from "../../types/user.type"
 
 interface HomeLeftProps {
   user_info: UserType | undefined

@@ -14,11 +14,11 @@ type useRequested = {
   alterationCoverResponse: (params: ResponseType<unknown>) => void
 }
 
-/* 消息栏持时间 */
+/* 消息栏持续时间 */
 const duration = 3000
 
-const useRequested = (): useRequested => {
-  const [loading, setLoading] = React.useState<boolean>(false)
+const useRequested = (initState: boolean = false): useRequested => {
+  const [loading, setLoading] = React.useState<boolean>(initState)
   const [openSnackbar] = useSnackbar()
   const navigate = useNavigate()
 

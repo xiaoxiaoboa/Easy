@@ -7,8 +7,9 @@ export interface Feed {
 
 export interface FeedType {
   feed_id: string
+  feed_userID: string
   feed_text: string
-  feed_attach: string[]
+  feed_attach: Feed_attach[]
   feed_liked: string[]
   feed_likedCount: number
   feed_comment: string[]
@@ -18,7 +19,13 @@ export interface FeedType {
 }
 
 export interface PublishFeedType {
-  user_id: string
+  feed_userID: string
   feed_text: string
-  feed_attach: string[]
+  feed_attach: Feed_attach[]
+}
+
+export interface Feed_attach {
+  id: string
+  attach_type: "image" | "video"
+  attach_link: string
 }

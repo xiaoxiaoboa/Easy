@@ -1,10 +1,9 @@
 import React from "react"
 import styled from "styled-components"
 import { BiWinkSmile } from "react-icons/bi"
-import EmojiPicker, { Theme, EmojiStyle, EmojiClickData } from "emoji-picker-react"
 
 interface Props {
-  onEmojiClick: (emoji: EmojiClickData) => void
+  onEmojiClick: (emoji: any) => void
 }
 
 const Emoji: React.FC<Props> = props => {
@@ -57,18 +56,7 @@ const Emoji: React.FC<Props> = props => {
         ref={emjiRef}
         onMouseEnter={handleMouseEnterEmoji}
         onMouseLeave={handleMouseLeave}
-      >
-        <EmojiPicker
-          theme={Theme.LIGHT}
-          emojiStyle={EmojiStyle.NATIVE}
-          lazyLoadEmojis
-          searchDisabled
-          previewConfig={{ showPreview: false }}
-          width={300}
-          height={270}
-          onEmojiClick={onEmojiClick}
-        />
-      </EmojiWrapper>
+      ></EmojiWrapper>
     </Container>
   )
 }

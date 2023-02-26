@@ -1,4 +1,3 @@
-import { EmojiClickData } from "emoji-picker-react"
 import React from "react"
 import styled from "styled-components"
 import Emoji from "../../components/Emoji"
@@ -29,7 +28,7 @@ const MyInput = React.forwardRef((props: Props, ref) => {
   )
 
   /* 输入表情 */
-  const emojiInput = (clickData: EmojiClickData) => {
+  const emojiInput = (clickData: any) => {
     if (inputRef.current && cursorRange.current) {
       /* 获取一个 Selection 对象，表示用户选择的文本范围或光标的当前位置 */
       const range = document.getSelection()

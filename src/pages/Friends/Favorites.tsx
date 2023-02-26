@@ -1,13 +1,13 @@
 import React from "react"
 import styled from "styled-components"
-import FeedCard from "../../components/FeedCard"
+import FeedCard from "../../components/FeedCard/FeedCard"
 
 const Favorites = () => {
   return (
     <Container>
       <Wrapper className="flex-c flex-alc">
-        <FeedCard />
-        <FeedCard />
+        {/* <FeedCard />
+        <FeedCard /> */}
       </Wrapper>
     </Container>
   )
