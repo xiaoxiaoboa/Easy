@@ -68,6 +68,9 @@ const Li = styled.li`
   &:hover {
     background-color: ${props => props.theme.colors.hovercolor};
   }
+  &:active {
+    background-color: ${props => props.theme.colors.clicked_hovercolor};
+  }
 `
 
 /* 封装NavLink */

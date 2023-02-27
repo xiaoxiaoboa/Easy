@@ -30,9 +30,6 @@ const jump = keyframes`
 const Container = styled.div`
   width: 100%;
   height: inherit;
-  /* position: absolute;
-  top: 0;
-  left: 0; */
 `
 const Wrapper = styled.div<LoadingProps>`
   height: 50px;

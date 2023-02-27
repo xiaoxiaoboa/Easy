@@ -120,6 +120,7 @@ const ItemContainer = styled.div`
   &:hover {
     background-color: ${props => props.theme.colors.hovercolor};
   }
+  
 `
 const UserInfo = styled.div`
   gap: 10px;

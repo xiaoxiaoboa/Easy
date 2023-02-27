@@ -61,7 +61,6 @@ const TopBarRightButton: React.FC<TopBarRightButtonProps> = props => {
         br={br}
       >
         {children}
-        <Shade className="shade" />
       </ButtonWrapper>
     </TopBarRightButtonContainer>
   )
@@ -81,19 +80,4 @@ const ButtonWrapper = styled.div<ButtonWrapperProps>`
   background-color: ${props => props.theme.colors.nav_btn_bgcolor};
   cursor: pointer;
   transform-origin: center center;
-
-  &:hover {
-    & .shade {
-      opacity: 1;
-    }
-  }
-`
-const Shade = styled.div`
-  width: 100%;
-  height: 100%;
-  border-radius: inherit;
-  position: absolute;
-  background-color: #0000000f;
-  opacity: 0;
-  cursor: unset;
 `

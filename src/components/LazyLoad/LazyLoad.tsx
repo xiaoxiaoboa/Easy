@@ -6,6 +6,7 @@ import { ReducerState } from "../../types/reducer"
 import { UserType } from "../../types/user.type"
 import FeedCard from "../FeedCard/FeedCard"
 import { SkeletonFeed } from "../Skeleton/Skeleton"
+import { PhotoProvider } from "react-photo-view"
 
 interface LazyLoadProps {
   data: Feed[]
@@ -16,7 +17,7 @@ interface LazyLoadProps {
 }
 type ChildrenRefType = { skeletonRef: () => HTMLDivElement | null }
 /* 每次渲染的数量，实际会多1，因为从0算起 */
-const renderCount = 10
+const renderCount = 6
 
 const LazyLoad: React.FC<LazyLoadProps> = props => {
   const { data, theme, user_info, loading, threshold = 1 } = props
@@ -71,31 +72,12 @@ const LazyLoad: React.FC<LazyLoadProps> = props => {
     }
   }
 
-  // React.useEffect(() => {
-  //   if (render.length > 80) {
-  //     const observer = new IntersectionObserver(callback, { threshold: 0 })
-  //     const childrenCollection = containerRef.current?.children
-  //     const children = Array.from(childrenCollection!)
-  //     children.map(item => {
-  //       observer.observe(item)
-  //     })
-  //   }
-  // }, [render])
-
-  // const callback = (entries: IntersectionObserverEntry[]) => {
-  //   entries.forEach(entry => {
-  //     if (entry.isIntersecting) {
-  //       entry.target.classList.remove("hidden")
-  //     } else {
-  //       entry.target.classList.add("hidden")
-  //     }
-  //   })
-  // }
-
   return (
     <Container className="flex-c" ref={containerRef}>
       {render.map(item => (
-        <FeedCard key={item.feed.feed_id} user_info={user_info} feed={item} />
+        <PhotoProvider key={item.feed.feed_id}>
+          <FeedCard user_info={user_info} feed={item} />
+        </PhotoProvider>
       ))}
       {!nothing ? (
         <SkeletonFeed ref={element} theme={theme} />

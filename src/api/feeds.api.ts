@@ -1,4 +1,10 @@
-import { Feed, FeedType, Feed_attach, PublishFeedType } from "../types/feed.type.js"
+import {
+  Feed,
+  FeedType,
+  Feed_attach,
+  Feed_like,
+  PublishFeedType
+} from "../types/feed.type.js"
 import { DataType } from "../types/index.js"
 import getLocalData from "../utils/getLocalData.js"
 import request, { uploadRequest } from "../utils/request.js"
@@ -39,6 +45,17 @@ export const feed_attach = async (
   })
 }
 
+/* 获取所有帖子 */
 export const feeds_all = async (): Promise<ResponseType<Feed[]>> => {
   return await request({ url: "/feeds_all", methods: "GET" })
+}
+
+/* 点赞 */
+export const feed_like = async (params: Feed_like): Promise<ResponseType<number>> => {
+  return await request({
+    url: "/feed_like",
+    methods: "POST",
+    body: params,
+    token: user_info.token
+  })
 }

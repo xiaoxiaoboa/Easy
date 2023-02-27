@@ -40,7 +40,7 @@ interface ContainerStyleProps {
 const Container = styled.div<ContainerStyleProps>`
   width: 100%;
   position: absolute;
-  height:100%;
+  height: 100%;
 
   & .nav-btn {
     height: 100%;
@@ -83,6 +83,9 @@ const Container = styled.div<ContainerStyleProps>`
 
     &:hover {
       background-color: ${props => props.theme.colors.hovercolor};
+    }
+    &:active {
+      background-color: ${props => props.theme.colors.clicked_hovercolor};
     }
   }
 `

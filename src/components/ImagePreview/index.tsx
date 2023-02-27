@@ -32,35 +32,8 @@ const ImagePreview = (props: Props) => {
             </FileWrapper>
           ) : (
             <FileWrapper key={nanoid()} className="flex-c flex-alc">
-              <PhotoView
-                width={1000}
-                height={500}
-                render={({ scale, attrs }) => {
-                  const width = attrs.style?.width as number
-                  const offset = (width - 1000) / 1000
-                  const childScale = scale === 1 ? scale + offset : 1 + offset
-                  return (
-                    <div {...attrs}>
-                      <div
-                        style={{
-                          transform: `scale(${childScale})`,
-                          width: 1000,
-                          transformOrigin: "0 0"
-                        }}
-                      >
-                        <video
-                          controls
-                          src={URL.createObjectURL(file)}
-                          style={{ width: "100%" }}
-                        ></video>
-                      </div>
-                    </div>
-                  )
-                }}
-              >
-                <video src={URL.createObjectURL(file)}></video>
-              </PhotoView>
-              <span>{file.name}</span>
+              <video controls src={URL.createObjectURL(file)}></video>
+              <span className="file_name">{file.name}</span>
               <span
                 className="flex flex-alc deleteimg click"
                 onClick={() => handleDeleteItem(file)}
@@ -84,12 +57,15 @@ const FilesPreview = styled.div`
 const FileWrapper = styled.div`
   position: relative;
   gap: 4px;
+
+  & img {
+    cursor: pointer;
+  }
   & img,
   & video {
     width: 300px;
     max-height: 200px;
     object-fit: cover;
-    cursor: pointer;
     user-select: none;
   }
 
@@ -106,5 +82,12 @@ const FileWrapper = styled.div`
     top: 10px;
     right: 18px;
     cursor: pointer;
+  }
+
+  & .file_name {
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 `

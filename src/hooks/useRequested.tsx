@@ -12,6 +12,7 @@ type useRequested = {
     handler: React.Dispatch<React.SetStateAction<boolean>>
   ) => void
   alterationCoverResponse: (params: ResponseType<unknown>) => void
+  publishResponse: (params: ResponseType<unknown>) => void
 }
 
 /* 消息栏持续时间 */
@@ -37,6 +38,10 @@ const useRequested = (initState: boolean = false): useRequested => {
   const alterationCoverResponse = (params: ResponseType<unknown>) => {
     requestedOpt(params)
   }
+  /* 发布帖子后的响应 */
+  const publishResponse = (params: ResponseType<unknown>) => {
+    requestedOpt(params)
+  }
 
   /* 通用处理函数 */
   const requestedOpt = (params: ResponseType<unknown>, option?: () => void) => {
@@ -57,7 +62,8 @@ const useRequested = (initState: boolean = false): useRequested => {
     setLoading,
     signInResponse,
     signUpResponse,
-    alterationCoverResponse
+    alterationCoverResponse,
+    publishResponse
   }
 }
 

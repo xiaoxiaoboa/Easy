@@ -9,6 +9,7 @@ declare module "styled-components" {
       secondary: string
 
       hovercolor: string
+      clicked_hovercolor:string
 
       nav_bg: string
       nav_icon: string
@@ -26,6 +27,7 @@ declare module "styled-components" {
 
       fd_boxshadow: string
       fd_divisioncolor: string
+      fd_toprightboxshadow:string
 
       profile_cardbg: string
 

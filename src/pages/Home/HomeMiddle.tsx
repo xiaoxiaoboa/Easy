@@ -13,6 +13,7 @@ import Division from "../../components/Division/Division"
 import { Feed } from "../../types/feed.type"
 import LazyLoad from "../../components/LazyLoad/LazyLoad"
 import useRequested from "../../hooks/useRequested"
+import Loading from "../../components/Loading/Loading"
 
 interface HomeMiddleProps {
   user_info: UserType | undefined
@@ -29,7 +30,6 @@ const HomeMiddle: React.FC<HomeMiddleProps> = porps => {
       setLoading(false)
     })
   }, [])
-
 
   return (
     <Container className="flex">
@@ -123,6 +123,9 @@ const PublishContainer = styled.div`
     &:hover {
       background-color: ${props => props.theme.colors.inputbtn_hoverbg};
     }
+    &:active {
+      background-color: ${props => props.theme.colors.clicked_hovercolor};
+    }
   }
 
   & .option {
@@ -176,6 +179,7 @@ const PublishLayer: React.FC<PublishLayerProps> = props => {
   const { handleClose, user_info } = props
   const [files, setFiles] = React.useState<File[]>([])
   const { dispatch } = React.useContext(MyContext)
+  const { loading, setLoading, publishResponse } = useRequested()
 
   /* 子组件MyInput的ref */
   const childInputRef = React.useRef<childInputProps>(null)
@@ -196,6 +200,7 @@ const PublishLayer: React.FC<PublishLayerProps> = props => {
   const handleCommit = () => {
     if (files.length < 1 && childInputRef.current?.inputValue().trim() === "") return
     const text = childInputRef.current?.inputValue()
+    setLoading(true)
     feed_attach(files).then(val => {
       feed_publish({
         feed_userID: user_info!.user_id,
@@ -206,6 +211,10 @@ const PublishLayer: React.FC<PublishLayerProps> = props => {
           .toLocaleString()
           .replace(/\//g, "-")
         dispatch({ type: ActionTypes.HOME_FEEDS, payload: [val.data] })
+
+        setLoading(false)
+        handleCloseSelf()
+        publishResponse(val)
       })
     })
   }
@@ -251,9 +260,13 @@ const PublishLayer: React.FC<PublishLayerProps> = props => {
           </Upload>
         </Files>
         <PublishButton>
-          <button className="click" onClick={handleCommit}>
-            发布
-          </button>
+          {loading ? (
+            <Loading />
+          ) : (
+            <button className="click" onClick={handleCommit}>
+              发布
+            </button>
+          )}
         </PublishButton>
       </PublishLayerWrapper>
 

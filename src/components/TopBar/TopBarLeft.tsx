@@ -9,10 +9,16 @@ const TopBarLeft = () => {
   const bottomRef = React.useRef<HTMLDivElement>(null)
   const inputRef = React.useRef<HTMLInputElement>(null)
 
-  document.onclick = e => {
-    if (e.target === bottomRef.current || e.target === inputRef.current) return
-    if (isInput) setIsInput(false)
-  }
+  React.useEffect(() => {
+    document.onclick = e => {
+      if (e.target === bottomRef.current || e.target === inputRef.current) return
+      if (isInput) setIsInput(false)
+    }
+
+    return () => {
+      document.onclick = null
+    }
+  }, [])
 
   /* 处理点击输入框 */
   const handleClickInput = (): void => {

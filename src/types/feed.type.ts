@@ -29,3 +29,8 @@ export interface Feed_attach {
   attach_type: "image" | "video"
   attach_link: string
 }
+
+export interface Feed_like {
+  feed_id: string
+  user_id: string
+}

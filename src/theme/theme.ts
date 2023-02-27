@@ -9,6 +9,7 @@ export const lightTheme: DefaultTheme = {
     secondary: "#65676b",
 
     hovercolor: "#cccccc40",
+    clicked_hovercolor: "#e4e4e4",
 
     nav_bg: "#ffffff",
     nav_icon: "rgb(137 133 133)",
@@ -26,6 +27,7 @@ export const lightTheme: DefaultTheme = {
 
     fd_boxshadow: "0 1px 2px rgba(0, 0, 0, 0.2)",
     fd_divisioncolor: "#e3e3e3",
+    fd_toprightboxshadow: "rgba(0, 0, 0, 0.15) 0px 2px 8px;",
 
     profile_cardbg: "#FFFFFF",
 
@@ -58,6 +60,7 @@ export const darkTheme: DefaultTheme = {
     secondary: "#B0B3B8",
 
     hovercolor: "#303031",
+    clicked_hovercolor: "#2b2b2b",
 
     nav_bg: "#242526",
     nav_icon: "#B0B3B8",
@@ -75,6 +78,7 @@ export const darkTheme: DefaultTheme = {
 
     fd_boxshadow: "0 1px 2px rgba(0, 0, 0, 0.2)",
     fd_divisioncolor: "#4d4d4d",
+    fd_toprightboxshadow: "rgb(111 111 111 / 27%) 0px 2px 8px",
 
     profile_cardbg: "#242526",
 
@@ -101,13 +105,13 @@ export const darkTheme: DefaultTheme = {
 
 export const GlobalStyle = createGlobalStyle`
   html {
-    overflow-y:scroll;
     height:100%;
     color-scheme: ${props => props.theme.colors.color_scheme};
   }
   
   body {
-    height:100%;
+    overflow-y:scroll;
+    /* height:100%; */
     background-color: ${props => props.theme.colors.bgcolor};
   }
 
