@@ -28,12 +28,7 @@ const Moments = () => {
 
   return (
     <Container className="flex-c flex-alc">
-      <LazyLoad
-        data={feeds}
-        theme={state.theme}
-        user_info={state.user_info?.result!}
-        loading={loading}
-      />
+      <LazyLoad data={feeds} theme={state.theme} user_info={state.user_info?.result!} />
     </Container>
   )
 }

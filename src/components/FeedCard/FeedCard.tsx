@@ -10,6 +10,11 @@ import CardFun from "./CardFun"
 import FeedComment from "./FeedComment"
 import { PhotoView } from "react-photo-view"
 import { SlDrawer, SlTrash } from "react-icons/sl"
+import { feed_delete } from "../../api/feeds.api"
+import useRequested from "../../hooks/useRequested"
+import Loading from "../Loading/Loading"
+import { MyContext } from "../../context/context"
+import { ActionTypes } from "../../types/reducer"
 
 type FeedCard = { user_info?: UserType; feed: Feed }
 const FeedCard: React.FC<FeedCard> = props => {
@@ -144,7 +149,13 @@ const FeedCard: React.FC<FeedCard> = props => {
         <CardFun user_info={user_info} feed={feed} />
         <Division padding="0 20px" margin="0 0 10px 0" />
         <FeedComment user_info={user_info} feed={feed} feedUser={feed_user} />
-        {openConfirm && <Confirm setOpenConfirm={setOpenConfirm} />}
+        {openConfirm && (
+          <Confirm
+            setOpenConfirm={setOpenConfirm}
+            feed={feed}
+            user_id={user_info?.user_id!}
+          />
+        )}
       </FeedCardWrapper>
     </FeedCardContainer>
   )
@@ -242,10 +253,31 @@ const PicAndVid = styled.div`
 `
 
 interface ConfirmProps {
+  feed: FeedType
+  user_id: string
   setOpenConfirm: React.Dispatch<React.SetStateAction<boolean>>
 }
 const Confirm: React.FC<ConfirmProps> = props => {
-  const { setOpenConfirm } = props
+  const { setOpenConfirm, feed, user_id } = props
+  const { loading, setLoading, deleteResponse } = useRequested()
+  const { state, dispatch } = React.useContext(MyContext)
+
+  const handleConfirm = () => {
+    setLoading(true)
+    feed_delete({ feed_id: feed.feed_id, user_id }).then(val => {
+      deleteResponse(val, () => {
+        setLoading(false)
+        setOpenConfirm(false)
+        dispatch({
+          type: ActionTypes.HOME_FEEDS,
+          payload: [
+            ...state.home_feeds.filter(item => item.feed.feed_id !== feed.feed_id)
+          ]
+        })
+      })
+    })
+  }
+
   return (
     <ConfirmContainer className=" flex flex-alc flex-jcc">
       <ConfirmWrapper className="flex-c flex-alc">
@@ -253,10 +285,13 @@ const Confirm: React.FC<ConfirmProps> = props => {
           <h2>确定要删除吗？</h2>
           <p>此操作不可恢复！</p>
         </Title>
-        <Btns className="flex flex-alc">
-          <button onClick={() => setOpenConfirm(false)}>取消</button>
-          <button>确定</button>
-        </Btns>
+        {loading && <Loading />}
+        {!loading && (
+          <Btns className="flex flex-alc">
+            <button onClick={() => setOpenConfirm(false)}>取消</button>
+            <button onClick={handleConfirm}>确定</button>
+          </Btns>
+        )}
       </ConfirmWrapper>
     </ConfirmContainer>
   )

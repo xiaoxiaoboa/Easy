@@ -32,7 +32,7 @@ const Container = styled.div`
   height: inherit;
 `
 const Wrapper = styled.div<LoadingProps>`
-  height: 50px;
+  height: 40px;
   width: max-content;
   gap: 4px;
 

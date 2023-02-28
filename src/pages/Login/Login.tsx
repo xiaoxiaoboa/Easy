@@ -125,7 +125,7 @@ const SubmitButton = styled.button`
   border: none;
   background-color: #1877f2;
   width: 100%;
-  padding: 10px;
+  /* padding: 10px; */
   border-radius: 4px;
   color: white;
   font-size: 18px;
@@ -164,10 +164,11 @@ const Register = (props: RegisterProps) => {
     const userData = {
       ...data,
       profile_img: "",
-      avatar: ""
+      avatar: "",
+      favourite_feeds: []
     }
     setLoading(true)
-    sing_up(userData).then(val => signUpResponse(val, handleClose))
+    sing_up(userData).then(val => signUpResponse(val, () => handleClose(false)))
   }
 
   return (

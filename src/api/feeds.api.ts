@@ -59,3 +59,13 @@ export const feed_like = async (params: Feed_like): Promise<ResponseType<number>
     token: user_info.token
   })
 }
+
+/* 删除 */
+export const feed_delete = async (params: Feed_like): Promise<ResponseType<number>> => {
+  return await request({
+    url: "/feed_delete",
+    methods: "POST",
+    body: params,
+    token: user_info.token
+  })
+}

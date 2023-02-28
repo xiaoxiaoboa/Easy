@@ -39,7 +39,6 @@ const HomeMiddle: React.FC<HomeMiddleProps> = porps => {
           data={state.home_feeds}
           theme={state.theme}
           user_info={state.user_info?.result!}
-          loading={loading}
         />
       </Wrapper>
     </Container>
@@ -178,7 +177,7 @@ interface childInputProps {
 const PublishLayer: React.FC<PublishLayerProps> = props => {
   const { handleClose, user_info } = props
   const [files, setFiles] = React.useState<File[]>([])
-  const { dispatch } = React.useContext(MyContext)
+  const { state, dispatch } = React.useContext(MyContext)
   const { loading, setLoading, publishResponse } = useRequested()
 
   /* 子组件MyInput的ref */
@@ -210,7 +209,10 @@ const PublishLayer: React.FC<PublishLayerProps> = props => {
         val.data.feed.createdAt = new Date(val.data.feed.createdAt)
           .toLocaleString()
           .replace(/\//g, "-")
-        dispatch({ type: ActionTypes.HOME_FEEDS, payload: [val.data] })
+        dispatch({
+          type: ActionTypes.HOME_FEEDS,
+          payload: [val.data, ...state.home_feeds]
+        })
 
         setLoading(false)
         handleCloseSelf()

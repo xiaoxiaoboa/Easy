@@ -8,10 +8,11 @@ const reducer = (state: ReducerState, action: ActionsType) => {
     case ActionTypes.USER_INFO:
       return { ...state, user_info: payload }
     case ActionTypes.HOME_FEEDS:
-      const result = payload.filter(p =>
-        state.home_feeds.every(s => s.feed.feed_id !== p.feed.feed_id)
-      )
-      return { ...state, home_feeds: [...state.home_feeds, ...result] }
+      // const result = payload.filter(p =>
+      //   state.home_feeds.every(s => s.feed.feed_id !== p.feed.feed_id)
+      // )
+      return { ...state, home_feeds: payload }
+
     default:
       return state
   }
