@@ -47,7 +47,7 @@ export const feed_attach = async (
 
 /* 获取所有帖子 */
 export const feeds_all = async (): Promise<ResponseType<Feed[]>> => {
-  return await request({ url: "/feeds_all", methods: "GET" })
+  return await request({ url: "/feeds_all", methods: "GET", token: user_info.token })
 }
 
 /* 点赞 */
