@@ -14,20 +14,19 @@ const duration = 3000
 type CardFunType = { user_info: UserType | undefined; feed: FeedType }
 const CardFun = React.memo(({ user_info, feed }: CardFunType) => {
   const [openSnackbar] = useSnackbar()
-  const [likedCount, setLikedCount] = React.useState<number>(feed.feed_likedCount)
+  const [likedCount, setLikedCount] = React.useState<number>(feed.feed_liked.count)
   const [isLike, setIsLike] = React.useState<boolean>(
-    feed.feed_liked.includes(user_info?.user_id!)
+    feed.feed_liked.liked.includes(user_info?.user_id!)
   )
 
   React.useEffect(() => {
-    if (isLike !== feed.feed_liked.includes(user_info?.user_id!)) {
+    if (isLike !== feed.feed_liked.liked.includes(user_info?.user_id!)) {
     }
   }, [isLike])
 
   const handleLike = () => {
     if (!user_info) return openSnackbar(message, duration)
     feed_like({ feed_id: feed.feed_id, user_id: user_info?.user_id! }).then(val => {
-      
       if (val.code === 1) {
         setLikedCount(prev => (isLike ? prev - 1 : prev + 1))
         setIsLike(prev => !prev)
@@ -50,7 +49,7 @@ const CardFun = React.memo(({ user_info, feed }: CardFunType) => {
       </div>
       <div className="comment flex flex-alc flex-jcc">
         <FaRegComment size="20" className="FaRegComment" />
-        评论{feed.feed_commentCount > 0 ? `(${feed.feed_commentCount})` : ""}
+        评论{feed.feed_comment.count > 0 ? `(${feed.feed_comment.count})` : ""}
       </div>
       <div className="share flex flex-alc flex-jcc" onClick={handleShare}>
         <TiArrowForwardOutline size="24" className="TiArrowForwardOutline" />

@@ -19,7 +19,7 @@ const duration = 3000
 
 const FeedComment: React.FC<CommentProps> = props => {
   const { user_info, feedUser, feed } = props
-  const [comments, setComment] = React.useState<string[]>(feed.feed_comment)
+  const [comments, setComment] = React.useState<string[]>(feed.feed_comment.comment)
   const commentsRef = React.useRef<HTMLDivElement>(null)
   const [openSnackbar] = useSnackbar()
 

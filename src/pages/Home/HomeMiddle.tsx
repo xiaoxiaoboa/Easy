@@ -206,7 +206,7 @@ const PublishLayer: React.FC<PublishLayerProps> = props => {
         feed_text: text!,
         feed_attach: val.data
       }).then(val => {
-        val.data.feed.createdAt = new Date(val.data.feed.createdAt)
+        val.data.createdAt = new Date(val.data.createdAt)
           .toLocaleString()
           .replace(/\//g, "-")
         dispatch({
