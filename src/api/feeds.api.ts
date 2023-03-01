@@ -23,7 +23,7 @@ export const feeds_query = async (user_id: string): Promise<ResponseType<Feed[]>
 
 export const feed_publish = async (
   params: PublishFeedType
-): Promise<ResponseType<Feed>> => {
+): Promise<ResponseType<FeedType>> => {
   return await request({
     url: "/feed_create",
     methods: "POST",
@@ -46,8 +46,8 @@ export const feed_attach = async (
 }
 
 /* 获取所有帖子 */
-export const feeds_all = async (): Promise<ResponseType<Feed[]>> => {
-  return await request({ url: "/feeds_all", methods: "GET", token: user_info.token })
+export const feeds_all = async (): Promise<ResponseType<FeedType[]>> => {
+  return await request({ url: "/feeds_all", methods: "GET" })
 }
 
 /* 点赞 */

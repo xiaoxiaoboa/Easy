@@ -1,4 +1,4 @@
-import { Feed } from "../feed.type"
+import { FeedType } from "../feed.type"
 import { DataType } from "../index"
 
 export interface createContextType {
@@ -9,7 +9,7 @@ export interface createContextType {
 export interface ReducerState {
   user_info: DataType | null
   theme: "light" | "dark"
-  home_feeds: Feed[]
+  home_feeds: FeedType[]
 }
 
 export type ActionMap<M extends { [index: string]: any }> = {
@@ -37,7 +37,7 @@ export interface ReducerActionType {
 export interface ReducerPaylodType {
   [ActionTypes.USER_INFO]: DataType | null
   [ActionTypes.THEME]: "light" | "dark"
-  [ActionTypes.HOME_FEEDS]: Feed[]
+  [ActionTypes.HOME_FEEDS]: FeedType[]
 }
 
 export type ActionsType = ActionMap<ReducerPaylodType>[keyof ActionMap<ReducerPaylodType>]

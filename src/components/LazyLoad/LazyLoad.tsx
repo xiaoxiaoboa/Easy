@@ -1,14 +1,14 @@
 import { useInViewport } from "ahooks"
 import React from "react"
 import styled from "styled-components"
-import { Feed } from "../../types/feed.type"
+import { Feed, FeedType } from "../../types/feed.type"
 import { UserType } from "../../types/user.type"
 import FeedCard from "../FeedCard/FeedCard"
 import { SkeletonFeed } from "../Skeleton/Skeleton"
 import { PhotoProvider } from "react-photo-view"
 
 interface LazyLoadProps {
-  data: Feed[]
+  data: FeedType[]
   theme: "dark" | "light"
   user_info: UserType
   threshold?: number
@@ -36,7 +36,6 @@ const LazyLoad = React.memo((props: LazyLoadProps) => {
 
   React.useEffect(() => {
     if (inViewport) {
-      console.log(endIndex , data.length)
       if (endIndex > data.length) return setNothing(true)
       setEndIndex(prev => prev + renderCount)
     }
@@ -44,8 +43,8 @@ const LazyLoad = React.memo((props: LazyLoadProps) => {
 
   return (
     <Container className="flex-c" ref={containerRef}>
-      {data.slice(startIndex.current, endIndex).map(item => (
-        <PhotoProvider key={item.feed.feed_id}>
+      {data.slice(startIndex.current, endIndex).map((item, index) => (
+        <PhotoProvider key={item.feed_id}>
           <FeedCard user_info={user_info} feed={item} />
         </PhotoProvider>
       ))}
