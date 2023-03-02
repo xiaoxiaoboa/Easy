@@ -14,32 +14,56 @@ import { Feed } from "../../types/feed.type"
 import LazyLoad from "../../components/LazyLoad/LazyLoad"
 import useRequested from "../../hooks/useRequested"
 import Loading from "../../components/Loading/Loading"
+import { PhotoProvider } from "react-photo-view"
+import FeedCard from "../../components/FeedCard/FeedCard"
+import { useInViewport } from "ahooks"
+import { SkeletonFeed } from "../../components/Skeleton/Skeleton"
 
 interface HomeMiddleProps {
   user_info: UserType | undefined
 }
+type ChildrenRefType = { skeletonRef: () => HTMLDivElement | null }
 const HomeMiddle: React.FC<HomeMiddleProps> = porps => {
   const { user_info } = porps
   const { state, dispatch } = React.useContext(MyContext)
-  const { loading, setLoading } = useRequested()
+  /* 子组件骨架屏的ref */
+  const element = React.useRef<ChildrenRefType>(null)
+  /* 是否还有数据，显示文字 */
+  const [nothing, setNothing] = React.useState<boolean>(false)
+
+  const [inViewport] = useInViewport(element.current?.skeletonRef(), {
+    threshold: 1
+  })
+  const limit = 10
+  const offsetRef = React.useRef<number>(0)
 
   React.useEffect(() => {
-    setLoading(true)
-    feeds_all().then(val => {
-      dispatch({ type: ActionTypes.HOME_FEEDS, payload: val.data })
-      setLoading(false)
-    })
-  }, [])
+    if (inViewport) {
+      feeds_all(limit, offsetRef.current).then(val => {
+        if (val.data.length === 0) {
+          setNothing(true)
+          return
+        }
+        dispatch({
+          type: ActionTypes.HOME_FEEDS,
+          payload: [...state.home_feeds, ...val.data]
+        })
+        offsetRef.current += limit
+      })
+    }
+  }, [inViewport])
 
   return (
     <Container className="flex">
       <Wrapper className="flex-c flex-alc">
         {user_info && <Publish user_info={user_info} />}
-        <LazyLoad
-          data={state.home_feeds}
-          theme={state.theme}
-          user_info={state.user_info?.result!}
-        />
+        {state.home_feeds.map(item => (
+          <PhotoProvider key={item.feed_id}>
+            <FeedCard user_info={user_info} feed={item} />
+          </PhotoProvider>
+        ))}
+        {!nothing && <SkeletonFeed ref={element} theme={state.theme} />}
+        {nothing && <Tip>没有啦！看看别的吧~</Tip>}
       </Wrapper>
     </Container>
   )
@@ -55,6 +79,12 @@ const Wrapper = styled.div`
   height: max-content;
   padding: 20px 0 30px 0;
   gap: 20px;
+`
+const Tip = styled.div`
+  width: 100%;
+  text-align: center;
+  margin-top: 10px;
+  color: ${props => props.theme.colors.secondary};
 `
 
 /* 顶部发布卡片 */

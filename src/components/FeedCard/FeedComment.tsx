@@ -3,14 +3,14 @@ import { MdDeleteForever } from "react-icons/md"
 import styled from "styled-components"
 import useSnackbar from "../../hooks/useSnackbar"
 import { FeedType } from "../../types/feed.type"
-import { UserType } from "../../types/user.type"
+import { InComplateUserType, UserType } from "../../types/user.type"
 import Avatar from "../Avatar/Avatar"
 import MyInput from "../MyInput/MyInput"
 
 /* 评论 */
 type CommentProps = {
   user_info: UserType | undefined
-  feedUser: UserType
+  feedUser: InComplateUserType
   feed: FeedType
 }
 

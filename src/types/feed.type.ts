@@ -1,9 +1,8 @@
-import { UserType } from "./user.type"
+import { InComplateFavouriteType, InComplateUserType } from "./user.type"
 
 export interface Feed {
   feed_id: string
   feed_userID: string
-  user: UserType
   feed_text: string
   createdAt: string
   updatedAt: string
@@ -13,17 +12,13 @@ export interface FeedType extends Feed {
   feed_liked: Feed_LikedType
   feed_comment: Feed_CommentType
   feed_attach: Feed_attachType
+  user: InComplateUserType
+  user_favourites: InComplateFavouriteType[]
 }
-
 export interface PublishFeedType {
   feed_userID: string
   feed_text: string
   feed_attach: Feed_attach[]
-}
-
-export interface Feed_like {
-  feed_id: string
-  user_id: string
 }
 
 /* =====================Feed_attach=========================== */

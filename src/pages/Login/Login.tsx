@@ -164,8 +164,7 @@ const Register = (props: RegisterProps) => {
     const userData = {
       ...data,
       profile_img: "",
-      avatar: "",
-      favourite_feeds: []
+      avatar: ""
     }
     setLoading(true)
     sing_up(userData).then(val => signUpResponse(val, () => handleClose(false)))

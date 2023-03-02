@@ -10,7 +10,7 @@ import CardFun from "./CardFun"
 import FeedComment from "./FeedComment"
 import { PhotoView } from "react-photo-view"
 import { SlDrawer, SlTrash } from "react-icons/sl"
-import { feed_delete } from "../../api/feeds.api"
+import { feed_delete, feed_fav, feed_like } from "../../api/feeds.api"
 import useRequested from "../../hooks/useRequested"
 import Loading from "../Loading/Loading"
 import { MyContext } from "../../context/context"
@@ -21,6 +21,9 @@ const FeedCard: React.FC<FeedCard> = props => {
   const { user_info, feed } = props
   const [open, setOpen] = React.useState<boolean>(false)
   const [openConfirm, setOpenConfirm] = React.useState<boolean>(false)
+  const [isFav, setIsFav] = React.useState<boolean>(
+    feed.user_favourites.some(item => item.user_id === user_info?.user_id)
+  )
 
   const selectTag = (data: Feed_attach) => {
     switch (data.type) {
@@ -105,6 +108,14 @@ const FeedCard: React.FC<FeedCard> = props => {
     }
   }, [feed])
 
+  const handleFavourite = () => {
+    /* 收藏帖子 */
+    feed_fav(feed.feed_id, user_info?.user_id!).then(val => {
+      if (val.code === 1) {
+        setIsFav(prev => !prev)
+      }
+    })
+  }
   return (
     <FeedCardContainer>
       <FeedCardWrapper className="flex-c">
@@ -132,9 +143,9 @@ const FeedCard: React.FC<FeedCard> = props => {
               ></div>
 
               <CardTopRightWrapper>
-                <span className="flex flex-alc collect">
+                <span className="flex flex-alc collect" onClick={handleFavourite}>
                   <SlDrawer />
-                  收藏帖子
+                  {isFav ? "取消收藏" : "收藏帖子"}
                 </span>
                 <span
                   className="flex flex-alc remove"
@@ -271,14 +282,14 @@ const Confirm: React.FC<ConfirmProps> = props => {
 
   const handleConfirm = () => {
     setLoading(true)
-    feed_delete({ feed_id: feed.feed_id, user_id }).then(val => {
+    feed_delete(feed.feed_id).then(val => {
       deleteResponse(val, () => {
-        setLoading(false)
-        setOpenConfirm(false)
         dispatch({
           type: ActionTypes.HOME_FEEDS,
           payload: [...state.home_feeds.filter(item => item.feed_id !== feed.feed_id)]
         })
+        setLoading(false)
+        setOpenConfirm(false)
       })
     })
   }

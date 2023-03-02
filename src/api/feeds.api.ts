@@ -1,10 +1,4 @@
-import {
-  Feed,
-  FeedType,
-  Feed_attach,
-  Feed_like,
-  PublishFeedType
-} from "../types/feed.type.js"
+import { Feed, FeedType, Feed_attach, PublishFeedType } from "../types/feed.type.js"
 import { DataType } from "../types/index.js"
 import getLocalData from "../utils/getLocalData.js"
 import request, { uploadRequest } from "../utils/request.js"
@@ -46,12 +40,21 @@ export const feed_attach = async (
 }
 
 /* 获取所有帖子 */
-export const feeds_all = async (): Promise<ResponseType<FeedType[]>> => {
-  return await request({ url: "/feeds_all", methods: "GET" })
+export const feeds_all = async (
+  limit: number,
+  offset: number
+): Promise<ResponseType<FeedType[]>> => {
+  return await request({
+    url: `/feeds_all?limit=${limit}&offset=${offset}`,
+    methods: "GET"
+  })
 }
 
 /* 点赞 */
-export const feed_like = async (params: Feed_like): Promise<ResponseType<number>> => {
+export const feed_like = async (params: {
+  feed_id: string
+  user_id: string
+}): Promise<ResponseType<void>> => {
   return await request({
     url: "/feed_like",
     methods: "POST",
@@ -61,11 +64,21 @@ export const feed_like = async (params: Feed_like): Promise<ResponseType<number>
 }
 
 /* 删除 */
-export const feed_delete = async (params: Feed_like): Promise<ResponseType<number>> => {
+export const feed_delete = async (feed_id: string): Promise<ResponseType<number>> => {
   return await request({
     url: "/feed_delete",
     methods: "POST",
-    body: params,
+    body: { feed_id },
+    token: user_info.token
+  })
+}
+
+/* 收藏 */
+export const feed_fav = async (feed_id: string, user_id: string) => {
+  return await request({
+    url: "/fav",
+    methods: "POST",
+    body: { feed_id, user_id },
     token: user_info.token
   })
 }
