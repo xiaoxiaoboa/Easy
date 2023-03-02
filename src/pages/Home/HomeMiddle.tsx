@@ -30,7 +30,7 @@ const HomeMiddle: React.FC<HomeMiddleProps> = porps => {
   const element = React.useRef<ChildrenRefType>(null)
   /* 是否还有数据，显示文字 */
   const [nothing, setNothing] = React.useState<boolean>(false)
-
+  /* 骨架屏是否在视口内 */
   const [inViewport] = useInViewport(element.current?.skeletonRef(), {
     threshold: 1
   })
@@ -40,6 +40,7 @@ const HomeMiddle: React.FC<HomeMiddleProps> = porps => {
   React.useEffect(() => {
     if (inViewport) {
       feeds_all(limit, offsetRef.current).then(val => {
+        if (val.code !== 1) return
         if (val.data.length === 0) {
           setNothing(true)
           return
@@ -58,9 +59,9 @@ const HomeMiddle: React.FC<HomeMiddleProps> = porps => {
       <Wrapper className="flex-c flex-alc">
         {user_info && <Publish user_info={user_info} />}
         {state.home_feeds.map(item => (
-          <PhotoProvider key={item.feed_id}>
-            <FeedCard user_info={user_info} feed={item} />
-          </PhotoProvider>
+          // <PhotoProvider key={item.feed_id}>
+          <FeedCard key={item.feed_id} user_info={user_info} feed={item} />
+          // {</PhotoProvider>}
         ))}
         {!nothing && <SkeletonFeed ref={element} theme={state.theme} />}
         {nothing && <Tip>没有啦！看看别的吧~</Tip>}
@@ -80,7 +81,7 @@ const Wrapper = styled.div`
   padding: 20px 0 30px 0;
   gap: 20px;
 `
-const Tip = styled.div`
+export const Tip = styled.div`
   width: 100%;
   text-align: center;
   margin-top: 10px;

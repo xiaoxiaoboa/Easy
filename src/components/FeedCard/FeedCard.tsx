@@ -8,7 +8,7 @@ import { Feed, FeedType, Feed_attach } from "../../types/feed.type"
 import Division from "../Division/Division"
 import CardFun from "./CardFun"
 import FeedComment from "./FeedComment"
-import { PhotoView } from "react-photo-view"
+import { PhotoProvider, PhotoView } from "react-photo-view"
 import { SlDrawer, SlTrash } from "react-icons/sl"
 import { feed_delete, feed_fav, feed_like } from "../../api/feeds.api"
 import useRequested from "../../hooks/useRequested"
@@ -29,9 +29,11 @@ const FeedCard: React.FC<FeedCard> = props => {
     switch (data.type) {
       case "image":
         return (
-          <PhotoView src={getUnionUrl(data.link)}>
-            <img src={getUnionUrl(data.link)} />
-          </PhotoView>
+          <PhotoProvider>
+            <PhotoView src={getUnionUrl(data.link)}>
+              <img src={getUnionUrl(data.link)} />
+            </PhotoView>
+          </PhotoProvider>
         )
       case "video":
         return <video src={getUnionUrl(data.link)} controls />

@@ -6,11 +6,15 @@ import { ResponseType } from "../types/index"
 
 const user_info: DataType = getLocalData("user_info")
 
-export const feeds_query = async (user_id: string): Promise<ResponseType<Feed[]>> => {
+export const feeds_query = async (
+  user_id: string,
+  limit: number,
+  offset: number
+): Promise<ResponseType<FeedType[]>> => {
   return await request({
     url: "/feed_query",
     methods: "POST",
-    body: { user_id },
+    body: { user_id, limit, offset },
     token: user_info.token
   })
 }
