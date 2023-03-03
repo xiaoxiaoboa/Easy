@@ -11,7 +11,6 @@ import { feed_publish, feed_attach, feeds_all } from "../../api/feeds.api"
 import { ActionTypes } from "../../types/reducer"
 import Division from "../../components/Division/Division"
 import { Feed } from "../../types/feed.type"
-import LazyLoad from "../../components/LazyLoad/LazyLoad"
 import useRequested from "../../hooks/useRequested"
 import Loading from "../../components/Loading/Loading"
 import { PhotoProvider } from "react-photo-view"
@@ -59,9 +58,7 @@ const HomeMiddle: React.FC<HomeMiddleProps> = porps => {
       <Wrapper className="flex-c flex-alc">
         {user_info && <Publish user_info={user_info} />}
         {state.home_feeds.map(item => (
-          // <PhotoProvider key={item.feed_id}>
           <FeedCard key={item.feed_id} user_info={user_info} feed={item} />
-          // {</PhotoProvider>}
         ))}
         {!nothing && <SkeletonFeed ref={element} theme={state.theme} />}
         {nothing && <Tip>没有啦！看看别的吧~</Tip>}
@@ -209,7 +206,7 @@ const PublishLayer: React.FC<PublishLayerProps> = props => {
   const { handleClose, user_info } = props
   const [files, setFiles] = React.useState<File[]>([])
   const { state, dispatch } = React.useContext(MyContext)
-  const { loading, setLoading, publishResponse } = useRequested()
+  const { loading, setLoading, requestedOpt } = useRequested()
 
   /* 子组件MyInput的ref */
   const childInputRef = React.useRef<childInputProps>(null)
@@ -247,7 +244,7 @@ const PublishLayer: React.FC<PublishLayerProps> = props => {
 
         setLoading(false)
         handleCloseSelf()
-        publishResponse(val)
+        requestedOpt(val)
       })
     })
   }

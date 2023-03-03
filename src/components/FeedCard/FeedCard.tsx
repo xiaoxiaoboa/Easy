@@ -19,8 +19,9 @@ import { ActionTypes } from "../../types/reducer"
 type FeedCard = { user_info?: UserType; feed: FeedType }
 const FeedCard: React.FC<FeedCard> = props => {
   const { user_info, feed } = props
-  const [open, setOpen] = React.useState<boolean>(false)
+  const [openRightWindow, setOpenRightWindow] = React.useState<boolean>(false)
   const [openConfirm, setOpenConfirm] = React.useState<boolean>(false)
+  const [openComment, setOpenComment] = React.useState<boolean>(false)
   const [isFav, setIsFav] = React.useState<boolean>(
     feed.user_favourites.some(item => item.user_id === user_info?.user_id)
   )
@@ -127,21 +128,27 @@ const FeedCard: React.FC<FeedCard> = props => {
             <div className="carduser">{feed.user.nick_name}</div>
             <div className="cardtimestamp">{feed.createdAt}</div>
           </div>
-          <div className="cardfun click flex-r flex-alc" onClick={() => setOpen(true)}>
+          <div
+            className="cardfun click flex-r flex-alc"
+            onClick={() => setOpenRightWindow(true)}
+          >
             <FiMoreHorizontal size="22" className="FiMoreHorizontal" />
           </div>
-          {open && (
-            <CardTopRight className="flex-c flex-alc" onClick={() => setOpen(false)}>
+          {openRightWindow && (
+            <CardTopRight
+              className="flex-c flex-alc"
+              onClick={() => setOpenRightWindow(false)}
+            >
               <div
                 style={{
-                  position: `${open ? "fixed" : "static"}`,
+                  position: `${openRightWindow ? "fixed" : "static"}`,
                   top: 0,
                   left: 0,
                   right: 0,
                   bottom: 0,
                   zIndex: 1
                 }}
-                onClick={() => setOpen(false)}
+                onClick={() => setOpenRightWindow(false)}
               ></div>
 
               <CardTopRightWrapper>
@@ -160,15 +167,26 @@ const FeedCard: React.FC<FeedCard> = props => {
             </CardTopRight>
           )}
         </CardTop>
-        <Division margin="6px 0 0 0" />
+        {/* <Division margin="6px 0 0 0" /> */}
         <CardContent>
           <TextAndEmoj>{feed.feed_text}</TextAndEmoj>
           <PicAndVid className="flex">{generateElement}</PicAndVid>
         </CardContent>
         <Division />
-        <CardFun user_info={user_info} feed={feed} />
-        <Division padding="0 20px" margin="0 0 10px 0" />
-        <FeedComment user_info={user_info} feed={feed} feedUser={feed.user} />
+        <CardFun
+          user_id={user_info?.user_id!}
+          feed={feed}
+          setopenComment={setOpenComment}
+        />
+
+        {openComment && (
+          <FeedComment
+            isOpen={openComment}
+            user_info={user_info!}
+            feed_id={feed.feed_id}
+          />
+        )}
+
         {openConfirm && (
           <Confirm
             setOpenConfirm={setOpenConfirm}
@@ -188,7 +206,7 @@ const FeedCardContainer = styled.div`
   width: 600px;
 `
 const FeedCardWrapper = styled.div`
-  padding-top: 10px;
+  padding: 10px 0;
   background-color: ${props => props.theme.colors.nav_bg};
   border-radius: 8px;
   box-shadow: ${props => props.theme.colors.fd_boxshadow};

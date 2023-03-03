@@ -1,4 +1,11 @@
-import { Feed, FeedType, Feed_attach, PublishFeedType } from "../types/feed.type.js"
+import {
+  Feed,
+  FeedType,
+  Feed_attach,
+  Feed_CommentPublishType,
+  Feed_CommentType,
+  PublishFeedType
+} from "../types/feed.type.js"
 import { DataType } from "../types/index.js"
 import getLocalData from "../utils/getLocalData.js"
 import request, { uploadRequest } from "../utils/request.js"
@@ -83,6 +90,29 @@ export const feed_fav = async (feed_id: string, user_id: string) => {
     url: "/fav",
     methods: "POST",
     body: { feed_id, user_id },
+    token: user_info.token
+  })
+}
+
+/* 获取帖子的评论 */
+export const feed_comments = async (
+  feed_id: string
+): Promise<ResponseType<Feed_CommentType[]>> => {
+  return await request({
+    url: "/feed_comment",
+    methods: "POST",
+    body: { feed_id }
+  })
+}
+
+/* 发布评论 */
+export const comment_publish = async (
+  params: Feed_CommentPublishType
+): Promise<ResponseType<Feed_CommentType>> => {
+  return await request({
+    url: "/comment_create",
+    methods: "POST",
+    body: params,
     token: user_info.token
   })
 }

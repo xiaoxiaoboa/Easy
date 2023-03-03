@@ -62,7 +62,7 @@ const MyInput = React.forwardRef((props: Props, ref) => {
   /* onkeyDown */
   const text_keyDown: React.KeyboardEventHandler<HTMLDivElement> = e => {
     handleCursorRange()
-    const text = inputRef.current?.innerText
+    const text = inputRef.current?.innerHTML.trim()
     if (e.key === "Enter" && !e.shiftKey) {
       /* 回车键发送 */
       e.preventDefault()

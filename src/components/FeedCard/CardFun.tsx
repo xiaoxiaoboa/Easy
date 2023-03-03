@@ -11,22 +11,22 @@ const message = "请登录！"
 const duration = 3000
 
 /* card点赞、评论、分享功能 */
-type CardFunType = { user_info: UserType | undefined; feed: FeedType }
-const CardFun = React.memo(({ user_info, feed }: CardFunType) => {
+interface CardFunType {
+  user_id: string
+  feed: FeedType
+  setopenComment: React.Dispatch<React.SetStateAction<boolean>>
+}
+const CardFun = React.memo((props: CardFunType) => {
+  const { feed, user_id, setopenComment } = props
   const [openSnackbar] = useSnackbar()
-  const [likedCount, setLikedCount] = React.useState<number>(feed.feed_liked.count)
+  const [likedCount, setLikedCount] = React.useState<number>(feed.feed_liked.liked.length)
   const [isLike, setIsLike] = React.useState<boolean>(
-    feed.feed_liked.liked.includes(user_info?.user_id!)
+    feed.feed_liked.liked.includes(user_id!)
   )
 
-  React.useEffect(() => {
-    if (isLike !== feed.feed_liked.liked.includes(user_info?.user_id!)) {
-    }
-  }, [isLike])
-
   const handleLike = () => {
-    if (!user_info) return openSnackbar(message, duration)
-    feed_like({ feed_id: feed.feed_id, user_id: user_info?.user_id! }).then(val => {
+    if (!user_id) return openSnackbar(message, duration)
+    feed_like({ feed_id: feed.feed_id, user_id }).then(val => {
       if (val.code === 1) {
         setLikedCount(prev => (isLike ? prev - 1 : prev + 1))
         setIsLike(prev => !prev)
@@ -34,7 +34,7 @@ const CardFun = React.memo(({ user_info, feed }: CardFunType) => {
     })
   }
   const handleShare = () => {
-    if (!user_info) return openSnackbar(message, duration)
+    if (!user_id) return openSnackbar(message, duration)
     console.log("share")
   }
   return (
@@ -47,9 +47,12 @@ const CardFun = React.memo(({ user_info, feed }: CardFunType) => {
         )}
         赞 {likedCount > 0 ? `(${likedCount})` : ""}
       </div>
-      <div className="comment flex flex-alc flex-jcc">
+      <div
+        className="comment flex flex-alc flex-jcc"
+        onClick={() => setopenComment(true)}
+      >
         <FaRegComment size="20" className="FaRegComment" />
-        评论{feed.feed_comment.count > 0 ? `(${feed.feed_comment.count})` : ""}
+        评论{feed.comment_count > 0 ? `(${feed.comment_count})` : ""}
       </div>
       <div className="share flex flex-alc flex-jcc" onClick={handleShare}>
         <TiArrowForwardOutline size="24" className="TiArrowForwardOutline" />
