@@ -1,47 +1,83 @@
 import React from "react"
 import { MdDeleteForever } from "react-icons/md"
 import styled from "styled-components"
+import { comment_publish, feed_comments } from "../../api/feeds.api"
 import useSnackbar from "../../hooks/useSnackbar"
-import { FeedType } from "../../types/feed.type"
-import { UserType } from "../../types/user.type"
+import { FeedType, Feed_CommentType } from "../../types/feed.type"
+import { InComplateUserType, UserType } from "../../types/user.type"
 import Avatar from "../Avatar/Avatar"
+import Division from "../Division/Division"
 import MyInput from "../MyInput/MyInput"
+import { nanoid } from "nanoid"
+import getTimeDiff from "../../utils/getTimeDiff"
+import useRequested from "../../hooks/useRequested"
+import Loading from "../Loading/Loading"
 
 /* 评论 */
 type CommentProps = {
-  user_info: UserType | undefined
-  feedUser: UserType
-  feed: FeedType
+  user_info: UserType
+  feed_id: string
+  isOpen: boolean
 }
 
 const message = "请登录！"
 const duration = 3000
 
 const FeedComment: React.FC<CommentProps> = props => {
-  const { user_info, feedUser, feed } = props
-  const [comments, setComment] = React.useState<string[]>(feed.feed_comment)
+  const { user_info, feed_id, isOpen } = props
+  const [comments, setComment] = React.useState<Feed_CommentType[]>([])
   const commentsRef = React.useRef<HTMLDivElement>(null)
   const [openSnackbar] = useSnackbar()
+  const { loading, setLoading } = useRequested()
+
+  React.useEffect(() => {
+    setLoading(true)
+    feed_comments(feed_id).then(val => {
+      if (val.code === 1) {
+        setComment(val.data)
+        setLoading(false)
+      }
+    })
+  }, [feed_id])
 
   const handleKeyDown = (inputValue: string) => {
     if (!user_info) return openSnackbar(message, duration)
-    console.log(inputValue)
+    const newComment: Feed_CommentType = {
+      feed_id: feed_id,
+      comment_id: nanoid(9),
+      user_id: user_info.user_id,
+      comment: inputValue,
+      createdAt: Date(),
+      avatar: user_info.avatar,
+      nick_name: user_info.nick_name
+    }
+    const { avatar, nick_name, createdAt, ...res } = newComment
+    comment_publish(res).then(val => {
+      if (val.code === 1) {
+        setComment(prev => [...prev, newComment])
+      }
+    })
   }
 
   return (
-    <CommentContainer>
+    <CommentContainer isOpen={isOpen}>
+      <Division padding="0 20px" margin="0 0 10px 0" />
       <CommentWrapper className="flex-c">
-        <p>查看剩余1条评论</p>
+        {/* <p>查看剩余1条评论</p> */}
         <Comments className="flex-c" ref={commentsRef}>
-          {comments.map((comment, index) => (
-            <AComment key={index} className="flex">
-              <div className="avatar">
-                <Avatar src={undefined} size="32" />
+          {loading && <Loading size={8} />}
+          {comments.map(item => (
+            <AComment key={item.comment_id} className="flex">
+              <div>
+                <Avatar src={item.avatar} size="32" />
               </div>
-              <div className="text flex-c">
-                <span>Xiaoxin Yuan</span>
-                <p>{comment}</p>
-              </div>
+              <TextWrapper className="flex-c">
+                <div className="flex flex-alc">
+                  <TextNickName>{item.nick_name}</TextNickName>
+                  <TextTimeStamp>{getTimeDiff(item.createdAt)}</TextTimeStamp>
+                </div>
+                <Text>{item.comment}</Text>
+              </TextWrapper>
               <div className="delete click flex flex-alc">
                 <span className="flex flex-alc">
                   <MdDeleteForever size="18" className="MdDeleteForever" />
@@ -63,18 +99,22 @@ const FeedComment: React.FC<CommentProps> = props => {
 
 export default FeedComment
 
+type CommentContainerProps = { isOpen: boolean }
 /* styled */
-const CommentContainer = styled.div``
+const CommentContainer = styled.div<CommentContainerProps>`
+  /* height: ${props => (props.isOpen ? "auto" : 0)}; */
+  overflow: hidden;
+`
 const CommentWrapper = styled.div`
   padding: 0 20px;
 
-  & > p {
+  /* & > p {
     cursor: pointer;
     color: ${props => props.theme.colors.secondary};
     &:hover {
       text-decoration: underline;
     }
-  }
+  } */
 `
 const WriteComment = styled.div`
   gap: 10px;
@@ -86,15 +126,37 @@ const CommentInput = styled.div`
   flex: 1;
 `
 const Comments = styled.div`
-  width: max-content;
-  max-width: 100%;
+  width: 100%;
+  /* max-width: 100%; */
   gap: 10px;
   overflow: hidden;
+  margin: 10px 0 4px 0;
 
   &.unfold {
     height: auto;
   }
 `
+const TextWrapper = styled.div`
+  gap: 4px;
+  padding: 8px;
+  border-radius: 16px;
+  background-color: ${props => props.theme.colors.inputbtn_bg};
+`
+const TextNickName = styled.span`
+  font-size: 13px;
+  font-weight: bold;
+`
+const Text = styled.div`
+  font-size: 15px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+`
+const TextTimeStamp = styled.span`
+  margin-left: 10px;
+  font-size: 12px;
+  color: ${props => props.theme.colors.secondary};
+`
+
 const AComment = styled.div`
   gap: 10px;
 
@@ -103,20 +165,6 @@ const AComment = styled.div`
       & span {
         transform: scale(1);
       }
-    }
-  }
-
-  & .text {
-    padding: 10px;
-    border-radius: 16px;
-    background-color: ${props => props.theme.colors.inputbtn_bg};
-
-    & span {
-      font-size: 13px;
-      font-weight: 500;
-    }
-    & p {
-      font-size: 15px;
     }
   }
 

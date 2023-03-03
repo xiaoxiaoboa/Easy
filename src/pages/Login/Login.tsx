@@ -8,6 +8,7 @@ import Loading from "../../components/Loading/Loading"
 import useRequested from "../../hooks/useRequested"
 import { MyContext } from "../../context/context"
 import { ActionTypes } from "../../types/reducer/index"
+import { useNavigate } from "react-router-dom"
 
 interface LoginFormProps {
   email: string
@@ -18,15 +19,16 @@ interface LoginFormProps {
 const Login = () => {
   const { register, handleSubmit } = useForm<LoginFormProps>()
   const [openRegister, setOpenRegister] = React.useState<boolean>(false)
-  const { loading, setLoading, signInResponse } = useRequested()
+  const { loading, setLoading, requestedOpt } = useRequested()
   const { dispatch } = React.useContext(MyContext)
+  const navigate = useNavigate()
 
   const handleLoginSubmit: SubmitHandler<LoginFormProps> = (data: FieldValues) => {
     setLoading(true)
     sign_in(data).then(val => {
-      signInResponse(val)
       dispatch({ type: ActionTypes.USER_INFO, payload: val.data })
       localStorage.setItem("user_info", JSON.stringify(val.data))
+      requestedOpt(val, () => navigate("/"))
     })
   }
   return (
@@ -158,17 +160,16 @@ interface RegisterFormProps extends LoginFormProps {
 const Register = (props: RegisterProps) => {
   const { handleClose } = props
   const { register, handleSubmit } = useForm<RegisterFormProps>()
-  const { loading, setLoading, signUpResponse } = useRequested()
+  const { loading, setLoading, requestedOpt } = useRequested()
 
   const handleRegisterSubmit: SubmitHandler<RegisterFormProps> = (data: FieldValues) => {
     const userData = {
       ...data,
       profile_img: "",
-      avatar: "",
-      favourite_feeds: []
+      avatar: ""
     }
     setLoading(true)
-    sing_up(userData).then(val => signUpResponse(val, () => handleClose(false)))
+    sing_up(userData).then(val => requestedOpt(val, () => handleClose(false)))
   }
 
   return (

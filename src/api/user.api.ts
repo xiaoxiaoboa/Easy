@@ -36,3 +36,12 @@ export const queryUser = async <T>(params: T): Promise<ResponseType<UserType>> =
     token: user_info.token
   })
 }
+
+export const favFeed = async (params: { user_id: string; feed_id: string }) => {
+  return await request({
+    url: "/fav",
+    methods: "POST",
+    body: { ...params },
+    token: user_info.token
+  })
+}

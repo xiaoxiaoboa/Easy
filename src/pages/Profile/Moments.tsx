@@ -5,30 +5,51 @@ import { MyContext } from "../../context/context"
 import { feeds_query } from "../../api/feeds.api"
 import { useParams } from "react-router-dom"
 import { Feed, FeedType } from "../../types/feed.type"
-import { UserType } from "../../types/user.type"
-import Loading from "../../components/Loading/Loading"
-import useRequested from "../../hooks/useRequested"
-import LazyLoad from "../../components/LazyLoad/LazyLoad"
+import { useInViewport } from "ahooks"
+import { PhotoProvider } from "react-photo-view"
+import { SkeletonFeed } from "../../components/Skeleton/Skeleton"
+import { Tip } from "../Home/HomeMiddle"
 
+type ChildrenRefType = { skeletonRef: () => HTMLDivElement | null }
 const Moments = () => {
   const { state } = React.useContext(MyContext)
   const { user_id } = useParams()
-  const [feeds, setFeeds] = React.useState<Feed[]>([])
-  const { loading, setLoading } = useRequested()
+  const [feeds, setFeeds] = React.useState<FeedType[]>([])
+  /* 子组件骨架屏的ref */
+  const element = React.useRef<ChildrenRefType>(null)
+  /* 是否还有数据，显示文字 */
+  const [nothing, setNothing] = React.useState<boolean>(false)
+  /* 骨架屏是否在视口内 */
+  const [inViewport] = useInViewport(element.current?.skeletonRef(), {
+    threshold: 1
+  })
+  const limit = 10
+  const offsetRef = React.useRef<number>(0)
 
   React.useEffect(() => {
-    if (user_id) {
-      setLoading(true)
-      feeds_query(user_id).then(val => {
-        setFeeds(val.data)
-        setLoading(false)
+    if (inViewport) {
+      feeds_query(user_id!, limit, offsetRef.current).then(val => {
+        if (val.code !== 1) return
+        if (val.data.length === 0) {
+          setNothing(true)
+          return
+        }
+
+        setFeeds(prev => [...prev, ...val.data])
+        offsetRef.current += limit
       })
     }
-  }, [user_id])
+  }, [inViewport])
 
   return (
     <Container className="flex-c flex-alc">
-      <LazyLoad data={feeds} theme={state.theme} user_info={state.user_info?.result!} />
+      {feeds.map(item => (
+        <PhotoProvider key={item.feed_id}>
+          <FeedCard user_info={state.user_info?.result} feed={item} />
+        </PhotoProvider>
+      ))}
+      {!nothing && <SkeletonFeed ref={element} theme={state.theme} />}
+      {nothing && <Tip>没有啦！看看别的吧~</Tip>}
     </Container>
   )
 }

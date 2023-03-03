@@ -8,33 +8,36 @@ import { Feed, FeedType, Feed_attach } from "../../types/feed.type"
 import Division from "../Division/Division"
 import CardFun from "./CardFun"
 import FeedComment from "./FeedComment"
-import { PhotoView } from "react-photo-view"
+import { PhotoProvider, PhotoView } from "react-photo-view"
 import { SlDrawer, SlTrash } from "react-icons/sl"
-import { feed_delete } from "../../api/feeds.api"
+import { feed_delete, feed_fav, feed_like } from "../../api/feeds.api"
 import useRequested from "../../hooks/useRequested"
 import Loading from "../Loading/Loading"
 import { MyContext } from "../../context/context"
 import { ActionTypes } from "../../types/reducer"
 
-type FeedCard = { user_info?: UserType; feed: Feed }
+type FeedCard = { user_info?: UserType; feed: FeedType }
 const FeedCard: React.FC<FeedCard> = props => {
-  const {
-    user_info,
-    feed: { feed, feed_user }
-  } = props
-  const [open, setOpen] = React.useState<boolean>(false)
+  const { user_info, feed } = props
+  const [openRightWindow, setOpenRightWindow] = React.useState<boolean>(false)
   const [openConfirm, setOpenConfirm] = React.useState<boolean>(false)
+  const [openComment, setOpenComment] = React.useState<boolean>(false)
+  const [isFav, setIsFav] = React.useState<boolean>(
+    feed.user_favourites.some(item => item.user_id === user_info?.user_id)
+  )
 
   const selectTag = (data: Feed_attach) => {
-    switch (data.attach_type) {
+    switch (data.type) {
       case "image":
         return (
-          <PhotoView src={getUnionUrl(data.attach_link)}>
-            <img src={getUnionUrl(data.attach_link)} />
-          </PhotoView>
+          <PhotoProvider>
+            <PhotoView src={getUnionUrl(data.link)}>
+              <img src={getUnionUrl(data.link)} />
+            </PhotoView>
+          </PhotoProvider>
         )
       case "video":
-        return <video src={getUnionUrl(data.attach_link)} controls />
+        return <video src={getUnionUrl(data.link)} controls />
       default:
         break
     }
@@ -42,12 +45,12 @@ const FeedCard: React.FC<FeedCard> = props => {
 
   /* 根据图片或视频数量生成dom */
   const generateElement = React.useMemo(() => {
-    const length = feed.feed_attach.length
+    const length = feed.feed_attach.attach.length
     switch (length) {
       case 1:
         return (
           <div className="flex" style={{ flex: "1" }}>
-            {selectTag(feed.feed_attach[0])}
+            {selectTag(feed.feed_attach.attach[0])}
           </div>
         )
       case 2:
@@ -56,8 +59,12 @@ const FeedCard: React.FC<FeedCard> = props => {
             className="flex"
             style={{ gap: "10px", display: "grid", gridTemplateColumns: "repeat(2,1fr)" }}
           >
-            <div className="flex image_wrapper">{selectTag(feed.feed_attach[0])}</div>
-            <div className="flex image_wrapper">{selectTag(feed.feed_attach[1])}</div>
+            <div className="flex image_wrapper">
+              {selectTag(feed.feed_attach.attach[0])}
+            </div>
+            <div className="flex image_wrapper">
+              {selectTag(feed.feed_attach.attach[1])}
+            </div>
           </div>
         )
       case 3:
@@ -67,11 +74,17 @@ const FeedCard: React.FC<FeedCard> = props => {
             style={{ gap: "10px", display: "grid", gridTemplateColumns: "repeat(2,50%)" }}
           >
             <div className="flex">
-              <div className="flex image_wrapper">{selectTag(feed.feed_attach[0])}</div>
+              <div className="flex image_wrapper">
+                {selectTag(feed.feed_attach.attach[0])}
+              </div>
             </div>
             <div className="flex-c flex-alc" style={{ gap: "10px" }}>
-              <div className="flex image_wrapper">{selectTag(feed.feed_attach[1])}</div>
-              <div className="flex image_wrapper">{selectTag(feed.feed_attach[2])}</div>
+              <div className="flex image_wrapper">
+                {selectTag(feed.feed_attach.attach[1])}
+              </div>
+              <div className="flex image_wrapper">
+                {selectTag(feed.feed_attach.attach[2])}
+              </div>
             </div>
           </div>
         )
@@ -85,7 +98,7 @@ const FeedCard: React.FC<FeedCard> = props => {
               gridTemplateColumns: "repeat(2,50%)"
             }}
           >
-            {feed.feed_attach.map((attach, index) => (
+            {feed.feed_attach.attach.map((attach, index) => (
               <div key={index} className="flex">
                 {selectTag(attach)}
               </div>
@@ -98,36 +111,50 @@ const FeedCard: React.FC<FeedCard> = props => {
     }
   }, [feed])
 
+  const handleFavourite = () => {
+    /* 收藏帖子 */
+    feed_fav(feed.feed_id, user_info?.user_id!).then(val => {
+      if (val.code === 1) {
+        setIsFav(prev => !prev)
+      }
+    })
+  }
   return (
     <FeedCardContainer>
       <FeedCardWrapper className="flex-c">
         <CardTop className="flex-r flex-alc">
-          <Avatar src={feed_user.avatar} size="40" />
+          <Avatar src={feed.user.avatar} size="40" />
           <div className="cardinfo flex-c">
-            <div className="carduser">{feed_user.nick_name}</div>
+            <div className="carduser">{feed.user.nick_name}</div>
             <div className="cardtimestamp">{feed.createdAt}</div>
           </div>
-          <div className="cardfun click flex-r flex-alc" onClick={() => setOpen(true)}>
+          <div
+            className="cardfun click flex-r flex-alc"
+            onClick={() => setOpenRightWindow(true)}
+          >
             <FiMoreHorizontal size="22" className="FiMoreHorizontal" />
           </div>
-          {open && (
-            <CardTopRight className="flex-c flex-alc" onClick={() => setOpen(false)}>
+          {openRightWindow && (
+            <CardTopRight
+              className="flex-c flex-alc"
+              onClick={() => setOpenRightWindow(false)}
+            >
               <div
                 style={{
-                  position: `${open ? "fixed" : "static"}`,
+                  position: `${openRightWindow ? "fixed" : "static"}`,
                   top: 0,
                   left: 0,
                   right: 0,
                   bottom: 0,
                   zIndex: 1
                 }}
-                onClick={() => setOpen(false)}
+                onClick={() => setOpenRightWindow(false)}
               ></div>
 
               <CardTopRightWrapper>
-                <span className="flex flex-alc collect">
+                <span className="flex flex-alc collect" onClick={handleFavourite}>
                   <SlDrawer />
-                  收藏帖子
+                  {isFav ? "取消收藏" : "收藏帖子"}
                 </span>
                 <span
                   className="flex flex-alc remove"
@@ -140,15 +167,26 @@ const FeedCard: React.FC<FeedCard> = props => {
             </CardTopRight>
           )}
         </CardTop>
-        <Division margin="6px 0 0 0" />
+        {/* <Division margin="6px 0 0 0" /> */}
         <CardContent>
           <TextAndEmoj>{feed.feed_text}</TextAndEmoj>
           <PicAndVid className="flex">{generateElement}</PicAndVid>
         </CardContent>
         <Division />
-        <CardFun user_info={user_info} feed={feed} />
-        <Division padding="0 20px" margin="0 0 10px 0" />
-        <FeedComment user_info={user_info} feed={feed} feedUser={feed_user} />
+        <CardFun
+          user_id={user_info?.user_id!}
+          feed={feed}
+          setopenComment={setOpenComment}
+        />
+
+        {openComment && (
+          <FeedComment
+            isOpen={openComment}
+            user_info={user_info!}
+            feed_id={feed.feed_id}
+          />
+        )}
+
         {openConfirm && (
           <Confirm
             setOpenConfirm={setOpenConfirm}
@@ -168,7 +206,7 @@ const FeedCardContainer = styled.div`
   width: 600px;
 `
 const FeedCardWrapper = styled.div`
-  padding-top: 10px;
+  padding: 10px 0;
   background-color: ${props => props.theme.colors.nav_bg};
   border-radius: 8px;
   box-shadow: ${props => props.theme.colors.fd_boxshadow};
@@ -264,16 +302,14 @@ const Confirm: React.FC<ConfirmProps> = props => {
 
   const handleConfirm = () => {
     setLoading(true)
-    feed_delete({ feed_id: feed.feed_id, user_id }).then(val => {
+    feed_delete(feed.feed_id).then(val => {
       deleteResponse(val, () => {
-        setLoading(false)
-        setOpenConfirm(false)
         dispatch({
           type: ActionTypes.HOME_FEEDS,
-          payload: [
-            ...state.home_feeds.filter(item => item.feed.feed_id !== feed.feed_id)
-          ]
+          payload: [...state.home_feeds.filter(item => item.feed_id !== feed.feed_id)]
         })
+        setLoading(false)
+        setOpenConfirm(false)
       })
     })
   }

@@ -11,35 +11,57 @@ import { feed_publish, feed_attach, feeds_all } from "../../api/feeds.api"
 import { ActionTypes } from "../../types/reducer"
 import Division from "../../components/Division/Division"
 import { Feed } from "../../types/feed.type"
-import LazyLoad from "../../components/LazyLoad/LazyLoad"
 import useRequested from "../../hooks/useRequested"
 import Loading from "../../components/Loading/Loading"
+import { PhotoProvider } from "react-photo-view"
+import FeedCard from "../../components/FeedCard/FeedCard"
+import { useInViewport } from "ahooks"
+import { SkeletonFeed } from "../../components/Skeleton/Skeleton"
 
 interface HomeMiddleProps {
   user_info: UserType | undefined
 }
+type ChildrenRefType = { skeletonRef: () => HTMLDivElement | null }
 const HomeMiddle: React.FC<HomeMiddleProps> = porps => {
   const { user_info } = porps
   const { state, dispatch } = React.useContext(MyContext)
-  const { loading, setLoading } = useRequested()
+  /* 子组件骨架屏的ref */
+  const element = React.useRef<ChildrenRefType>(null)
+  /* 是否还有数据，显示文字 */
+  const [nothing, setNothing] = React.useState<boolean>(false)
+  /* 骨架屏是否在视口内 */
+  const [inViewport] = useInViewport(element.current?.skeletonRef(), {
+    threshold: 1
+  })
+  const limit = 10
+  const offsetRef = React.useRef<number>(0)
 
   React.useEffect(() => {
-    setLoading(true)
-    feeds_all().then(val => {
-      dispatch({ type: ActionTypes.HOME_FEEDS, payload: val.data })
-      setLoading(false)
-    })
-  }, [])
+    if (inViewport) {
+      feeds_all(limit, offsetRef.current).then(val => {
+        if (val.code !== 1) return
+        if (val.data.length === 0) {
+          setNothing(true)
+          return
+        }
+        dispatch({
+          type: ActionTypes.HOME_FEEDS,
+          payload: [...state.home_feeds, ...val.data]
+        })
+        offsetRef.current += limit
+      })
+    }
+  }, [inViewport])
 
   return (
     <Container className="flex">
       <Wrapper className="flex-c flex-alc">
         {user_info && <Publish user_info={user_info} />}
-        <LazyLoad
-          data={state.home_feeds}
-          theme={state.theme}
-          user_info={state.user_info?.result!}
-        />
+        {state.home_feeds.map(item => (
+          <FeedCard key={item.feed_id} user_info={user_info} feed={item} />
+        ))}
+        {!nothing && <SkeletonFeed ref={element} theme={state.theme} />}
+        {nothing && <Tip>没有啦！看看别的吧~</Tip>}
       </Wrapper>
     </Container>
   )
@@ -55,6 +77,12 @@ const Wrapper = styled.div`
   height: max-content;
   padding: 20px 0 30px 0;
   gap: 20px;
+`
+export const Tip = styled.div`
+  width: 100%;
+  text-align: center;
+  margin-top: 10px;
+  color: ${props => props.theme.colors.secondary};
 `
 
 /* 顶部发布卡片 */
@@ -178,7 +206,7 @@ const PublishLayer: React.FC<PublishLayerProps> = props => {
   const { handleClose, user_info } = props
   const [files, setFiles] = React.useState<File[]>([])
   const { state, dispatch } = React.useContext(MyContext)
-  const { loading, setLoading, publishResponse } = useRequested()
+  const { loading, setLoading, requestedOpt } = useRequested()
 
   /* 子组件MyInput的ref */
   const childInputRef = React.useRef<childInputProps>(null)
@@ -206,7 +234,7 @@ const PublishLayer: React.FC<PublishLayerProps> = props => {
         feed_text: text!,
         feed_attach: val.data
       }).then(val => {
-        val.data.feed.createdAt = new Date(val.data.feed.createdAt)
+        val.data.createdAt = new Date(val.data.createdAt)
           .toLocaleString()
           .replace(/\//g, "-")
         dispatch({
@@ -216,7 +244,7 @@ const PublishLayer: React.FC<PublishLayerProps> = props => {
 
         setLoading(false)
         handleCloseSelf()
-        publishResponse(val)
+        requestedOpt(val)
       })
     })
   }
