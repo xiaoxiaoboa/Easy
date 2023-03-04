@@ -4,7 +4,8 @@ import {
   Feed_attach,
   Feed_CommentPublishType,
   Feed_CommentType,
-  PublishFeedType
+  PublishFeedType,
+  UserFavouritedFeeds
 } from "../types/feed.type.js"
 import { DataType } from "../types/index.js"
 import getLocalData from "../utils/getLocalData.js"
@@ -13,6 +14,7 @@ import { ResponseType } from "../types/index"
 
 const user_info: DataType = getLocalData("user_info")
 
+/* 获取帖子 */
 export const feeds_query = async (
   user_id: string,
   limit: number,
@@ -26,6 +28,7 @@ export const feeds_query = async (
   })
 }
 
+/* 发布帖子 */
 export const feed_publish = async (
   params: PublishFeedType
 ): Promise<ResponseType<FeedType>> => {
@@ -37,6 +40,7 @@ export const feed_publish = async (
   })
 }
 
+/* 上传帖子图片或视频 */
 export const feed_attach = async (
   files: File[]
 ): Promise<ResponseType<Feed_attach[]>> => {
@@ -113,6 +117,30 @@ export const comment_publish = async (
     url: "/comment_create",
     methods: "POST",
     body: params,
+    token: user_info.token
+  })
+}
+
+/* 获取用户收藏的帖子 */
+export const favourited_feeds = async (
+  user_id: string,
+  limit: number,
+  offset: number
+): Promise<ResponseType<UserFavouritedFeeds[]>> => {
+  return await request({
+    url: "/feed_fav",
+    methods: "POST",
+    body: { user_id, limit, offset },
+    token: user_info.token
+  })
+}
+
+/* 删除评论 */
+export const comment_delete = async (comment_id: string) => {
+  return await request({
+    url: "/comment_delete",
+    methods: "POST",
+    body: { comment_id },
     token: user_info.token
   })
 }

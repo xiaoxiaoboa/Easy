@@ -26,7 +26,7 @@ export type ActionMap<M extends { [index: string]: any }> = {
 export enum ActionTypes {
   USER_INFO = "user_info",
   THEME = "theme",
-  HOME_FEEDS = "home_feeds"
+  HOME_FEEDS = "home_feeds",
 }
 
 export interface ReducerActionType {

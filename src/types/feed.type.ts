@@ -56,4 +56,18 @@ export interface Feed_CommentType {
   avatar: string
 }
 
-export type Feed_CommentPublishType = Omit<Feed_CommentType, "createdAt" | "avatar" | "nick_name">
+export type Feed_CommentPublishType = Omit<
+  Feed_CommentType,
+  "createdAt" | "avatar" | "nick_name"
+>
+
+/* =====================Feed_favourite=========================== */
+export interface User_FavouriteType {
+  user_id: string
+  feed_id: string
+  createdAt: string
+}
+
+export interface UserFavouritedFeeds extends User_FavouriteType {
+  feed: FeedType
+}
