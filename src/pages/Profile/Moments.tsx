@@ -9,18 +9,18 @@ import { useInViewport } from "ahooks"
 import { PhotoProvider } from "react-photo-view"
 import { SkeletonFeed } from "../../components/Skeleton/Skeleton"
 import { Tip } from "../Home/HomeMiddle"
+import useRequested from "../../hooks/useRequested"
 
-type ChildrenRefType = { skeletonRef: () => HTMLDivElement | null }
 const Moments = () => {
   const { state } = React.useContext(MyContext)
   const { user_id } = useParams()
   const [feeds, setFeeds] = React.useState<FeedType[]>([])
-  /* 子组件骨架屏的ref */
-  const element = React.useRef<ChildrenRefType>(null)
+  /* 子组件骨架屏的元素 */
+  const [element, setElement] = React.useState<HTMLDivElement | null>(null)
   /* 是否还有数据，显示文字 */
   const [nothing, setNothing] = React.useState<boolean>(false)
   /* 骨架屏是否在视口内 */
-  const [inViewport] = useInViewport(element.current?.skeletonRef(), {
+  const [inViewport] = useInViewport(element, {
     threshold: 1
   })
   const limit = 10
@@ -48,7 +48,7 @@ const Moments = () => {
           <FeedCard user_info={state.user_info?.result} feed={item} />
         </PhotoProvider>
       ))}
-      {!nothing && <SkeletonFeed ref={element} theme={state.theme} />}
+      {!nothing && <SkeletonFeed setElement={setElement} theme={state.theme} />}
       {nothing && <Tip>没有啦！看看别的吧~</Tip>}
     </Container>
   )

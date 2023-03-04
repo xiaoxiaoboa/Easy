@@ -11,19 +11,34 @@ import { MyContext } from "../../context/context"
 import Loading from "../../components/Loading/Loading"
 import compress from "../../api/compress.api.js"
 import useRequested from "../../hooks/useRequested"
-import { alterationCover } from "../../api/user.api.js"
+import { alterationCover, queryUser } from "../../api/user.api.js"
 import { DataType } from "../../types/index.js"
 import getBase64 from "../../utils/getBase64"
 import { ActionTypes } from "../../types/reducer"
 import { useParams } from "react-router-dom"
-import { AlterationCoverType } from "../../types/user.type"
+import { AlterationCoverType, UserType } from "../../types/user.type"
 
 const Profile = () => {
   const params = useParams()
+  const { state } = React.useContext(MyContext)
+  const [user, setUser] = React.useState<UserType>()
+
+  React.useEffect(() => {
+    if (state.user_info?.result.user_id === params.user_id) {
+      setUser(state.user_info?.result)
+    } else {
+      queryUser({ user_id: params.user_id }).then(val => {
+        if (val.code === 1) {
+          setUser(val.data)
+        }
+      })
+    }
+  }, [params.user_id,state.user_info?.result])
+
   return (
     <Container>
       <Wrapper className="flex-c">
-        <Head />
+        <Head user={user!} />
         <Outlet />
       </Wrapper>
     </Container>
@@ -38,9 +53,13 @@ const Container = styled.div`
 `
 const Wrapper = styled.div``
 
-const Head = () => {
+interface HeadProps {
+  user?: UserType
+}
+const Head: React.FC<HeadProps> = props => {
+  const { user } = props
   const { state, dispatch } = React.useContext(MyContext)
-  const { loading, setLoading, alterationCoverResponse } = useRequested()
+  const { loading, setLoading, requestedOpt } = useRequested()
   const [uploadedCover, setUploadedCover] = React.useState<File | null>(null)
   const [compressedCover, setCompressedCover] = React.useState<string | null>(null)
 
@@ -76,7 +95,7 @@ const Head = () => {
 
     /* 发送修改请求 */
     const alterationRes = await alterationCover(params)
-    if (alterationRes.code === 0) return alterationCoverResponse(alterationRes)
+    if (alterationRes.code === 0) return requestedOpt(alterationRes)
 
     /* 修改本地state中用户信息 */
     const user_info: DataType = {
@@ -91,7 +110,7 @@ const Head = () => {
     /* localStorage更改 */
     localStorage.setItem("user_info", JSON.stringify(user_info))
     setLoading(false)
-    alterationCoverResponse(alterationRes)
+    requestedOpt(alterationRes)
 
     /* 将临时图片清空 */
     setCompressedCover(null)
@@ -108,10 +127,7 @@ const Head = () => {
     <HeadContainer className="flex-c flex-jcsb flex-alc">
       <div className="blurbglayer"></div>
       <div className="blurbg">
-        <img
-          src={compressedCover || getUnionUrl(state.user_info?.result.profile_blurImg)}
-          alt=""
-        />
+        <img src={compressedCover || getUnionUrl(user?.profile_blurImg)} alt="" />
       </div>
       <Background className="flex flex-alc">
         {loading && (
@@ -125,7 +141,7 @@ const Head = () => {
             src={
               uploadedCover
                 ? URL.createObjectURL(uploadedCover)
-                : getUnionUrl(state.user_info?.result.profile_img)
+                : getUnionUrl(user?.profile_img)
             }
             alt=""
           />
@@ -133,9 +149,9 @@ const Head = () => {
         <UserInfo className="flex-c flex-jce">
           <div className="flex flex-ale">
             <AvatarWrapper>
-              <Avatar src={state.user_info?.result.avatar} size="160" />
+              <Avatar src={user?.avatar} size="160" />
             </AvatarWrapper>
-            <span>{state.user_info?.result.nick_name}</span>
+            <span>{user?.nick_name}</span>
           </div>
         </UserInfo>
         <CoverButtons className="flex flex-alc ">
@@ -156,19 +172,23 @@ const Head = () => {
           ) : (
             <></>
           )}
-          <Upload id="image" accept="image/*" handleChange={handleUploadChange}>
-            <div className="flex flex-alc changecover click">
-              <ImCamera />
-              更换封面
-            </div>
-          </Upload>
+          {user?.user_id === state.user_info?.result.user_id && (
+            <Upload id="image" accept="image/*" handleChange={handleUploadChange}>
+              <div className="flex flex-alc changecover click">
+                <ImCamera />
+                更换封面
+              </div>
+            </Upload>
+          )}
         </CoverButtons>
       </Background>
       <ProfileNav>
         <ProfileNavWrapper className="flex flex-jcc">
           <NavList className="flex flex-alc ">
             <NavLink to={"moments"} className="momentwrapper">
-              <li className="mymoment">我的瞬间</li>
+              <li className="mymoment">
+                {user?.user_id === state.user_info?.result.user_id ? "我" : "ta"}的瞬间
+              </li>
               <div className="underline"></div>
             </NavLink>
             <NavLink to={"photos"} className="photowrapper">

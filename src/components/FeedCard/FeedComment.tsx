@@ -12,10 +12,11 @@ import { nanoid } from "nanoid"
 import getTimeDiff from "../../utils/getTimeDiff"
 import useRequested from "../../hooks/useRequested"
 import Loading from "../Loading/Loading"
+import Confirm from "../Comfirm/Comfirm"
 
 /* 评论 */
 type CommentProps = {
-  user_info: UserType
+  user_info: UserType //登录的用户
   feed_id: string
   isOpen: boolean
 }
@@ -29,6 +30,8 @@ const FeedComment: React.FC<CommentProps> = props => {
   const commentsRef = React.useRef<HTMLDivElement>(null)
   const [openSnackbar] = useSnackbar()
   const { loading, setLoading } = useRequested()
+  const [openConfirm, setOpenConfirm] = React.useState<boolean>(false)
+  const [confirmData, setConfirmData] = React.useState<Feed_CommentType>()
 
   React.useEffect(() => {
     setLoading(true)
@@ -59,6 +62,11 @@ const FeedComment: React.FC<CommentProps> = props => {
     })
   }
 
+  const handleDelComment = (val: Feed_CommentType) => {
+    setConfirmData(val)
+    setOpenConfirm(true)
+  }
+
   return (
     <CommentContainer isOpen={isOpen}>
       <Division padding="0 20px" margin="0 0 10px 0" />
@@ -69,7 +77,7 @@ const FeedComment: React.FC<CommentProps> = props => {
           {comments.map(item => (
             <AComment key={item.comment_id} className="flex">
               <div>
-                <Avatar src={item.avatar} size="32" />
+                <Avatar src={item.avatar} size="32" id={item.user_id} />
               </div>
               <TextWrapper className="flex-c">
                 <div className="flex flex-alc">
@@ -78,14 +86,26 @@ const FeedComment: React.FC<CommentProps> = props => {
                 </div>
                 <Text>{item.comment}</Text>
               </TextWrapper>
-              <div className="delete click flex flex-alc">
-                <span className="flex flex-alc">
-                  <MdDeleteForever size="18" className="MdDeleteForever" />
-                </span>
-              </div>
+              {user_info.user_id === item.user_id && (
+                <div
+                  className="delete click flex flex-alc"
+                  onClick={() => handleDelComment(item)}
+                >
+                  <span className="flex flex-alc">
+                    <MdDeleteForever size="18" className="MdDeleteForever" />
+                  </span>
+                </div>
+              )}
             </AComment>
           ))}
         </Comments>
+        {openConfirm && (
+          <Confirm
+            setOpenConfirm={setOpenConfirm}
+            handlerType={{ type: "comment", data: confirmData! }}
+            afteHandler={setComment}
+          />
+        )}
         <WriteComment className="flex-r flex-alc">
           <Avatar src={user_info?.avatar} size="32" />
           <CommentInput className="flex-r flex-jce flex-alc">

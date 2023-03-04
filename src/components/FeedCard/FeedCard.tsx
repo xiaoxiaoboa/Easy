@@ -10,15 +10,17 @@ import CardFun from "./CardFun"
 import FeedComment from "./FeedComment"
 import { PhotoProvider, PhotoView } from "react-photo-view"
 import { SlDrawer, SlTrash } from "react-icons/sl"
-import { feed_delete, feed_fav, feed_like } from "../../api/feeds.api"
-import useRequested from "../../hooks/useRequested"
-import Loading from "../Loading/Loading"
-import { MyContext } from "../../context/context"
-import { ActionTypes } from "../../types/reducer"
+import { feed_fav } from "../../api/feeds.api"
+import Confirm from "../Comfirm/Comfirm"
 
-type FeedCard = { user_info?: UserType; feed: FeedType }
+interface FeedCard {
+  user_info?: UserType
+  feed: FeedType
+  handleCancelFav?: (feed_id: string, option: any) => void
+  handleDelFav?: (feed_id: string) => void
+}
 const FeedCard: React.FC<FeedCard> = props => {
-  const { user_info, feed } = props
+  const { user_info, feed, handleCancelFav, handleDelFav } = props
   const [openRightWindow, setOpenRightWindow] = React.useState<boolean>(false)
   const [openConfirm, setOpenConfirm] = React.useState<boolean>(false)
   const [openComment, setOpenComment] = React.useState<boolean>(false)
@@ -116,14 +118,16 @@ const FeedCard: React.FC<FeedCard> = props => {
     feed_fav(feed.feed_id, user_info?.user_id!).then(val => {
       if (val.code === 1) {
         setIsFav(prev => !prev)
+        if (handleCancelFav) handleCancelFav(feed.feed_id, !isFav)
       }
     })
   }
+
   return (
     <FeedCardContainer>
       <FeedCardWrapper className="flex-c">
         <CardTop className="flex-r flex-alc">
-          <Avatar src={feed.user.avatar} size="40" />
+          <Avatar src={feed.user.avatar} size="40" id={user_info?.user_id} />
           <div className="cardinfo flex-c">
             <div className="carduser">{feed.user.nick_name}</div>
             <div className="cardtimestamp">{feed.createdAt}</div>
@@ -156,18 +160,19 @@ const FeedCard: React.FC<FeedCard> = props => {
                   <SlDrawer />
                   {isFav ? "取消收藏" : "收藏帖子"}
                 </span>
-                <span
-                  className="flex flex-alc remove"
-                  onClick={() => setOpenConfirm(true)}
-                >
-                  <SlTrash />
-                  删除帖子
-                </span>
+                {user_info?.user_id === feed.feed_userID && (
+                  <span
+                    className="flex flex-alc remove"
+                    onClick={() => setOpenConfirm(true)}
+                  >
+                    <SlTrash />
+                    删除帖子
+                  </span>
+                )}
               </CardTopRightWrapper>
             </CardTopRight>
           )}
         </CardTop>
-        {/* <Division margin="6px 0 0 0" /> */}
         <CardContent>
           <TextAndEmoj>{feed.feed_text}</TextAndEmoj>
           <PicAndVid className="flex">{generateElement}</PicAndVid>
@@ -190,8 +195,8 @@ const FeedCard: React.FC<FeedCard> = props => {
         {openConfirm && (
           <Confirm
             setOpenConfirm={setOpenConfirm}
-            feed={feed}
-            user_id={user_info?.user_id!}
+            handlerType={{ type: "feed", data: feed }}
+            afteHandler={handleDelFav}
           />
         )}
       </FeedCardWrapper>
@@ -287,86 +292,5 @@ const PicAndVid = styled.div`
   & video {
     width: 100%;
     object-fit: cover;
-  }
-`
-
-interface ConfirmProps {
-  feed: FeedType
-  user_id: string
-  setOpenConfirm: React.Dispatch<React.SetStateAction<boolean>>
-}
-const Confirm: React.FC<ConfirmProps> = props => {
-  const { setOpenConfirm, feed, user_id } = props
-  const { loading, setLoading, deleteResponse } = useRequested()
-  const { state, dispatch } = React.useContext(MyContext)
-
-  const handleConfirm = () => {
-    setLoading(true)
-    feed_delete(feed.feed_id).then(val => {
-      deleteResponse(val, () => {
-        dispatch({
-          type: ActionTypes.HOME_FEEDS,
-          payload: [...state.home_feeds.filter(item => item.feed_id !== feed.feed_id)]
-        })
-        setLoading(false)
-        setOpenConfirm(false)
-      })
-    })
-  }
-
-  return (
-    <ConfirmContainer className=" flex flex-alc flex-jcc">
-      <ConfirmWrapper className="flex-c flex-alc">
-        <Title className="flex-c flex-alc">
-          <h2>确定要删除吗？</h2>
-          <p>此操作不可恢复！</p>
-        </Title>
-        {loading && <Loading />}
-        {!loading && (
-          <Btns className="flex flex-alc">
-            <button onClick={() => setOpenConfirm(false)}>取消</button>
-            <button onClick={handleConfirm}>确定</button>
-          </Btns>
-        )}
-      </ConfirmWrapper>
-    </ConfirmContainer>
-  )
-}
-
-const ConfirmContainer = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: ${props => props.theme.colors.publish_layer_color};
-`
-const ConfirmWrapper = styled.div`
-  padding: 10px;
-  gap: 20px;
-  border-radius: 8px;
-  background-color: ${props => props.theme.colors.nav_bg};
-  box-shadow: 0px 0px 8px 4px rgba(0, 0, 0, 0.18);
-`
-const Title = styled.div``
-
-const Btns = styled.div`
-  gap: 10px;
-  & button {
-    outline: none;
-    border: none;
-    padding: 6px 50px;
-    cursor: pointer;
-    border-radius: 8px;
-    font-size: 18px;
-
-    &:first-child {
-      background-color: transparent;
-    }
-    &:last-child {
-      color: white;
-      font-weight: bold;
-      background-color: ${props => props.theme.colors.primary};
-    }
   }
 `

@@ -25,12 +25,12 @@ type ChildrenRefType = { skeletonRef: () => HTMLDivElement | null }
 const HomeMiddle: React.FC<HomeMiddleProps> = porps => {
   const { user_info } = porps
   const { state, dispatch } = React.useContext(MyContext)
-  /* 子组件骨架屏的ref */
-  const element = React.useRef<ChildrenRefType>(null)
+  /* 子组件骨架屏的元素 */
+  const [element, setElement] = React.useState<HTMLDivElement | null>(null)
   /* 是否还有数据，显示文字 */
   const [nothing, setNothing] = React.useState<boolean>(false)
   /* 骨架屏是否在视口内 */
-  const [inViewport] = useInViewport(element.current?.skeletonRef(), {
+  const [inViewport] = useInViewport(element, {
     threshold: 1
   })
   const limit = 10
@@ -60,7 +60,7 @@ const HomeMiddle: React.FC<HomeMiddleProps> = porps => {
         {state.home_feeds.map(item => (
           <FeedCard key={item.feed_id} user_info={user_info} feed={item} />
         ))}
-        {!nothing && <SkeletonFeed ref={element} theme={state.theme} />}
+        {!nothing && <SkeletonFeed setElement={setElement} theme={state.theme} />}
         {nothing && <Tip>没有啦！看看别的吧~</Tip>}
       </Wrapper>
     </Container>
@@ -237,14 +237,14 @@ const PublishLayer: React.FC<PublishLayerProps> = props => {
         val.data.createdAt = new Date(val.data.createdAt)
           .toLocaleString()
           .replace(/\//g, "-")
+
+        handleCloseSelf()
+        requestedOpt(val)
+
         dispatch({
           type: ActionTypes.HOME_FEEDS,
           payload: [val.data, ...state.home_feeds]
         })
-
-        setLoading(false)
-        handleCloseSelf()
-        requestedOpt(val)
       })
     })
   }

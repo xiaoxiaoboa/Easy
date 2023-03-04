@@ -4,6 +4,7 @@ import styled from "styled-components"
 
 interface SkeletonProps {
   theme: "dark" | "light"
+  setElement: React.Dispatch<React.SetStateAction<HTMLDivElement | null>>
 }
 
 const backgroundColor_dark = "#818181"
@@ -11,18 +12,15 @@ const backgroundColor_light = "#f3f3f3"
 const foregroundColor_dark = "#666666"
 const foregroundColor_light = "#ecebeb"
 
-export const SkeletonFeed = React.forwardRef((props: SkeletonProps, ref) => {
-  const { theme } = props
+export const SkeletonFeed = (props: SkeletonProps) => {
+  const { theme, setElement } = props
   const containerRef = React.useRef<HTMLDivElement>(null)
-  React.useImperativeHandle(
-    ref,
-    () => {
-      return {
-        skeletonRef: () => containerRef.current
-      }
-    },
-    []
-  )
+
+  React.useEffect(() => {
+    if (containerRef.current) {
+      setElement(containerRef.current)
+    }
+  }, [])
 
   return (
     <Container ref={containerRef}>
@@ -43,7 +41,7 @@ export const SkeletonFeed = React.forwardRef((props: SkeletonProps, ref) => {
       </ContentLoader>
     </Container>
   )
-})
+}
 const Container = styled.div`
   background-color: ${props => props.theme.colors.nav_bg};
   padding: 20px;
