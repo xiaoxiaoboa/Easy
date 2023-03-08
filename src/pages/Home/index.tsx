@@ -16,8 +16,8 @@ const Home = () => {
         <LoginPrompt />
       )}
 
-      <HomeMiddle user_info={state.user_info?.result} />
-      <HomeRight user_info={state.user_info?.result} />
+      <HomeMiddle />
+      <HomeRight />
     </Container>
   )
 }
@@ -74,7 +74,7 @@ const Btns = styled.div`
     cursor: pointer;
     background-color: transparent;
     border: 1px solid #ccc;
-    text-align:center;
+    text-align: center;
   }
 
   & a:first-child {

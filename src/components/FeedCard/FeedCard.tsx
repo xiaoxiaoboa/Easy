@@ -127,7 +127,7 @@ const FeedCard: React.FC<FeedCard> = props => {
     <FeedCardContainer>
       <FeedCardWrapper className="flex-c">
         <CardTop className="flex-r flex-alc">
-          <Avatar src={feed.user.avatar} size="40" id={user_info?.user_id} />
+          <Avatar src={feed.user.avatar} size="40" id={feed.feed_userID} />
           <div className="cardinfo flex-c">
             <div className="carduser">{feed.user.nick_name}</div>
             <div className="cardtimestamp">{feed.createdAt}</div>

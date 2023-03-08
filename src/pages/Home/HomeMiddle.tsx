@@ -18,12 +18,7 @@ import FeedCard from "../../components/FeedCard/FeedCard"
 import { useInViewport } from "ahooks"
 import { SkeletonFeed } from "../../components/Skeleton/Skeleton"
 
-interface HomeMiddleProps {
-  user_info: UserType | undefined
-}
-type ChildrenRefType = { skeletonRef: () => HTMLDivElement | null }
-const HomeMiddle: React.FC<HomeMiddleProps> = porps => {
-  const { user_info } = porps
+const HomeMiddle: React.FC = () => {
   const { state, dispatch } = React.useContext(MyContext)
   /* 子组件骨架屏的元素 */
   const [element, setElement] = React.useState<HTMLDivElement | null>(null)
@@ -56,9 +51,9 @@ const HomeMiddle: React.FC<HomeMiddleProps> = porps => {
   return (
     <Container className="flex">
       <Wrapper className="flex-c flex-alc">
-        {user_info && <Publish user_info={user_info} />}
+        {state.user_info && <Publish user_info={state.user_info.result} />}
         {state.home_feeds.map(item => (
-          <FeedCard key={item.feed_id} user_info={user_info} feed={item} />
+          <FeedCard key={item.feed_id} user_info={state.user_info?.result} feed={item} />
         ))}
         {!nothing && <SkeletonFeed setElement={setElement} theme={state.theme} />}
         {nothing && <Tip>没有啦！看看别的吧~</Tip>}

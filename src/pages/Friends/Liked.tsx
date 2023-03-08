@@ -6,12 +6,12 @@ const Liked = () => {
   return (
     <Container>
       <Wrapper className="flex">
-        <Card name="风间彻" desc="hi，我是风间彻">
+        {/* <Card name="风间彻" desc="hi，我是风间彻">
           <CardButton className="flex">
             <button>发消息</button>
             <button>取消关注</button>
           </CardButton>
-        </Card>
+        </Card> */}
       </Wrapper>
     </Container>
   )

@@ -12,7 +12,7 @@ const TopBarLeft = () => {
   React.useEffect(() => {
     document.onclick = e => {
       if (e.target === bottomRef.current || e.target === inputRef.current) return
-      if (isInput) setIsInput(false)
+      setIsInput(false)
     }
 
     return () => {

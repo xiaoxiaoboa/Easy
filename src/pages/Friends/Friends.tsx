@@ -4,6 +4,7 @@ import { FiUserPlus, FiList } from "react-icons/fi"
 import { BsCollection, BsChevronRight } from "react-icons/bs"
 import { RiChatHeartLine } from "react-icons/ri"
 import { NavLink, Outlet } from "react-router-dom"
+import { BsChatText } from "react-icons/bs"
 
 const Friends = () => {
   return (
@@ -17,13 +18,6 @@ const Friends = () => {
               <li>
                 <FiList size={25} />
                 好友列表
-                <BsChevronRight size={20} />
-              </li>
-            </MyNavLink>
-            <MyNavLink path="request">
-              <li>
-                <FiUserPlus size={25} />
-                好友请求
                 <BsChevronRight size={20} />
               </li>
             </MyNavLink>
@@ -124,10 +118,14 @@ const Right = styled.div`
   height: 100%;
 `
 
-export const Search = () => {
+interface SearchProps {
+  padding?: string
+}
+export const Search: React.FC<SearchProps> = props => {
+  const { padding } = props
   return (
     <SearchContainer>
-      <SearchWrapper>
+      <SearchWrapper style={{ padding: padding ? padding : "10px 10px 0 10px" }}>
         <input type="text" placeholder="搜索" />
       </SearchWrapper>
     </SearchContainer>

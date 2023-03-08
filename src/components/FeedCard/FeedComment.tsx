@@ -43,6 +43,7 @@ const FeedComment: React.FC<CommentProps> = props => {
     })
   }, [feed_id])
 
+  /* 发出评论 */
   const handleKeyDown = (inputValue: string) => {
     if (!user_info) return openSnackbar(message, duration)
     const newComment: Feed_CommentType = {

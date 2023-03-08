@@ -7,7 +7,7 @@ import Favorites from "../pages/Friends/Favorites"
 import Friends from "../pages/Friends/Friends"
 import Liked from "../pages/Friends/Liked"
 import List from "../pages/Friends/List"
-import Request from "../pages/Friends/Request"
+import Message from "../pages/Message/Message"
 import Home from "../pages/Home"
 import Login from "../pages/Login/Login"
 import Profile from "../pages/Profile"
@@ -51,10 +51,6 @@ const Routes = () => {
               element: <List />
             },
             {
-              path: "request",
-              element: <Request />
-            },
-            {
               path: "favorites",
               element: <Favorites />
             },
@@ -85,6 +81,10 @@ const Routes = () => {
               element: <Videos />
             }
           ]
+        },
+        {
+          path: "message",
+          element: <Message />
         }
       ]
     },

@@ -9,7 +9,9 @@ const getTimeDiff = (time: string) => {
   const dayDiff = hourDiff / 24
   const yearDiff = dayDiff / 365
 
-  if (secondDiff < 60) {
+  if (secondDiff < 10) {
+    return "刚刚"
+  } else if (secondDiff < 60) {
     return Math.floor(secondDiff) + "秒前"
   } else if (minuteDiff < 60) {
     return Math.floor(minuteDiff) + "分钟前"

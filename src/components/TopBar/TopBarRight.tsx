@@ -8,6 +8,7 @@ import getUnionUrl from "../../utils/getUnionUrl"
 
 const TopBarRight = () => {
   const { state } = React.useContext(MyContext)
+
   return (
     <Container className="flex flex-rr flex-alc flex-jcs">
       <Avatar
@@ -24,6 +25,8 @@ const TopBarRight = () => {
       <TopBarRightButton handleFun={() => {}} w="90" h="38" br="22px">
         <span style={{ fontWeight: "bold" }}>搜索好友</span>
       </TopBarRightButton>
+
+      {/* <NotificationBar /> */}
     </Container>
   )
 }
@@ -32,9 +35,7 @@ export default TopBarRight
 
 /* styled */
 const Container = styled.div`
-  /* width: 280px; */
   height: 100%;
-  /* width:100%; */
   right: 0;
   gap: 10px;
   padding-right: 10px;
@@ -80,4 +81,31 @@ const ButtonWrapper = styled.div<ButtonWrapperProps>`
   background-color: ${props => props.theme.colors.nav_btn_bgcolor};
   cursor: pointer;
   transform-origin: center center;
+`
+
+const NotificationBar = () => {
+  return (
+    <NBContainer>
+      <NBWrapper>
+        <h2>通知</h2>
+      </NBWrapper>
+    </NBContainer>
+  )
+}
+
+const NBContainer = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+`
+const NBWrapper = styled.div`
+  position: absolute;
+  right: 20px;
+  top: 70px;
+  width: 300px;
+  height: 300px;
+  border-radius: 10px;
+  background-color: ${props => props.theme.colors.nav_bg};
 `
