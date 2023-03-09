@@ -40,6 +40,8 @@ declare module "styled-components" {
 
       snackbar_bg: string
       snackbar_color:string
+
+      message_bgcolor:string
     }
     icon: {
       icons: string

@@ -28,7 +28,7 @@ const HomeLeft: React.FC<HomeLeftProps> = props => {
             <MyLink to="friends/favorites" classname="favorite" text="收藏夹" />
           </Li>
           <Li>
-            <MyLink to="message" classname="message" text="Message" />
+            <MyLink to="chat" classname="message" text="Message" />
           </Li>
           <Li>
             <MyLink to="friends/liked" classname="star" text="特别关注" />

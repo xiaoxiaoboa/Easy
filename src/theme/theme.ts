@@ -45,7 +45,9 @@ export const lightTheme: DefaultTheme = {
       rgba(255, 255, 255, 0)
     )`,
     snackbar_bg: "#333",
-    snackbar_color: "white"
+    snackbar_color: "white",
+
+    message_bgcolor: "#2374e1"
   },
   icon: {
     icons: `${icons}`
@@ -96,7 +98,9 @@ export const darkTheme: DefaultTheme = {
       rgba(36, 37, 38, 0)
     )`,
     snackbar_bg: "white",
-    snackbar_color: "black"
+    snackbar_color: "black",
+
+    message_bgcolor: "rgb(28 58 99)"
   },
   icon: {
     icons: `${icons}`

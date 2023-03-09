@@ -123,19 +123,10 @@ export default FeedComment
 type CommentContainerProps = { isOpen: boolean }
 /* styled */
 const CommentContainer = styled.div<CommentContainerProps>`
-  /* height: ${props => (props.isOpen ? "auto" : 0)}; */
   overflow: hidden;
 `
 const CommentWrapper = styled.div`
   padding: 0 20px;
-
-  /* & > p {
-    cursor: pointer;
-    color: ${props => props.theme.colors.secondary};
-    &:hover {
-      text-decoration: underline;
-    }
-  } */
 `
 const WriteComment = styled.div`
   gap: 10px;

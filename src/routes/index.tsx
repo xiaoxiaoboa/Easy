@@ -7,7 +7,8 @@ import Favorites from "../pages/Friends/Favorites"
 import Friends from "../pages/Friends/Friends"
 import Liked from "../pages/Friends/Liked"
 import List from "../pages/Friends/List"
-import Message from "../pages/Message/Message"
+import Chat from "../pages/Chat/Chat"
+import Message from "../pages/Chat/Message"
 import Home from "../pages/Home"
 import Login from "../pages/Login/Login"
 import Profile from "../pages/Profile"
@@ -83,8 +84,14 @@ const Routes = () => {
           ]
         },
         {
-          path: "message",
-          element: <Message />
+          path: "chat",
+          element: <Chat />,
+          children: [
+            {
+              path: "message/:id",
+              element: <Message />
+            }
+          ]
         }
       ]
     },

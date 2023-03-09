@@ -1,9 +1,8 @@
 import React from "react"
 import { PhotosAndVideos } from "./Photos"
-import vae from "../../assets/Vae.mp4"
 
 const Videos = () => {
-  return <PhotosAndVideos type="video" data={[vae]} />
+  return <PhotosAndVideos type="video" data={[]} />
 }
 
 export default Videos
