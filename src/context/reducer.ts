@@ -13,6 +13,12 @@ const reducer = (state: ReducerState, action: ActionsType) => {
       return { ...state, home_feeds: payload }
     case ActionTypes.REQUESTFRIENDS:
       return { ...state, requestFriends: payload }
+    case ActionTypes.FRIENDS:
+      return { ...state, friends: payload }
+    case ActionTypes.CONVERSATIONS:
+      return { ...state, conversations: payload }
+    case ActionTypes.CURRENT_TALK:
+      return { ...state, current_talk: payload }
 
     default:
       return state

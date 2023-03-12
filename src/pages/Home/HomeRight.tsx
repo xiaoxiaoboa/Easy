@@ -9,20 +9,13 @@ import getTimeDiff from "../../utils/getTimeDiff"
 import { Socket } from "socket.io-client"
 import { FriendType } from "../../types/friend.type"
 import { ActionTypes } from "../../types/reducer"
+import { useNavigate } from "react-router-dom"
 
 interface HomeRightProps {}
 const HomeRight: React.FC<HomeRightProps> = props => {
   const {} = props
   const { state, dispatch } = React.useContext(MyContext)
-  const [friends, setFriends] = React.useState<FriendType[]>([])
-
-  React.useEffect(() => {
-    getFriends(state.user_info?.result.user_id!).then(val => {
-      if (val.code === 1) {
-        setFriends(prev => [...prev, ...val.data])
-      }
-    })
-  }, [])
+  const navigate = useNavigate()
 
   const handleAgree = (friend_id: string, notice_id: string) => {
     state.socket?.notice.emit(
@@ -34,7 +27,10 @@ const HomeRight: React.FC<HomeRightProps> = props => {
         if (res) {
           getFriends(state.user_info?.result.user_id!).then(val => {
             if (val.code === 1) {
-              setFriends(prev => [...prev, ...val.data])
+              dispatch({
+                type: ActionTypes.FRIENDS,
+                payload: val.data
+              })
               dispatch({
                 type: ActionTypes.REQUESTFRIENDS,
                 payload: state.requestFriends.filter(
@@ -91,11 +87,14 @@ const HomeRight: React.FC<HomeRightProps> = props => {
           <Contacts className="flex-c">
             <ContactsHead>联系人</ContactsHead>
             <Main className="flex-c">
-              {friends.map(item => (
+              {state.friends.map(item => (
                 <UserItem
                   key={item.friend_id}
                   avatarUrl={item.avatar}
                   nick_name={item.nick_name}
+                  handleClick={() =>
+                    navigate(`/profile/${item.friend_id}`, { state: { isFriend: false } })
+                  }
                 />
               ))}
             </Main>
@@ -159,16 +158,19 @@ interface UserItemPorps {
   avatarUrl: string
   nick_name: string
   timestamp?: string
+  handleClick?: () => void
   handleAgree?: () => void
   handleReject?: () => void
 }
 const UserItem: React.FC<UserItemPorps> = props => {
-  const { avatarUrl, timestamp, nick_name, handleAgree, handleReject } = props
+  const { avatarUrl, timestamp, nick_name, handleAgree, handleReject, handleClick } =
+    props
 
   return (
     <ItemContainer
       className="flex flex-alc"
       style={{ cursor: `${!timestamp ? "pointer" : "unset"}` }}
+      onClick={handleClick}
     >
       <UserInfo className="flex flex-alc">
         <Avatar src={avatarUrl} size="44" />

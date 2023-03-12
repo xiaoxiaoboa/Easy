@@ -2,8 +2,9 @@ import { FeedType } from "../feed.type"
 import { DataType, MySocket } from "../index"
 import { Socket } from "socket.io-client"
 import { UserType } from "../user.type"
-import { RequestFriendsType } from "../friend.type"
+import { FriendType, RequestFriendsType } from "../friend.type"
 import { BackNoticeType } from "../notice.type"
+import { ConversationType } from "../chat.type"
 
 export interface createContextType {
   state: ReducerState
@@ -16,6 +17,9 @@ export interface ReducerState {
   home_feeds: FeedType[]
   readonly socket: MySocket | null
   requestFriends: BackNoticeType<RequestFriendsType>[]
+  friends: FriendType[]
+  conversations: ConversationType[]
+  current_talk: ConversationType | null
 }
 
 export type ActionMap<M extends { [index: string]: any }> = {
@@ -34,7 +38,10 @@ export enum ActionTypes {
   THEME = "theme",
   HOME_FEEDS = "home_feeds",
   MYSOCKET = "mysocket",
-  REQUESTFRIENDS = "requestFriends"
+  REQUESTFRIENDS = "requestFriends",
+  FRIENDS = "friends",
+  CONVERSATIONS = "conversations",
+  CURRENT_TALK = "current_talk"
 }
 
 export interface ReducerActionType {
@@ -48,6 +55,9 @@ export interface ReducerPaylodType {
   [ActionTypes.HOME_FEEDS]: FeedType[]
   [ActionTypes.MYSOCKET]: MySocket
   [ActionTypes.REQUESTFRIENDS]: BackNoticeType<RequestFriendsType>[]
+  [ActionTypes.FRIENDS]: FriendType[]
+  [ActionTypes.CONVERSATIONS]: ConversationType[]
+  [ActionTypes.CURRENT_TALK]: ConversationType | null
 }
 
 export type ActionsType = ActionMap<ReducerPaylodType>[keyof ActionMap<ReducerPaylodType>]

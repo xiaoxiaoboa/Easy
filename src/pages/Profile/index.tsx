@@ -5,7 +5,7 @@ import { ImCamera } from "react-icons/im"
 import { GiConfirmed } from "react-icons/gi"
 import { VscError } from "react-icons/vsc"
 import Upload from "../../components/Upload"
-import { NavLink, Outlet } from "react-router-dom"
+import { NavLink, Outlet, useLocation } from "react-router-dom"
 import getUnionUrl from "../../utils/getUnionUrl"
 import { MyContext } from "../../context/context"
 import Loading from "../../components/Loading/Loading"
@@ -60,10 +60,12 @@ interface HeadProps {
 }
 const Head: React.FC<HeadProps> = props => {
   const { user } = props
+  const params = useParams()
   const { state, dispatch } = React.useContext(MyContext)
   const { loading, setLoading, requestedOpt } = useRequested()
   const [uploadedCover, setUploadedCover] = React.useState<File | null>(null)
   const [compressedCover, setCompressedCover] = React.useState<string | null>(null)
+  const friend_ids = state.friends.map(item => item.friend_id)
 
   /* 更改封面 */
   const handleUploadChange: React.ChangeEventHandler<HTMLInputElement> = e => {
@@ -163,14 +165,15 @@ const Head: React.FC<HeadProps> = props => {
               <Avatar src={user?.avatar} size="160" />
             </AvatarWrapper>
             <span>{user?.nick_name}</span>
-            {state.user_info?.result.user_id !== user?.user_id && (
-              <RequestBtns>
-                <div className="flex flex-alc click" onClick={hanleFriends}>
-                  <SiAddthis />
-                  添加好友
-                </div>
-              </RequestBtns>
-            )}
+            {state.user_info?.result.user_id !== params.user_id &&
+              !friend_ids.includes(params.user_id!) && (
+                <RequestBtns>
+                  <div className="flex flex-alc click" onClick={hanleFriends}>
+                    <SiAddthis />
+                    添加好友
+                  </div>
+                </RequestBtns>
+              )}
           </div>
         </UserInfo>
         <CoverButtons className="flex flex-alc ">

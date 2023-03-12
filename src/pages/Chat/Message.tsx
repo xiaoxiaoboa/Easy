@@ -5,78 +5,62 @@ import MyInput from "../../components/MyInput/MyInput"
 import { Search } from "../Friends/Friends"
 import { VariableSizeList as VirtualList } from "react-window"
 import AutoSizer from "react-virtualized-auto-sizer"
-import text from "../../assets/test.json"
 import { BsCheck } from "react-icons/bs"
 import { BiX } from "react-icons/bi"
+import { MyContext } from "../../context/context"
+import { useParams } from "react-router-dom"
+import { ConversationType, PrivateMessageType } from "../../types/chat.type"
+import getTimeDiff from "../../utils/getTimeDiff"
+import getLocalData from "../../utils/getLocalData"
+import { FriendType } from "../../types/friend.type"
 
-type textType = { id: number; texts: string }
-
-const tests = [
-  {
-    texts:
-      "The past has no power over the present moment. Anyone who has ever made anything of importance was disciplined. A man is not old until regrets take the place of dreams.",
-    id: 487
-  },
-  {
-    texts:
-      "If your Internet Service Provider (ISP) does not provide direct access to its server, Secure Tunneling Protocol (SSH) / HTTP is another solution. To connect to a database or schema,                   ",
-    id: 488
-  },
-  {
-    texts:
-      "Remember that failure is an event, not a person. The reason why a great man is great is that he resolves to be a great man. Actually it is just in an idea when feel oneself can achieve                ",
-    id: 489
-  },
-  {
-    texts:
-      "You will succeed because most people are lazy. To successfully establish a new connection to local/remote server - no matter via SSL or SSH, set the database login information in the General tab.",
-    id: 490
-  },
-  {
-    texts:
-      "You can select any connections, objects or projects, and then select the corresponding buttons on the Information Pane. It is used while your ISPs do not allow direct connections, but                 ",
-    id: 491
-  },
-  {
-    texts:
-      "After logged in the Navicat Cloud feature, the Navigation pane will be divided into Navicat Cloud and My Connections sections.",
-    id: 492
-  },
-  {
-    texts:
-      "Always keep your eyes open. Keep watching. Because whatever you see can inspire you.",
-    id: 493
-  },
-  {
-    texts:
-      "Export Wizard allows you to export data from tables, collections, views, or query results to any available formats.",
-    id: 494
-  },
-  {
-    texts: "Anyone who has never made a mistake has never tried anything new.",
-    id: 495
-  },
-  {
-    texts:
-      "If you wait, all that happens is you get older. Navicat Monitor requires a repository to store alerts and metrics for historical analysis. Actually it is just in an idea when feel oneself             ",
-    id: 496
-  }
-]
-
-const MessageWindow = () => {
+const Message = () => {
+  const params = useParams()
+  const { state, dispatch } = React.useContext(MyContext)
   const listRef = React.useRef<any>(null)
   const sizeRef = React.useRef<{ [key: number]: number }>()
-  const [texts, setTexts] = React.useState<textType[]>(tests)
+  const [messages, setMessages] = React.useState<PrivateMessageType[]>([])
+
+  React.useEffect(() => {
+    state.socket?.chat.emit(
+      "private_chat_history",
+      state.user_info?.result.user_id,
+      params.id,
+      (data: PrivateMessageType[]) => {
+        setMessages(data)
+        listRef.current.scrollTo(
+          getLocalData("conversations_lastOffset")[
+            state.current_talk?.conversation_id!
+          ] || 0
+        )
+      }
+    )
+
+    return () => {
+      setMessages([])
+    }
+  }, [params.id])
+
+  React.useEffect(() => {
+    state.socket?.chat.on("private_message", (data: PrivateMessageType) => {
+      if (data.user_id !== state.current_talk?.user_id) return
+      setMessages(prev => [...prev, data])
+    })
+
+    return () => {
+      state.socket?.chat.off(state.user_info?.result.user_id!)
+    }
+  }, [])
+
+  React.useEffect(() => {
+    listRef.current?.scrollToItem(messages.length, "end")
+  }, [messages])
 
   /* 设置每个item高度 */
   const setSize = React.useCallback((index: number, size: number) => {
     sizeRef.current = { ...sizeRef.current, [index]: size }
     listRef.current?.resetAfterIndex(index)
   }, [])
-
-  React.useEffect(() => {
-    scrollTo()
-  }, [texts])
 
   /* 获取item高度给虚拟列表组件 */
   const getSize = (index: number) => {
@@ -88,22 +72,23 @@ const MessageWindow = () => {
 
   /* 发送消息 */
   const handleKeyDown = (value: string) => {
-    setTexts(prev => [...prev, { id: 0, texts: value }])
+    const newMessage: PrivateMessageType = {
+      user_id: state.user_info?.result.user_id!,
+      createdAt: new Date().toLocaleString(),
+      msg: value,
+      to_id: state.current_talk?.friend_id!
+    }
+    setMessages(prev => [...prev, newMessage])
+    state.socket?.chat.emit("private_chat", state.current_talk?.friend_id, newMessage)
   }
 
-  /* 滚动到最后一个item的位置 */
-  const scrollTo = () => {
-    if (listRef.current) {
-      listRef.current.scrollToItem(texts.length, "end")
-    }
-  }
   return (
     <Container className="flex-c">
       <Top>
         <TopUserInfo className="flex flex-alc">
-          <Avatar src={undefined} size="44" />
+          <Avatar src={state.current_talk?.avatar} size="44" />
           <UserInfo className="flex-c">
-            <TopUserName>Yuan Xiaoxin</TopUserName>
+            <TopUserName>{state.current_talk?.nick_name}</TopUserName>
             <LastOnline className="flex">
               <span>5小时前在线</span>
             </LastOnline>
@@ -112,7 +97,7 @@ const MessageWindow = () => {
       </Top>
       <Middle className="flex flex-jcc">
         <MiddleWrapper className="flex-c">
-          <Messages className="">
+          <Messages>
             <AutoSizer>
               {({ width, height }) => (
                 <VirtualList
@@ -120,16 +105,21 @@ const MessageWindow = () => {
                   style={{ overflowY: "scroll", scrollBehavior: "smooth" }}
                   height={height}
                   width={width}
-                  itemCount={texts.length}
+                  itemCount={messages.length}
                   itemSize={getSize}
                   innerElementType={ListWrapper}
-                  itemData={texts}
                   ref={listRef}
                   overscanCount={20}
                 >
-                  {({ data, index, style }) => (
+                  {({ index, style }) => (
                     <RowWrapper className="flex flex-alc" style={style}>
-                      <Row data={data} index={index} setSize={setSize} style={style} />
+                      <Row
+                        data={messages}
+                        index={index}
+                        setSize={setSize}
+                        user_id={state.user_info?.result.user_id!}
+                        friend={state.current_talk!}
+                      />
                     </RowWrapper>
                   )}
                 </VirtualList>
@@ -147,16 +137,17 @@ const MessageWindow = () => {
   )
 }
 
-export default MessageWindow
+export default Message
 
 interface RowProps {
-  data: textType[]
+  user_id: string
+  friend: FriendType
+  data: PrivateMessageType[]
   index: number
   setSize?: any
-  style?: any
 }
 const Row: React.FC<RowProps> = props => {
-  const { data, index, setSize, style } = props
+  const { data, index, setSize, user_id, friend } = props
   const rowRef = React.useRef<HTMLDivElement>(null)
 
   /* 获取每个item元素的高度 */
@@ -166,15 +157,15 @@ const Row: React.FC<RowProps> = props => {
 
   return (
     <MessageItem ref={rowRef} className="flex">
-      {index % 2 === 0 ? (
+      {data[index].user_id === user_id ? (
         <MessageItemRight className="flex-rr right">
           <MessageAvatar className="flex-c flex-jce">
-            <Avatar src={undefined} size="40" />
+            <Avatar src={friend?.avatar} size="40" />
           </MessageAvatar>
           <MessageRightText>
-            {data[index].texts}
+            {data[index].msg}
             <MessageTextTimeStamp className="flex flex-alc" style={{ color: "#dcdcdc" }}>
-              5天前
+              {getTimeDiff(data[index].createdAt)}
               <MessageStatus className="flex flex-alc">
                 <BsCheck size={20} color="#5fff50" />
                 {/* <BiX size={20} color="#ff2323" /> */}
@@ -185,13 +176,12 @@ const Row: React.FC<RowProps> = props => {
       ) : (
         <MessageItemLeft className="flex left">
           <MessageAvatar className="flex-c flex-jce">
-            <Avatar src={undefined} size="40" />
+            <Avatar src={friend?.avatar} size="40" />
           </MessageAvatar>
-
           <MessageLeftText>
-            {data[index].texts}
+            {data[index].msg}
             <MessageTextTimeStamp className="flex flex-alc">
-              5天前
+              {getTimeDiff(data[index].createdAt)}
               <MessageStatus className="flex flex-alc">
                 <BsCheck size={20} color="#00b800" />
                 {/* <BiX size={20} color="#d70000" /> */}

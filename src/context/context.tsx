@@ -3,6 +3,7 @@ import reducer from "./reducer"
 import { ActionTypes, createContextType, ReducerState } from "../types/reducer"
 import getLocalData from "../utils/getLocalData"
 import { io } from "socket.io-client"
+import { getFriends } from "../api/user.api"
 
 /* socket初始化 */
 const initSocket = () =>
@@ -20,7 +21,10 @@ const initialValue: ReducerState = {
   user_info: getLocalData("user_info"),
   home_feeds: [],
   socket: initSocket(),
-  requestFriends: []
+  requestFriends: [],
+  friends: [],
+  conversations: getLocalData("conversations") || [],
+  current_talk: null
 }
 
 export const MyContext = React.createContext<createContextType>({
@@ -31,7 +35,6 @@ export const MyContext = React.createContext<createContextType>({
 type Props = { children: React.ReactNode }
 export const MyContextProvider = ({ children }: Props) => {
   const [state, dispatch] = React.useReducer(reducer, initialValue)
-  // const nothing = useSocketLinstener()
 
   React.useEffect(() => {
     if (state.user_info) {
@@ -45,6 +48,11 @@ export const MyContextProvider = ({ children }: Props) => {
       /* 私聊 */
       state.socket?.chat?.on("connect", () => {
         // console.log("连接上chat了")
+        state.socket?.chat?.emit(
+          "connected",
+          state.socket?.chat?.id,
+          state.user_info?.result.user_id
+        )
       })
       /* 群聊 */
       state.socket?.group?.on("connect", () => {
@@ -63,10 +71,23 @@ export const MyContextProvider = ({ children }: Props) => {
   }, [])
 
   React.useEffect(() => {
+    /* 一开始没登陆，然后登录了，需要初始化socket */
     if (state.user_info && !state.socket) {
       dispatch({ type: ActionTypes.MYSOCKET, payload: initSocket()! })
     }
+    /* 获取用户列表 */
+    if (state.user_info) {
+      getFriends(state.user_info.result.user_id).then(val => {
+        if (val.code === 1) {
+          dispatch({ type: ActionTypes.FRIENDS, payload: val.data })
+        }
+      })
+    }
   }, [state.user_info])
+
+  React.useEffect(() => {
+    localStorage.setItem("conversations", JSON.stringify(state.conversations))
+  }, [state.conversations])
 
   return <MyContext.Provider value={{ state, dispatch }}>{children}</MyContext.Provider>
 }

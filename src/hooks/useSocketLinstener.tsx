@@ -9,6 +9,7 @@ import useSnackbar from "./useSnackbar"
 
 const useSocketLinstener = () => {
   const { state, dispatch } = React.useContext(MyContext)
+  const fr_cacheRef = React.useRef<BackNoticeType<RequestFriendsType>[]>([])
   const [openSnackbar] = useSnackbar()
 
   React.useEffect(() => {
@@ -42,15 +43,10 @@ const useSocketLinstener = () => {
   }, [])
 
   const setRequestFriends = (val: BackNoticeType<any>) => {
-    const isExit = state.requestFriends.some(
-      item => item.data.user_id === val.data.user_id
-    )
-
-    if (isExit) return
-
+    fr_cacheRef.current = [...fr_cacheRef.current, val]
     dispatch({
       type: ActionTypes.REQUESTFRIENDS,
-      payload: [...state.requestFriends, val]
+      payload: fr_cacheRef.current
     })
   }
 

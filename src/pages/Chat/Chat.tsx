@@ -1,11 +1,20 @@
 import React from "react"
-import { Outlet } from "react-router-dom"
+import { Outlet, useParams } from "react-router-dom"
 import styled from "styled-components"
 import Avatar from "../../components/Avatar/Avatar"
 import { Search } from "../Friends/Friends"
 import { NavLink } from "react-router-dom"
+import { MyContext } from "../../context/context"
+import { ActionTypes } from "../../types/reducer"
+import { ConversationType } from "../../types/chat.type"
 
-const Message = () => {
+const Chat = () => {
+  const { state, dispatch } = React.useContext(MyContext)
+
+  const handleTalk = (data: ConversationType) => {
+    dispatch({ type: ActionTypes.CURRENT_TALK, payload: data })
+  }
+
   return (
     <Container>
       <Wrapper className="flex">
@@ -15,34 +24,26 @@ const Message = () => {
             <Search padding="0" />
           </div>
           <List className="flex-c">
-            <NavLink to={`message/${123}`}>
-              {({ isActive, isPending }) => (
-                <ListItem className="flex flex-alc" isActive={isActive}>
-                  <Avatar src={undefined} size="52" />
-                  <UserInfo className="flex-c">
-                    <UserName>Yuan Xiaoxin</UserName>
-                    <Notice className="flex" isActive={isActive}>
-                      <span>hello</span>
-                      <span>5小时前</span>
-                    </Notice>
-                  </UserInfo>
-                </ListItem>
-              )}
-            </NavLink>
-            <NavLink to={`message/${456}`}>
-              {({ isActive, isPending }) => (
-                <ListItem className="flex flex-alc" isActive={isActive}>
-                  <Avatar src={undefined} size="52" />
-                  <UserInfo className="flex-c">
-                    <UserName>Yuan Xiaoxin</UserName>
-                    <Notice className="flex" isActive={isActive}>
-                      <span>hello</span>
-                      <span>5小时前</span>
-                    </Notice>
-                  </UserInfo>
-                </ListItem>
-              )}
-            </NavLink>
+            {state.conversations.map(item => (
+              <NavLink
+                key={item.friend_id}
+                to={`message/${item.friend_id}`}
+                onClick={() => handleTalk(item)}
+              >
+                {({ isActive, isPending }) => (
+                  <ListItem className="flex flex-alc" isActive={isActive}>
+                    <Avatar src={item.avatar} size="52" />
+                    <UserInfo className="flex-c">
+                      <UserName>{item.nick_name}</UserName>
+                      <Notice className="flex" isActive={isActive}>
+                        <span>hello</span>
+                        <span>5小时前</span>
+                      </Notice>
+                    </UserInfo>
+                  </ListItem>
+                )}
+              </NavLink>
+            ))}
           </List>
         </Left>
         <Right className="flex-c">
@@ -53,7 +54,7 @@ const Message = () => {
   )
 }
 
-export default Message
+export default Chat
 
 const Container = styled.div`
   height: calc(100vh - 60px);
