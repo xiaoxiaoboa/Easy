@@ -30,24 +30,14 @@ export const feeds_query = async (
 
 /* 发布帖子 */
 export const feed_publish = async (
+  files: File[],
   params: PublishFeedType
 ): Promise<ResponseType<FeedType>> => {
-  return await request({
-    url: "/feed_create",
-    methods: "POST",
-    body: { ...params },
-    token: user_info.token
-  })
-}
-
-/* 上传帖子图片或视频 */
-export const feed_attach = async (
-  files: File[]
-): Promise<ResponseType<Feed_attach[]>> => {
   const formData = new FormData()
-  files.map((file, index) => formData.append(`file-${index}`, file, file.name))
+  files.map((file, index) => formData.append(`file-${index}`, file))
+  formData.append("data", JSON.stringify(params))
   return await uploadRequest({
-    url: `/feed_attach`,
+    url: "/feed_create",
     methods: "POST",
     body: formData,
     token: user_info.token

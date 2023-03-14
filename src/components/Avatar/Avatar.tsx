@@ -24,7 +24,12 @@ const Avatar: React.FC<AvatarProps> = props => {
 
   return (
     <Container className="flex flex-alc flex-jcc">
-      <Wrapper className="flex flex-alc flex-jcc" size={size} onClick={handleRoute}>
+      <Wrapper
+        className="flex flex-alc flex-jcc"
+        size={size}
+        onClick={handleRoute}
+        id={id}
+      >
         <img src={getUnionUrl(src) || avatar} alt="" />
       </Wrapper>
     </Container>
@@ -39,11 +44,12 @@ const Container = styled.div`
 `
 interface WrapperPorps {
   size: string
+  id?: string
 }
 const Wrapper = styled.div<WrapperPorps>`
   border-radius: 50%;
   overflow: hidden;
-  cursor: pointer;
+  cursor: ${p => (p.id ? "pointer" : "auto")};
   border: 1px solid #ccc;
 
   & img {

@@ -9,30 +9,29 @@ import { BsCheck } from "react-icons/bs"
 import { BiX } from "react-icons/bi"
 import { MyContext } from "../../context/context"
 import { useParams } from "react-router-dom"
-import { ConversationType, PrivateMessageType } from "../../types/chat.type"
-import getTimeDiff from "../../utils/getTimeDiff"
-import getLocalData from "../../utils/getLocalData"
+import {
+  ChatGroupType,
+  ConversationType,
+  MessageSendType,
+  MessageType
+} from "../../types/chat.type"
 import { FriendType } from "../../types/friend.type"
+import { ActionTypes } from "../../types/reducer"
 
 const Message = () => {
   const params = useParams()
   const { state, dispatch } = React.useContext(MyContext)
   const listRef = React.useRef<any>(null)
   const sizeRef = React.useRef<{ [key: number]: number }>()
-  const [messages, setMessages] = React.useState<PrivateMessageType[]>([])
+  const [messages, setMessages] = React.useState<MessageType[]>([])
 
   React.useEffect(() => {
     state.socket?.chat.emit(
       "private_chat_history",
       state.user_info?.result.user_id,
       params.id,
-      (data: PrivateMessageType[]) => {
+      (data: MessageType[]) => {
         setMessages(data)
-        listRef.current.scrollTo(
-          getLocalData("conversations_lastOffset")[
-            state.current_talk?.conversation_id!
-          ] || 0
-        )
       }
     )
 
@@ -42,15 +41,25 @@ const Message = () => {
   }, [params.id])
 
   React.useEffect(() => {
-    state.socket?.chat.on("private_message", (data: PrivateMessageType) => {
-      if (data.user_id !== state.current_talk?.user_id) return
-      setMessages(prev => [...prev, data])
-    })
-
-    return () => {
-      state.socket?.chat.off(state.user_info?.result.user_id!)
+    if ("friend_id" in state.current_talk!) {
+      state.socket?.chat.on("private_message", (data: MessageType) => {
+        if (
+          "friend_id" in state.current_talk! &&
+          data.user_id !== state.current_talk.friend_id
+        )
+          return
+        setMessages(prev => [...prev, data])
+      })
+    } else {
+      state.socket?.group.on("group_messages", (data: any) => {
+        setMessages(prev => [...prev, data])
+      })
     }
-  }, [])
+    return () => {
+      state.socket?.chat.off("private_message")
+      state.socket?.group.off("group_messages")
+    }
+  }, [params.id])
 
   React.useEffect(() => {
     listRef.current?.scrollToItem(messages.length, "end")
@@ -72,23 +81,60 @@ const Message = () => {
 
   /* 发送消息 */
   const handleKeyDown = (value: string) => {
-    const newMessage: PrivateMessageType = {
-      user_id: state.user_info?.result.user_id!,
-      createdAt: new Date().toLocaleString(),
-      msg: value,
-      to_id: state.current_talk?.friend_id!
+    let newMessage: MessageSendType
+    if ("friend_id" in state.current_talk!) {
+      newMessage = {
+        user_id: state.user_info?.result.user_id!,
+        createdAt: new Date().toLocaleString(),
+        msg: value,
+        to_id: state.current_talk?.friend_id!,
+        user: {
+          avatar: state.user_info?.result.avatar!,
+          nick_name: state.user_info?.result.nick_name!
+        },
+        conversation_id: state.current_talk.conversation_id
+      }
+      state.socket?.chat.emit("private_chat", newMessage)
+    } else {
+      newMessage = {
+        user_id: state.user_info?.result.user_id!,
+        createdAt: new Date().toLocaleString(),
+        msg: value,
+        to_id: state.current_talk?.group_id!,
+        user: {
+          avatar: state.user_info?.result.avatar!,
+          nick_name: state.user_info?.result.nick_name!
+        },
+        conversation_id: state.current_talk?.conversation_id!
+      }
+      state.socket?.group.emit(
+        "group_chat",
+        state.current_talk?.conversation_id!,
+        newMessage
+      )
     }
+
     setMessages(prev => [...prev, newMessage])
-    state.socket?.chat.emit("private_chat", state.current_talk?.friend_id, newMessage)
   }
 
   return (
     <Container className="flex-c">
       <Top>
         <TopUserInfo className="flex flex-alc">
-          <Avatar src={state.current_talk?.avatar} size="44" />
+          <Avatar
+            src={
+              "friend_id" in state?.current_talk!
+                ? state.current_talk?.avatar
+                : state.current_talk?.group_avatar
+            }
+            size="44"
+          />
           <UserInfo className="flex-c">
-            <TopUserName>{state.current_talk?.nick_name}</TopUserName>
+            <TopUserName>
+              {"friend_id" in state.current_talk!
+                ? state.current_talk?.nick_name
+                : state.current_talk?.group_name}
+            </TopUserName>
             <LastOnline className="flex">
               <span>5小时前在线</span>
             </LastOnline>
@@ -118,7 +164,6 @@ const Message = () => {
                         index={index}
                         setSize={setSize}
                         user_id={state.user_info?.result.user_id!}
-                        friend={state.current_talk!}
                       />
                     </RowWrapper>
                   )}
@@ -141,13 +186,12 @@ export default Message
 
 interface RowProps {
   user_id: string
-  friend: FriendType
-  data: PrivateMessageType[]
+  data: MessageType[]
   index: number
   setSize?: any
 }
 const Row: React.FC<RowProps> = props => {
-  const { data, index, setSize, user_id, friend } = props
+  const { data, index, setSize, user_id } = props
   const rowRef = React.useRef<HTMLDivElement>(null)
 
   /* 获取每个item元素的高度 */
@@ -156,39 +200,45 @@ const Row: React.FC<RowProps> = props => {
   }, [setSize, index])
 
   return (
-    <MessageItem ref={rowRef} className="flex">
+    <MessageItem ref={rowRef} className="flex-c">
       {data[index].user_id === user_id ? (
-        <MessageItemRight className="flex-rr right">
-          <MessageAvatar className="flex-c flex-jce">
-            <Avatar src={friend?.avatar} size="40" />
-          </MessageAvatar>
-          <MessageRightText>
-            {data[index].msg}
-            <MessageTextTimeStamp className="flex flex-alc" style={{ color: "#dcdcdc" }}>
-              {getTimeDiff(data[index].createdAt)}
+        <>
+          <MessageRightTimeStamp className="flex flex-alc flex-jce messagestamp">
+            <span>{data[index].createdAt}</span>
+            <span>{data[index].user.nick_name}</span>
+          </MessageRightTimeStamp>
+          <MessageItemRight className="flex-rr right">
+            <MessageAvatar className="flex-c flex-jce">
+              <Avatar src={data[index].user.avatar} size="40" />
+            </MessageAvatar>
+            <MessageRightText>
+              {data[index].msg}
               <MessageStatus className="flex flex-alc">
                 <BsCheck size={20} color="#5fff50" />
                 {/* <BiX size={20} color="#ff2323" /> */}
               </MessageStatus>
-            </MessageTextTimeStamp>
-          </MessageRightText>
-        </MessageItemRight>
+            </MessageRightText>
+          </MessageItemRight>
+        </>
       ) : (
-        <MessageItemLeft className="flex left">
-          <MessageAvatar className="flex-c flex-jce">
-            <Avatar src={friend?.avatar} size="40" />
-          </MessageAvatar>
-          <MessageLeftText>
-            {data[index].msg}
-            <MessageTextTimeStamp className="flex flex-alc">
-              {getTimeDiff(data[index].createdAt)}
+        <>
+          <MessageLeftTimeStamp className="flex flex-alc messagestamp">
+            <span>{data[index].user.nick_name}</span>
+            <span>{data[index].createdAt}</span>
+          </MessageLeftTimeStamp>
+          <MessageItemLeft className="flex left">
+            <MessageAvatar className="flex-c flex-jce">
+              <Avatar src={data[index].user.avatar} size="40" />
+            </MessageAvatar>
+            <MessageLeftText>
+              {data[index].msg}
               <MessageStatus className="flex flex-alc">
                 <BsCheck size={20} color="#00b800" />
                 {/* <BiX size={20} color="#d70000" /> */}
               </MessageStatus>
-            </MessageTextTimeStamp>
-          </MessageLeftText>
-        </MessageItemLeft>
+            </MessageLeftText>
+          </MessageItemLeft>
+        </>
       )}
     </MessageItem>
   )
@@ -239,6 +289,12 @@ const Messages = styled.div`
 const MessageItem = styled.div`
   width: 100%;
   overflow: hidden;
+
+  &:hover {
+    & .messagestamp {
+      opacity: 1;
+    }
+  }
 `
 const MessageItemLeft = styled.div`
   width: 100%;
@@ -260,15 +316,19 @@ const MessageRightText = styled(MessageLeftText)`
   color: white;
   background-color: ${props => props.theme.colors.message_bgcolor};
 `
-const MessageTextTimeStamp = styled.span`
+const MessageRightTimeStamp = styled.span`
+  font-size: 13px;
+  gap: 10px;
+  opacity: 0;
+  color: ${props => props.theme.colors.secondary};
+`
+const MessageLeftTimeStamp = styled(MessageRightTimeStamp)``
+const MessageStatus = styled.span`
   margin-left: 6px;
   position: relative;
   float: right;
   top: 8px;
-  font-size: 13px;
-  color: ${props => props.theme.colors.secondary};
 `
-const MessageStatus = styled.span``
 const Bottom = styled.div`
   flex: 1;
 `

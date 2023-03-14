@@ -15,6 +15,7 @@ import Profile from "../pages/Profile"
 import Moments from "../pages/Profile/Moments"
 import Photos from "../pages/Profile/Photos"
 import Videos from "../pages/Profile/Videos"
+import Group from "../pages/Friends/Group"
 // const MyApp = React.lazy(() => import("../pages"))
 // const Favorites = React.lazy(() => import("../pages/Friends/Favorites"))
 // const Friends = React.lazy(() => import("../pages/Friends/Friends"))
@@ -50,6 +51,10 @@ const Routes = () => {
             {
               path: "list",
               element: <List />
+            },
+            {
+              path: "group",
+              element: <Group />
             },
             {
               path: "favorites",

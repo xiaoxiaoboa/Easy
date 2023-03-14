@@ -15,19 +15,23 @@ const List = () => {
   const handleTalk = (data: FriendType) => {
     navigate(`/chat/message/${data.friend_id}`)
 
-    const isExist = state.conversations.some(item => item.friend_id === data.friend_id)
+    const isExist = state.conversations.some(
+      item => (item as FriendType).friend_id === data.friend_id
+    )
     if (isExist) {
       const existedItem = state.conversations.find(
-        item => item.friend_id === data.friend_id
+        item => (item as FriendType).friend_id === data.friend_id
       )
       dispatch({ type: ActionTypes.CURRENT_TALK, payload: existedItem! })
     } else {
-      const conversation_id = nanoid(9)
       dispatch({
         type: ActionTypes.CONVERSATIONS,
-        payload: [...state.conversations, { ...data, conversation_id }]
+        payload: [...state.conversations, { ...data, conversation_id: data.friend_id }]
       })
-      dispatch({ type: ActionTypes.CURRENT_TALK, payload: { ...data, conversation_id } })
+      dispatch({
+        type: ActionTypes.CURRENT_TALK,
+        payload: { ...data, conversation_id: data.friend_id }
+      })
     }
   }
 

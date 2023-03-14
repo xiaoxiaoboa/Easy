@@ -2,8 +2,9 @@ import React from "react"
 import reducer from "./reducer"
 import { ActionTypes, createContextType, ReducerState } from "../types/reducer"
 import getLocalData from "../utils/getLocalData"
-import { io } from "socket.io-client"
+import { io, Socket } from "socket.io-client"
 import { getFriends } from "../api/user.api"
+import { getJoinedGroups } from "../api/chat_group.api"
 
 /* socket初始化 */
 const initSocket = () =>
@@ -23,8 +24,10 @@ const initialValue: ReducerState = {
   socket: initSocket(),
   requestFriends: [],
   friends: [],
+  groups: [],
   conversations: getLocalData("conversations") || [],
-  current_talk: null
+  current_talk: getLocalData("current_talk"),
+  unread_message: []
 }
 
 export const MyContext = React.createContext<createContextType>({
@@ -57,6 +60,7 @@ export const MyContextProvider = ({ children }: Props) => {
       /* 群聊 */
       state.socket?.group?.on("connect", () => {
         // console.log("连接上group了")
+        state.socket?.group?.emit("connected", state.user_info?.result.user_id)
       })
     }
 
@@ -82,12 +86,21 @@ export const MyContextProvider = ({ children }: Props) => {
           dispatch({ type: ActionTypes.FRIENDS, payload: val.data })
         }
       })
+      /* 获取加入的群组 */
+      getJoinedGroups(state.user_info?.result.user_id!).then(val => {
+        if (val.code === 1) {
+          dispatch({ type: ActionTypes.GROUPS, payload: val.data })
+        }
+      })
     }
   }, [state.user_info])
 
   React.useEffect(() => {
     localStorage.setItem("conversations", JSON.stringify(state.conversations))
   }, [state.conversations])
+  React.useEffect(() => {
+    localStorage.setItem("current_talk", JSON.stringify(state.current_talk))
+  }, [state.current_talk])
 
   return <MyContext.Provider value={{ state, dispatch }}>{children}</MyContext.Provider>
 }

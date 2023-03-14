@@ -5,6 +5,7 @@ import { BsCollection, BsChevronRight } from "react-icons/bs"
 import { RiChatHeartLine } from "react-icons/ri"
 import { NavLink, Outlet } from "react-router-dom"
 import { BsChatText } from "react-icons/bs"
+import { HiOutlineUserGroup } from "react-icons/hi2"
 
 const Friends = () => {
   return (
@@ -18,6 +19,13 @@ const Friends = () => {
               <li>
                 <FiList size={25} />
                 好友列表
+                <BsChevronRight size={20} />
+              </li>
+            </MyNavLink>
+            <MyNavLink path="group">
+              <li>
+                <HiOutlineUserGroup size={25} />
+                群组
                 <BsChevronRight size={20} />
               </li>
             </MyNavLink>
