@@ -1,7 +1,7 @@
 import React from "react"
 import { queryUser } from "../api/user.api"
 import { MyContext } from "../context/context"
-import { ConversationType, MessageSendType } from "../types/chat.type"
+import { ConversationType, MessageType } from "../types/chat.type"
 import { RequestFriendsType } from "../types/friend.type"
 import { BackNoticeType } from "../types/notice.type"
 import { ActionTypes } from "../types/reducer"
@@ -37,13 +37,11 @@ const useSocketLinstener = () => {
     )
 
     /* 新消息 */
-    state.socket?.notice.on("new_message", (data: MessageSendType) => {
-      if (ct_cacheRef.current?.conversation_id !== data.to_id && ct_cacheRef.current?.conversation_id !== data.conversation_id) {
-        dispatch({
-          type: ActionTypes.UNREAD_MESSAGE,
-          payload: [...state.unread_message, data]
-        })
-      }
+    state.socket?.notice.on("new_message", (data: MessageType) => {
+      dispatch({
+        type: ActionTypes.UNREAD_MESSAGE,
+        payload: [...state.unread_message, data]
+      })
     })
 
     return () => {

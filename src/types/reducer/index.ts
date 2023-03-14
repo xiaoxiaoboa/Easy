@@ -4,7 +4,7 @@ import { Socket } from "socket.io-client"
 import { UserType } from "../user.type"
 import { FriendType, RequestFriendsType } from "../friend.type"
 import { BackNoticeType } from "../notice.type"
-import { ChatGroupType, ConversationType, MessageSendType } from "../chat.type"
+import { ChatGroupType, ConversationType, MessageType } from "../chat.type"
 
 export interface createContextType {
   state: ReducerState
@@ -21,7 +21,7 @@ export interface ReducerState {
   groups: ChatGroupType[]
   conversations: ConversationType[]
   current_talk: ConversationType | null
-  unread_message: MessageSendType[]
+  unread_message: MessageType[]
 }
 
 export type ActionMap<M extends { [index: string]: any }> = {
@@ -63,7 +63,7 @@ export interface ReducerPaylodType {
   [ActionTypes.GROUPS]: ChatGroupType[]
   [ActionTypes.CONVERSATIONS]: ConversationType[]
   [ActionTypes.CURRENT_TALK]: ConversationType | null
-  [ActionTypes.UNREAD_MESSAGE]: MessageSendType[]
+  [ActionTypes.UNREAD_MESSAGE]: MessageType[]
 }
 
 export type ActionsType = ActionMap<ReducerPaylodType>[keyof ActionMap<ReducerPaylodType>]

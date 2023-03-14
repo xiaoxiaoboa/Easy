@@ -9,12 +9,7 @@ import { BsCheck } from "react-icons/bs"
 import { BiX } from "react-icons/bi"
 import { MyContext } from "../../context/context"
 import { useParams } from "react-router-dom"
-import {
-  ChatGroupType,
-  ConversationType,
-  MessageSendType,
-  MessageType
-} from "../../types/chat.type"
+import { MessageType } from "../../types/chat.type"
 import { FriendType } from "../../types/friend.type"
 import { ActionTypes } from "../../types/reducer"
 
@@ -26,14 +21,25 @@ const Message = () => {
   const [messages, setMessages] = React.useState<MessageType[]>([])
 
   React.useEffect(() => {
-    state.socket?.chat.emit(
-      "private_chat_history",
-      state.user_info?.result.user_id,
-      params.id,
-      (data: MessageType[]) => {
-        setMessages(data)
-      }
-    )
+    if (state.current_talk?.isGroup) {
+      state.socket?.group.emit(
+        "group_chat_history",
+        state.current_talk.conversation_id,
+        (data: MessageType[]) => {
+          console.log(data)
+          setMessages(data)
+        }
+      )
+    } else {
+      state.socket?.chat.emit(
+        "private_chat_history",
+        state.user_info?.result.user_id,
+        params.id,
+        (data: MessageType[]) => {
+          setMessages(data)
+        }
+      )
+    }
 
     return () => {
       setMessages([])
@@ -41,20 +47,20 @@ const Message = () => {
   }, [params.id])
 
   React.useEffect(() => {
-    if ("friend_id" in state.current_talk!) {
-      state.socket?.chat.on("private_message", (data: MessageType) => {
-        if (
-          "friend_id" in state.current_talk! &&
-          data.user_id !== state.current_talk.friend_id
-        )
-          return
-        setMessages(prev => [...prev, data])
+    if (state.current_talk?.isGroup) {
+      state.socket?.group.on("group_messages", (data: MessageType) => {
+        if (data.conversation_id === state.current_talk?.conversation_id) {
+          setMessages(prev => [...prev, data])
+        }
       })
     } else {
-      state.socket?.group.on("group_messages", (data: any) => {
-        setMessages(prev => [...prev, data])
+      state.socket?.chat.on("private_message", (data: MessageType) => {
+        if (data.conversation_id === state.current_talk?.conversation_id) {
+          setMessages(prev => [...prev, data])
+        }
       })
     }
+
     return () => {
       state.socket?.chat.off("private_message")
       state.socket?.group.off("group_messages")
@@ -81,26 +87,13 @@ const Message = () => {
 
   /* 发送消息 */
   const handleKeyDown = (value: string) => {
-    let newMessage: MessageSendType
-    if ("friend_id" in state.current_talk!) {
+    let newMessage: MessageType
+    if (state.current_talk?.isGroup) {
       newMessage = {
         user_id: state.user_info?.result.user_id!,
         createdAt: new Date().toLocaleString(),
         msg: value,
-        to_id: state.current_talk?.friend_id!,
-        user: {
-          avatar: state.user_info?.result.avatar!,
-          nick_name: state.user_info?.result.nick_name!
-        },
-        conversation_id: state.current_talk.conversation_id
-      }
-      state.socket?.chat.emit("private_chat", newMessage)
-    } else {
-      newMessage = {
-        user_id: state.user_info?.result.user_id!,
-        createdAt: new Date().toLocaleString(),
-        msg: value,
-        to_id: state.current_talk?.group_id!,
+        to_id: state.current_talk?.conversation_id!,
         user: {
           avatar: state.user_info?.result.avatar!,
           nick_name: state.user_info?.result.nick_name!
@@ -112,6 +105,19 @@ const Message = () => {
         state.current_talk?.conversation_id!,
         newMessage
       )
+    } else {
+      newMessage = {
+        user_id: state.user_info?.result.user_id!,
+        createdAt: new Date().toLocaleString(),
+        msg: value,
+        to_id: state.current_talk?.conversation_id!,
+        user: {
+          avatar: state.user_info?.result.avatar!,
+          nick_name: state.user_info?.result.nick_name!
+        },
+        conversation_id: state.user_info?.result.user_id!
+      }
+      state.socket?.chat.emit("private_chat", newMessage)
     }
 
     setMessages(prev => [...prev, newMessage])
@@ -121,20 +127,9 @@ const Message = () => {
     <Container className="flex-c">
       <Top>
         <TopUserInfo className="flex flex-alc">
-          <Avatar
-            src={
-              "friend_id" in state?.current_talk!
-                ? state.current_talk?.avatar
-                : state.current_talk?.group_avatar
-            }
-            size="44"
-          />
+          <Avatar src={state.current_talk?.avatar} size="44" />
           <UserInfo className="flex-c">
-            <TopUserName>
-              {"friend_id" in state.current_talk!
-                ? state.current_talk?.nick_name
-                : state.current_talk?.group_name}
-            </TopUserName>
+            <TopUserName>{state.current_talk?.name}</TopUserName>
             <LastOnline className="flex">
               <span>5小时前在线</span>
             </LastOnline>

@@ -68,7 +68,18 @@ const GrougpChat: React.FC<GrougpChatProps> = props => {
         if (val.code === 1) {
           dispatch({
             type: ActionTypes.CONVERSATIONS,
-            payload: [...state.conversations, { ...val.data, conversation_id: nanoid(9) }]
+            payload: [
+              ...state.conversations,
+              {
+                conversation_id: nanoid(9),
+                avatar: val.data.group_avatar,
+                name: val.data.group_name,
+                msg: "",
+                user_name: "",
+                isGroup: true,
+                msg_length: 0
+              }
+            ]
           })
           handleClose(false)
         }

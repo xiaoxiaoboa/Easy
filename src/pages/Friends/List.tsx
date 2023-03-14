@@ -1,12 +1,11 @@
 import React from "react"
 import { useNavigate } from "react-router-dom"
 import styled from "styled-components"
-import bg from "../../assets/bg.jpg"
 import Avatar from "../../components/Avatar/Avatar"
 import { MyContext } from "../../context/context"
 import { FriendType } from "../../types/friend.type"
 import { ActionTypes } from "../../types/reducer"
-import { nanoid } from "nanoid"
+import { ConversationType } from "../../types/chat.type"
 
 const List = () => {
   const { state, dispatch } = React.useContext(MyContext)
@@ -15,22 +14,28 @@ const List = () => {
   const handleTalk = (data: FriendType) => {
     navigate(`/chat/message/${data.friend_id}`)
 
-    const isExist = state.conversations.some(
-      item => (item as FriendType).friend_id === data.friend_id
+    const existedItem = state.conversations.find(
+      item => item.conversation_id === data.friend_id
     )
-    if (isExist) {
-      const existedItem = state.conversations.find(
-        item => (item as FriendType).friend_id === data.friend_id
-      )
+    if (existedItem) {
       dispatch({ type: ActionTypes.CURRENT_TALK, payload: existedItem! })
     } else {
+      const newData: ConversationType = {
+        conversation_id: data.friend_id,
+        avatar: data.avatar,
+        name: data.nick_name,
+        user_name: "",
+        msg: "",
+        isGroup: false,
+        msg_length: 0
+      }
       dispatch({
         type: ActionTypes.CONVERSATIONS,
-        payload: [...state.conversations, { ...data, conversation_id: data.friend_id }]
+        payload: [...state.conversations, newData]
       })
       dispatch({
         type: ActionTypes.CURRENT_TALK,
-        payload: { ...data, conversation_id: data.friend_id }
+        payload: newData
       })
     }
   }

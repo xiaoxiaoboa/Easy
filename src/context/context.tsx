@@ -96,9 +96,11 @@ export const MyContextProvider = ({ children }: Props) => {
   }, [state.user_info])
 
   React.useEffect(() => {
+    // localStorage.removeItem("conversations")
     localStorage.setItem("conversations", JSON.stringify(state.conversations))
   }, [state.conversations])
   React.useEffect(() => {
+    // localStorage.removeItem("current_talk")
     localStorage.setItem("current_talk", JSON.stringify(state.current_talk))
   }, [state.current_talk])
 

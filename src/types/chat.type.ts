@@ -10,15 +10,18 @@ export interface MessageType {
     avatar: string
   }
   createdAt: string
-}
-
-export type MessageSendType = MessageType & {
   conversation_id: string
 }
 
 export type ConversationType = {
   conversation_id: string
-} & (ChatGroupType | FriendType)
+  avatar: string
+  name: string
+  user_name: string
+  msg: string
+  isGroup: boolean
+  msg_length: number
+}
 
 export interface ChatGroupType {
   group_id: string
@@ -35,4 +38,3 @@ export interface GroupNumbersType {
   group_id: string
   user_id: string
 }
-
