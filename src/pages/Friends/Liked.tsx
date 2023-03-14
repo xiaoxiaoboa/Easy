@@ -1,17 +1,20 @@
 import React from "react"
 import styled from "styled-components"
+import TestSocket from "../../components/TestSocket/TestSocket"
+import { MyContext } from "../../context/context"
 import { Card, CardButton } from "./List"
 
 const Liked = () => {
+  const { state } = React.useContext(MyContext)
   return (
     <Container>
       <Wrapper className="flex">
-        <Card name="风间彻" desc="hi，我是风间彻">
-          <CardButton className="flex">
-            <button>发消息</button>
-            <button>取消关注</button>
-          </CardButton>
-        </Card>
+        {/* <Card name={item.nick_name} desc="">
+            <CardButton className="flex">
+              <button>发消息</button>
+              <button>取消关注</button>
+            </CardButton>
+          </Card> */}
       </Wrapper>
     </Container>
   )

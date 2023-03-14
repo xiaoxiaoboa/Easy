@@ -1,48 +1,51 @@
 import React from "react"
+import { useNavigate } from "react-router-dom"
 import styled from "styled-components"
 import bg from "../../assets/bg.jpg"
 import Avatar from "../../components/Avatar/Avatar"
+import { MyContext } from "../../context/context"
+import { FriendType } from "../../types/friend.type"
+import { ActionTypes } from "../../types/reducer"
+import { nanoid } from "nanoid"
 
 const List = () => {
+  const { state, dispatch } = React.useContext(MyContext)
+  const navigate = useNavigate()
+
+  const handleTalk = (data: FriendType) => {
+    navigate(`/chat/message/${data.friend_id}`)
+
+    const isExist = state.conversations.some(
+      item => (item as FriendType).friend_id === data.friend_id
+    )
+    if (isExist) {
+      const existedItem = state.conversations.find(
+        item => (item as FriendType).friend_id === data.friend_id
+      )
+      dispatch({ type: ActionTypes.CURRENT_TALK, payload: existedItem! })
+    } else {
+      dispatch({
+        type: ActionTypes.CONVERSATIONS,
+        payload: [...state.conversations, { ...data, conversation_id: data.friend_id }]
+      })
+      dispatch({
+        type: ActionTypes.CURRENT_TALK,
+        payload: { ...data, conversation_id: data.friend_id }
+      })
+    }
+  }
+
   return (
     <Container className="flex-c">
       <Wrapper className="flex">
-        <Card name="XiaoBo" desc="student">
-          <CardButton className="flex">
-            <button>发消息</button>
-            <button>删除</button>
-          </CardButton>
-        </Card>
-        <Card name="XiaoBo" desc="student">
-          <CardButton className="flex">
-            <button>发消息</button>
-            <button>删除</button>
-          </CardButton>
-        </Card>
-        <Card name="XiaoBo" desc="student">
-          <CardButton className="flex">
-            <button>发消息</button>
-            <button>删除</button>
-          </CardButton>
-        </Card>
-        <Card name="XiaoBo" desc="student">
-          <CardButton className="flex">
-            <button>发消息</button>
-            <button>删除</button>
-          </CardButton>
-        </Card>
-        <Card name="XiaoBo" desc="student">
-          <CardButton className="flex">
-            <button>发消息</button>
-            <button>删除</button>
-          </CardButton>
-        </Card>
-        <Card name="XiaoBo" desc="student">
-          <CardButton className="flex">
-            <button>发消息</button>
-            <button>删除</button>
-          </CardButton>
-        </Card>
+        {state.friends.map(item => (
+          <Card key={item.friend_id} name={item.nick_name} avatar={item.avatar}>
+            <CardButton className="flex">
+              <button onClick={() => handleTalk(item)}>发消息</button>
+              <button>删除</button>
+            </CardButton>
+          </Card>
+        ))}
       </Wrapper>
     </Container>
   )
@@ -52,19 +55,18 @@ export default List
 
 interface CardProps {
   name: string
-  desc: string
+  avatar: string
   children: React.ReactElement
 }
 export const Card = (props: CardProps) => {
-  const { name, desc, children } = props
+  const { name, avatar, children } = props
   return (
     <CardContainer>
       <CardWrapper className="flex-c flex-alc">
         <UserAvatar>
-          <Avatar src={undefined} size="52" />
+          <Avatar src={avatar} size="60" />
         </UserAvatar>
         <Name>{name}</Name>
-        <Desc>{desc}</Desc>
         {children}
       </CardWrapper>
     </CardContainer>
@@ -116,6 +118,8 @@ export const CardButton = styled.div`
   gap: 8px;
   width: 100%;
   padding: 0 10px;
+  margin-top: 10px;
+
   & button {
     border: none;
     outline: none;

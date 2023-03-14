@@ -8,11 +8,9 @@ interface AvatarProps {
   src: string | undefined
   size: string
   id?: string
-  isShowOnline?: boolean
-  isOnline?: boolean
 }
 const Avatar: React.FC<AvatarProps> = props => {
-  const { src, size, id, isOnline, isShowOnline = false } = props
+  const { src, size, id } = props
   const navigate = useNavigate()
   const { pathname } = useLocation()
 
@@ -26,10 +24,14 @@ const Avatar: React.FC<AvatarProps> = props => {
 
   return (
     <Container className="flex flex-alc flex-jcc">
-      <Wrapper className="flex flex-alc flex-jcc" size={size} onClick={handleRoute}>
+      <Wrapper
+        className="flex flex-alc flex-jcc"
+        size={size}
+        onClick={handleRoute}
+        id={id}
+      >
         <img src={getUnionUrl(src) || avatar} alt="" />
       </Wrapper>
-      {isShowOnline ? <Mark isOnline={isOnline}></Mark> : <></>}
     </Container>
   )
 }
@@ -42,11 +44,12 @@ const Container = styled.div`
 `
 interface WrapperPorps {
   size: string
+  id?: string
 }
 const Wrapper = styled.div<WrapperPorps>`
   border-radius: 50%;
   overflow: hidden;
-  cursor: pointer;
+  cursor: ${p => (p.id ? "pointer" : "auto")};
   border: 1px solid #ccc;
 
   & img {
@@ -54,17 +57,4 @@ const Wrapper = styled.div<WrapperPorps>`
     height: ${props => props.size}px;
     object-fit: cover;
   }
-`
-
-interface MarkProps {
-  isOnline: boolean | undefined
-}
-const Mark = styled.div<MarkProps>`
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  background-color: ${props => (props.isOnline ? "#82e0aa" : "#909497")};
-  border-radius: 50%;
-  bottom: 0;
-  right: 0;
 `

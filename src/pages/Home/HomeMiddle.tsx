@@ -7,7 +7,7 @@ import Upload from "../../components/Upload"
 import { MdClear } from "react-icons/md"
 import { MyContext } from "../../context/context"
 import { UserType } from "../../types/user.type"
-import { feed_publish, feed_attach, feeds_all } from "../../api/feeds.api"
+import { feed_publish, feeds_all } from "../../api/feeds.api"
 import { ActionTypes } from "../../types/reducer"
 import Division from "../../components/Division/Division"
 import { Feed } from "../../types/feed.type"
@@ -18,12 +18,7 @@ import FeedCard from "../../components/FeedCard/FeedCard"
 import { useInViewport } from "ahooks"
 import { SkeletonFeed } from "../../components/Skeleton/Skeleton"
 
-interface HomeMiddleProps {
-  user_info: UserType | undefined
-}
-type ChildrenRefType = { skeletonRef: () => HTMLDivElement | null }
-const HomeMiddle: React.FC<HomeMiddleProps> = porps => {
-  const { user_info } = porps
+const HomeMiddle: React.FC = () => {
   const { state, dispatch } = React.useContext(MyContext)
   /* 子组件骨架屏的元素 */
   const [element, setElement] = React.useState<HTMLDivElement | null>(null)
@@ -56,9 +51,9 @@ const HomeMiddle: React.FC<HomeMiddleProps> = porps => {
   return (
     <Container className="flex">
       <Wrapper className="flex-c flex-alc">
-        {user_info && <Publish user_info={user_info} />}
+        {state.user_info && <Publish user_info={state.user_info.result} />}
         {state.home_feeds.map(item => (
-          <FeedCard key={item.feed_id} user_info={user_info} feed={item} />
+          <FeedCard key={item.feed_id} user_info={state.user_info?.result} feed={item} />
         ))}
         {!nothing && <SkeletonFeed setElement={setElement} theme={state.theme} />}
         {nothing && <Tip>没有啦！看看别的吧~</Tip>}
@@ -219,6 +214,7 @@ const PublishLayer: React.FC<PublishLayerProps> = props => {
   /* 上传图片或视频 */
   const handleChange: React.ChangeEventHandler<HTMLInputElement> = e => {
     const newFiles = e.target.files
+    console.log(newFiles)
     if (newFiles) setFiles(prev => [...newFiles, ...prev])
     e.target.files = null
   }
@@ -228,24 +224,22 @@ const PublishLayer: React.FC<PublishLayerProps> = props => {
     if (files.length < 1 && childInputRef.current?.inputValue().trim() === "") return
     const text = childInputRef.current?.inputValue()
     setLoading(true)
-    feed_attach(files).then(val => {
-      feed_publish({
-        feed_userID: user_info!.user_id,
-        feed_text: text!,
-        feed_attach: val.data
-      }).then(val => {
+
+    feed_publish(files, {
+      feed_userID: user_info!.user_id,
+      feed_text: text!
+    }).then(val => {
+      if (val.code === 1) {
         val.data.createdAt = new Date(val.data.createdAt)
           .toLocaleString()
           .replace(/\//g, "-")
-
         handleCloseSelf()
         requestedOpt(val)
-
         dispatch({
           type: ActionTypes.HOME_FEEDS,
           payload: [val.data, ...state.home_feeds]
         })
-      })
+      }
     })
   }
 

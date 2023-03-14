@@ -2,28 +2,102 @@ import React from "react"
 import styled from "styled-components"
 import Avatar from "../../components/Avatar/Avatar"
 import Division from "../../components/Division/Division"
+import { MyContext } from "../../context/context"
 import { UserType } from "../../types/user.type"
+import { getFriends, queryUser } from "../../api/user.api"
+import getTimeDiff from "../../utils/getTimeDiff"
+import { Socket } from "socket.io-client"
+import { FriendType } from "../../types/friend.type"
+import { ActionTypes } from "../../types/reducer"
+import { useNavigate } from "react-router-dom"
 
-interface HomeRightProps {
-  user_info: UserType | undefined
-}
+interface HomeRightProps {}
 const HomeRight: React.FC<HomeRightProps> = props => {
-  const { user_info } = props
+  const {} = props
+  const { state, dispatch } = React.useContext(MyContext)
+  const navigate = useNavigate()
+
+  const handleAgree = (friend_id: string, notice_id: string) => {
+    state.socket?.notice.emit(
+      "agreeRequest",
+      state.user_info?.result.user_id,
+      friend_id,
+      notice_id,
+      (res: any, err: any) => {
+        if (res) {
+          getFriends(state.user_info?.result.user_id!).then(val => {
+            if (val.code === 1) {
+              dispatch({
+                type: ActionTypes.FRIENDS,
+                payload: val.data
+              })
+              dispatch({
+                type: ActionTypes.REQUESTFRIENDS,
+                payload: state.requestFriends.filter(
+                  item => item.notice.notice_id !== notice_id
+                )
+              })
+            }
+          })
+        }
+      }
+    )
+  }
+
+  const handleReject = (notice_id: string, friend_id: string) => {
+    state.socket?.notice.emit(
+      "rejectRequest",
+      notice_id,
+      friend_id,
+      state.user_info?.result.user_id
+    )
+    dispatch({
+      type: ActionTypes.REQUESTFRIENDS,
+      payload: state.requestFriends.filter(item => item.notice.notice_id !== notice_id)
+    })
+  }
+
   return (
     <Container>
-      {user_info ? (
+      {state.user_info ? (
         <Wrapper className="flex-c">
           <FriendsRequest className="flex-c">
             <RequestHead className="flex flex-jcsb">
               <span>好友请求</span>
               <span>查看全部</span>
             </RequestHead>
-            <Main className="flex-c"></Main>
+            <Main className="flex-c">
+              {state.requestFriends.map(item => (
+                <UserItem
+                  key={item.data.user_id}
+                  handleAgree={() =>
+                    handleAgree(item.data.user_id, item.notice.notice_id)
+                  }
+                  handleReject={() =>
+                    handleReject(item.notice.notice_id, item.data.user_id)
+                  }
+                  avatarUrl={item.data.avatar}
+                  timestamp={item.data.timestamp}
+                  nick_name={item.data.nick_name}
+                />
+              ))}
+            </Main>
           </FriendsRequest>
-          <Division margin="0 0 4px 0"/>
+          <Division margin="8px 0 4px 0" />
           <Contacts className="flex-c">
             <ContactsHead>联系人</ContactsHead>
-            <Main className="flex-c"></Main>
+            <Main className="flex-c">
+              {state.friends.map(item => (
+                <UserItem
+                  key={item.friend_id}
+                  avatarUrl={item.avatar}
+                  nick_name={item.nick_name}
+                  handleClick={() =>
+                    navigate(`/profile/${item.friend_id}`, { state: { isFriend: false } })
+                  }
+                />
+              ))}
+            </Main>
           </Contacts>
         </Wrapper>
       ) : (
@@ -38,7 +112,7 @@ export default HomeRight
 const Container = styled.div`
   position: fixed;
   right: 0;
-  width: 340px;
+  /* width: 340px; */
   margin-right: 30px;
 
   @media (max-width: 1400px) {
@@ -69,6 +143,7 @@ const RequestHead = styled.div`
 `
 const Main = styled.div`
   gap: 4px;
+  min-width: 320px;
 `
 
 const Contacts = styled.div`
@@ -80,26 +155,38 @@ const ContactsHead = styled.div`
 `
 
 interface UserItemPorps {
-  isShowTimeStamp?: boolean
   avatarUrl: string
+  nick_name: string
+  timestamp?: string
+  handleClick?: () => void
+  handleAgree?: () => void
+  handleReject?: () => void
 }
 const UserItem: React.FC<UserItemPorps> = props => {
-  const { isShowTimeStamp = false, avatarUrl } = props
+  const { avatarUrl, timestamp, nick_name, handleAgree, handleReject, handleClick } =
+    props
+
   return (
-    <ItemContainer className="flex flex-alc">
+    <ItemContainer
+      className="flex flex-alc"
+      style={{ cursor: `${!timestamp ? "pointer" : "unset"}` }}
+      onClick={handleClick}
+    >
       <UserInfo className="flex flex-alc">
-        <Avatar src={avatarUrl} size="36" isOnline isShowOnline />
-        <span>Xiaoxin Yuan</span>
+        <Avatar src={avatarUrl} size="44" />
+        <span title={nick_name}>{nick_name}</span>
       </UserInfo>
-      {isShowTimeStamp ? (
+      {timestamp ? (
         <>
-          <Btns className="flex flex-alc">
-            <button className="click" onClick={() => console.log("@")}>
+          <Btns className="flex flex-alc flex-jcc">
+            <button className="click" onClick={handleAgree}>
               同意
             </button>
-            <button className="click">拒绝</button>
+            <button className="click" onClick={handleReject}>
+              拒绝
+            </button>
           </Btns>
-          <span className="reqtimestamp">123天前</span>
+          <span className="reqtimestamp">{timestamp && getTimeDiff(timestamp)}</span>
         </>
       ) : (
         <></>
@@ -113,18 +200,19 @@ const ItemContainer = styled.div`
   position: relative;
 
   & .reqtimestamp {
+    flex: 0.5;
     font-size: 12px;
+    text-align: right;
     color: ${props => props.theme.colors.secondary};
   }
 
   &:hover {
     background-color: ${props => props.theme.colors.hovercolor};
   }
-  
 `
 const UserInfo = styled.div`
   gap: 10px;
-  flex: 2;
+  flex: 1.3;
   overflow: hidden;
 
   & span {
@@ -136,7 +224,7 @@ const UserInfo = styled.div`
 `
 const Btns = styled.div`
   flex: 1;
-  gap: 4px;
+  gap: 6px;
   margin-right: 6px;
   & button {
     outline: none;
@@ -160,9 +248,7 @@ const ReferredUsers = () => {
     <ReferredUsersContainer>
       <ReferredUsersWrapper className="flex-c">
         <h4>推荐用户</h4>
-        <Main className="flex-c">
-          <UserItem avatarUrl="" />
-        </Main>
+        <Main className="flex-c">{/* <UserItem avatarUrl="" /> */}</Main>
       </ReferredUsersWrapper>
     </ReferredUsersContainer>
   )

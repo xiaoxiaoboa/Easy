@@ -5,7 +5,7 @@ import { ImCamera } from "react-icons/im"
 import { GiConfirmed } from "react-icons/gi"
 import { VscError } from "react-icons/vsc"
 import Upload from "../../components/Upload"
-import { NavLink, Outlet } from "react-router-dom"
+import { NavLink, Outlet, useLocation } from "react-router-dom"
 import getUnionUrl from "../../utils/getUnionUrl"
 import { MyContext } from "../../context/context"
 import Loading from "../../components/Loading/Loading"
@@ -17,6 +17,8 @@ import getBase64 from "../../utils/getBase64"
 import { ActionTypes } from "../../types/reducer"
 import { useParams } from "react-router-dom"
 import { AlterationCoverType, UserType } from "../../types/user.type"
+import { CgAddR } from "react-icons/cg"
+import { SiAddthis } from "react-icons/si"
 
 const Profile = () => {
   const params = useParams()
@@ -33,7 +35,7 @@ const Profile = () => {
         }
       })
     }
-  }, [params.user_id,state.user_info?.result])
+  }, [params.user_id, state.user_info?.result])
 
   return (
     <Container>
@@ -58,10 +60,12 @@ interface HeadProps {
 }
 const Head: React.FC<HeadProps> = props => {
   const { user } = props
+  const params = useParams()
   const { state, dispatch } = React.useContext(MyContext)
   const { loading, setLoading, requestedOpt } = useRequested()
   const [uploadedCover, setUploadedCover] = React.useState<File | null>(null)
   const [compressedCover, setCompressedCover] = React.useState<string | null>(null)
+  const friend_ids = state.friends.map(item => item.friend_id)
 
   /* 更改封面 */
   const handleUploadChange: React.ChangeEventHandler<HTMLInputElement> = e => {
@@ -123,6 +127,15 @@ const Head: React.FC<HeadProps> = props => {
     setUploadedCover(null)
   }
 
+  /* 发送添加好友的请求 */
+  const hanleFriends = () => {
+    state.socket?.notice.emit(
+      "friendsRequest",
+      state.user_info?.result.user_id,
+      user?.user_id
+    )
+  }
+
   return (
     <HeadContainer className="flex-c flex-jcsb flex-alc">
       <div className="blurbglayer"></div>
@@ -152,6 +165,15 @@ const Head: React.FC<HeadProps> = props => {
               <Avatar src={user?.avatar} size="160" />
             </AvatarWrapper>
             <span>{user?.nick_name}</span>
+            {state.user_info?.result.user_id !== params.user_id &&
+              !friend_ids.includes(params.user_id!) && (
+                <RequestBtns>
+                  <div className="flex flex-alc click" onClick={hanleFriends}>
+                    <SiAddthis />
+                    添加好友
+                  </div>
+                </RequestBtns>
+              )}
           </div>
         </UserInfo>
         <CoverButtons className="flex flex-alc ">
@@ -320,6 +342,21 @@ const UserInfo = styled.div`
     height: 1px;
     background-color: ${props => props.theme.colors.fd_divisioncolor};
     margin: 10px 0;
+  }
+`
+const RequestBtns = styled.div`
+  margin-left: auto;
+  margin-right: 35px;
+  & div {
+    border-radius: 6px;
+    background-color: ${props => props.theme.colors.primary};
+    font-size: 16px;
+    cursor: pointer;
+    font-weight: bold;
+    padding: 8px 10px;
+    user-select: none;
+    gap: 4px;
+    color: white;
   }
 `
 const AvatarWrapper = styled.div`

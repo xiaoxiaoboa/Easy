@@ -32,3 +32,5 @@ export interface User_FavouriteType {
   createdAt: string
 }
 export type InComplateFavouriteType = Omit<User_FavouriteType, "feed_id">
+
+

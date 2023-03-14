@@ -20,14 +20,16 @@ const Login = () => {
   const { register, handleSubmit } = useForm<LoginFormProps>()
   const [openRegister, setOpenRegister] = React.useState<boolean>(false)
   const { loading, setLoading, requestedOpt } = useRequested()
-  const { dispatch } = React.useContext(MyContext)
+  const { state, dispatch } = React.useContext(MyContext)
   const navigate = useNavigate()
 
   const handleLoginSubmit: SubmitHandler<LoginFormProps> = (data: FieldValues) => {
     setLoading(true)
     sign_in(data).then(val => {
-      dispatch({ type: ActionTypes.USER_INFO, payload: val.data })
+      
       localStorage.setItem("user_info", JSON.stringify(val.data))
+      dispatch({ type: ActionTypes.USER_INFO, payload: val.data })
+
       requestedOpt(val, () => navigate("/"))
     })
   }

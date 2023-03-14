@@ -18,7 +18,6 @@ export interface FeedType extends Feed {
 export interface PublishFeedType {
   feed_userID: string
   feed_text: string
-  feed_attach: Feed_attach[]
 }
 
 /* =====================Feed_attach=========================== */

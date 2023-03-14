@@ -7,13 +7,15 @@ import Favorites from "../pages/Friends/Favorites"
 import Friends from "../pages/Friends/Friends"
 import Liked from "../pages/Friends/Liked"
 import List from "../pages/Friends/List"
-import Request from "../pages/Friends/Request"
+import Chat from "../pages/Chat/Chat"
+import Message from "../pages/Chat/Message"
 import Home from "../pages/Home"
 import Login from "../pages/Login/Login"
 import Profile from "../pages/Profile"
 import Moments from "../pages/Profile/Moments"
 import Photos from "../pages/Profile/Photos"
 import Videos from "../pages/Profile/Videos"
+import Group from "../pages/Friends/Group"
 // const MyApp = React.lazy(() => import("../pages"))
 // const Favorites = React.lazy(() => import("../pages/Friends/Favorites"))
 // const Friends = React.lazy(() => import("../pages/Friends/Friends"))
@@ -51,8 +53,8 @@ const Routes = () => {
               element: <List />
             },
             {
-              path: "request",
-              element: <Request />
+              path: "group",
+              element: <Group />
             },
             {
               path: "favorites",
@@ -83,6 +85,16 @@ const Routes = () => {
             {
               path: "videos",
               element: <Videos />
+            }
+          ]
+        },
+        {
+          path: "chat",
+          element: <Chat />,
+          children: [
+            {
+              path: "message/:id",
+              element: <Message />
             }
           ]
         }
