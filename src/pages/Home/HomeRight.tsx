@@ -64,7 +64,6 @@ const HomeRight: React.FC<HomeRightProps> = props => {
           <FriendsRequest className="flex-c">
             <RequestHead className="flex flex-jcsb">
               <span>好友请求</span>
-              <span>查看全部</span>
             </RequestHead>
             <Main className="flex-c">
               {state.requestFriends.map(item => (
@@ -132,13 +131,6 @@ const RequestHead = styled.div`
   }
   & span:nth-child(1) {
     color: ${props => props.theme.colors.secondary};
-  }
-  & span:nth-child(2) {
-    color: ${props => props.theme.colors.primary};
-    cursor: pointer;
-    &:hover {
-      text-decoration: underline;
-    }
   }
 `
 const Main = styled.div`

@@ -4,6 +4,7 @@ import { Link } from "react-router-dom"
 import Avatar from "../../components/Avatar/Avatar"
 import { BsPeople, BsPeopleFill } from "react-icons/bs"
 import { UserType } from "../../types/user.type"
+import { ConversationType } from "../../types/chat.type"
 
 interface HomeLeftProps {
   user_info: UserType | undefined

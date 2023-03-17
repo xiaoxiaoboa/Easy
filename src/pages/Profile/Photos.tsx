@@ -2,8 +2,14 @@ import React from "react"
 import styled from "styled-components"
 import { PhotoProvider, PhotoView } from "react-photo-view"
 import { nanoid } from "nanoid"
+import { MyContext } from "../../context/context"
 
 const Photos = () => {
+  const {state} = React.useContext(MyContext)
+
+  React.useEffect(() => {
+    
+  },[])
   return (
     <PhotosAndVideos
       type="photo"
@@ -28,12 +34,12 @@ export const PhotosAndVideos: React.FC<PhotosAndVideosProps> = props => {
   React.useEffect(() => {
     generateElement()
 
-    let timer = -1
     window.onresize = () => {
-      clearTimeout(timer)
-      timer = setTimeout(() => {
-        generateElement()
-      }, 300)
+      generateElement()
+    }
+
+    return () => {
+      window.onresize = null
     }
   }, [])
 
@@ -117,7 +123,7 @@ export const PhotosAndVideos: React.FC<PhotosAndVideosProps> = props => {
                       )
                     }}
                   >
-                    <video  src={str} />
+                    <video src={str} />
                   </PhotoView>
                 )}
               </div>

@@ -44,7 +44,12 @@ const List = () => {
     <Container className="flex-c">
       <Wrapper className="flex">
         {state.friends.map(item => (
-          <Card key={item.friend_id} name={item.nick_name} avatar={item.avatar}>
+          <Card
+            key={item.friend_id}
+            name={item.nick_name}
+            avatar={item.avatar}
+            id={item.friend_id}
+          >
             <CardButton className="flex">
               <button onClick={() => handleTalk(item)}>发消息</button>
               <button>删除</button>
@@ -61,15 +66,16 @@ export default List
 interface CardProps {
   name: string
   avatar: string
+  id: string
   children: React.ReactElement
 }
 export const Card = (props: CardProps) => {
-  const { name, avatar, children } = props
+  const { name, avatar, children, id } = props
   return (
     <CardContainer>
       <CardWrapper className="flex-c flex-alc">
         <UserAvatar>
-          <Avatar src={avatar} size="60" />
+          <Avatar src={avatar} size="60" id={id} />
         </UserAvatar>
         <Name>{name}</Name>
         {children}

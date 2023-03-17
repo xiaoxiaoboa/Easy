@@ -5,9 +5,11 @@ import { MdNotificationsActive } from "react-icons/md"
 import { BsFillChatDotsFill } from "react-icons/bs"
 import { MyContext } from "../../context/context"
 import getUnionUrl from "../../utils/getUnionUrl"
+import { useNavigate } from "react-router-dom"
 
 const TopBarRight = () => {
   const { state } = React.useContext(MyContext)
+  const navigate = useNavigate()
 
   return (
     <Container className="flex flex-rr flex-alc flex-jcs">
@@ -22,7 +24,12 @@ const TopBarRight = () => {
       <TopBarRightButton handleFun={() => {}}>
         <BsFillChatDotsFill size="20" />
       </TopBarRightButton>
-      <TopBarRightButton handleFun={() => {}} w="90" h="38" br="22px">
+      <TopBarRightButton
+        handleFun={() => navigate("/friends/list")}
+        w="90"
+        h="38"
+        br="22px"
+      >
         <span style={{ fontWeight: "bold" }}>搜索好友</span>
       </TopBarRightButton>
 

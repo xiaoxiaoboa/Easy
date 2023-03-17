@@ -8,10 +8,12 @@ import AutoSizer from "react-virtualized-auto-sizer"
 import { BsCheck } from "react-icons/bs"
 import { BiX } from "react-icons/bi"
 import { MyContext } from "../../context/context"
-import { useParams } from "react-router-dom"
-import { MessageType } from "../../types/chat.type"
+import { useParams, useNavigate } from "react-router-dom"
+import { MessageType, Message_type } from "../../types/chat.type"
 import { FriendType } from "../../types/friend.type"
 import { ActionTypes } from "../../types/reducer"
+import { FiMoreHorizontal } from "react-icons/fi"
+import EditGroup from "./EditGroup/EditGroup"
 
 const Message = () => {
   const params = useParams()
@@ -19,6 +21,16 @@ const Message = () => {
   const listRef = React.useRef<any>(null)
   const sizeRef = React.useRef<{ [key: number]: number }>()
   const [messages, setMessages] = React.useState<MessageType[]>([])
+  const [openEditGroup, setOpenEditGroup] = React.useState<boolean>(false)
+  const navigate = useNavigate()
+
+  React.useEffect(() => {
+    if (!state.current_talk) {
+      navigate("/chat")
+    }
+
+    return () => dispatch({ type: ActionTypes.CURRENT_TALK, payload: null })
+  }, [])
 
   React.useEffect(() => {
     if (state.current_talk?.isGroup) {
@@ -26,7 +38,6 @@ const Message = () => {
         "group_chat_history",
         state.current_talk.conversation_id,
         (data: MessageType[]) => {
-          console.log(data)
           setMessages(data)
         }
       )
@@ -93,86 +104,142 @@ const Message = () => {
         user_id: state.user_info?.result.user_id!,
         createdAt: new Date().toLocaleString(),
         msg: value,
+        msg_type: Message_type.TEXT,
         to_id: state.current_talk?.conversation_id!,
         user: {
           avatar: state.user_info?.result.avatar!,
           nick_name: state.user_info?.result.nick_name!
         },
-        conversation_id: state.current_talk?.conversation_id!
+        conversation_id: state.current_talk?.conversation_id!,
+        status: 0
       }
+      setMessages(prev => [...prev, newMessage])
       state.socket?.group.emit(
         "group_chat",
         state.current_talk?.conversation_id!,
-        newMessage
+        newMessage,
+        (res: any, err: any) => {
+          if (res) {
+            setMessages(prev => [
+              ...prev.map(i => {
+                if (i.conversation_id === newMessage.conversation_id) {
+                  return { ...i, status: 1 }
+                } else {
+                  return i
+                }
+              })
+            ])
+          } else {
+            setMessages(prev => [
+              ...prev.map(i => {
+                if (i.conversation_id === newMessage.conversation_id) {
+                  return { ...i, status: -1 }
+                } else {
+                  return i
+                }
+              })
+            ])
+          }
+        }
       )
     } else {
       newMessage = {
         user_id: state.user_info?.result.user_id!,
         createdAt: new Date().toLocaleString(),
         msg: value,
+        msg_type: Message_type.TEXT,
         to_id: state.current_talk?.conversation_id!,
         user: {
           avatar: state.user_info?.result.avatar!,
           nick_name: state.user_info?.result.nick_name!
         },
-        conversation_id: state.user_info?.result.user_id!
+        conversation_id: state.user_info?.result.user_id!,
+        status: 0
       }
+      setMessages(prev => [...prev, newMessage])
       state.socket?.chat.emit("private_chat", newMessage)
     }
 
-    setMessages(prev => [...prev, newMessage])
+    // setMessages(prev => [...prev, newMessage])
   }
 
   return (
-    <Container className="flex-c">
-      <Top>
-        <TopUserInfo className="flex flex-alc">
-          <Avatar src={state.current_talk?.avatar} size="44" />
-          <UserInfo className="flex-c">
-            <TopUserName>{state.current_talk?.name}</TopUserName>
-            <LastOnline className="flex">
-              <span>5小时前在线</span>
-            </LastOnline>
-          </UserInfo>
-        </TopUserInfo>
-      </Top>
-      <Middle className="flex flex-jcc">
-        <MiddleWrapper className="flex-c">
-          <Messages>
-            <AutoSizer>
-              {({ width, height }) => (
-                <VirtualList
-                  className="flex flex-jcc"
-                  style={{ overflowY: "scroll", scrollBehavior: "smooth" }}
-                  height={height}
-                  width={width}
-                  itemCount={messages.length}
-                  itemSize={getSize}
-                  innerElementType={ListWrapper}
-                  ref={listRef}
-                  overscanCount={20}
-                >
-                  {({ index, style }) => (
-                    <RowWrapper className="flex flex-alc" style={style}>
-                      <Row
-                        data={messages}
-                        index={index}
-                        setSize={setSize}
-                        user_id={state.user_info?.result.user_id!}
-                      />
-                    </RowWrapper>
-                  )}
-                </VirtualList>
-              )}
-            </AutoSizer>
-          </Messages>
-        </MiddleWrapper>
-      </Middle>
-      <Bottom className="flex flex-alc flex-jcc">
-        <BottomWrapper>
-          <MyInput placeholder="ah~" handleKeyDown={handleKeyDown} />
-        </BottomWrapper>
-      </Bottom>
+    <Container className="flex">
+      <ChatWindow className="flex-c">
+        <Top>
+          <TopUserInfo className="flex flex-alc">
+            <Avatar src={state.current_talk?.avatar} size="44" />
+            <UserInfo className="flex-c">
+              <TopUserName>{state.current_talk?.name}</TopUserName>
+              <GroupDesc className="flex">
+                {state.current_talk?.isGroup && (
+                  <span>
+                    {
+                      state.groups.find(
+                        i => i.group_id === state.current_talk?.conversation_id
+                      )?.group_desc
+                    }
+                  </span>
+                )}
+              </GroupDesc>
+            </UserInfo>
+            {state.current_talk?.isGroup && (
+              <EditBtn
+                className="flex flex-alc"
+                onClick={() => setOpenEditGroup(prev => !prev)}
+              >
+                <div className="flex flex-alc click">
+                  <FiMoreHorizontal size={22} />
+                </div>
+              </EditBtn>
+            )}
+          </TopUserInfo>
+        </Top>
+        <Middle className="flex flex-jcc">
+          <MiddleWrapper className="flex-c">
+            <Messages>
+              <AutoSizer>
+                {({ width, height }) => (
+                  <VirtualList
+                    className="flex flex-jcc"
+                    style={{ overflowY: "scroll" }}
+                    height={height}
+                    width={width}
+                    itemCount={messages.length}
+                    itemSize={getSize}
+                    innerElementType={ListWrapper}
+                    ref={listRef}
+                    overscanCount={20}
+                  >
+                    {({ index, style }) => (
+                      <div className="flex flex-alc" style={style}>
+                        <Row
+                          data={messages}
+                          index={index}
+                          setSize={setSize}
+                          user_id={state.user_info?.result.user_id!}
+                        />
+                      </div>
+                    )}
+                  </VirtualList>
+                )}
+              </AutoSizer>
+            </Messages>
+          </MiddleWrapper>
+        </Middle>
+        <Bottom className="flex flex-alc flex-jcc">
+          <BottomWrapper>
+            <MyInput placeholder="ah~" handleKeyDown={handleKeyDown} />
+          </BottomWrapper>
+        </Bottom>
+      </ChatWindow>
+      {state.current_talk?.isGroup && openEditGroup && (
+        <EditGroup
+          group={
+            state.groups.find(i => i.group_id === state.current_talk!.conversation_id)!
+          }
+        />
+      )}
     </Container>
   )
 }
@@ -185,7 +252,7 @@ interface RowProps {
   index: number
   setSize?: any
 }
-const Row: React.FC<RowProps> = props => {
+const Row: React.FC<RowProps> = React.memo(props => {
   const { data, index, setSize, user_id } = props
   const rowRef = React.useRef<HTMLDivElement>(null)
 
@@ -209,8 +276,13 @@ const Row: React.FC<RowProps> = props => {
             <MessageRightText>
               {data[index].msg}
               <MessageStatus className="flex flex-alc">
-                <BsCheck size={20} color="#5fff50" />
-                {/* <BiX size={20} color="#ff2323" /> */}
+                {data[index].status === 1 ? (
+                  <BsCheck size={20} color="#5fff50" />
+                ) : data[index].status === -1 ? (
+                  <BiX size={20} color="#ff2323" />
+                ) : (
+                  <></>
+                )}
               </MessageStatus>
             </MessageRightText>
           </MessageItemRight>
@@ -227,25 +299,25 @@ const Row: React.FC<RowProps> = props => {
             </MessageAvatar>
             <MessageLeftText>
               {data[index].msg}
-              <MessageStatus className="flex flex-alc">
-                <BsCheck size={20} color="#00b800" />
-                {/* <BiX size={20} color="#d70000" /> */}
-              </MessageStatus>
+              <MessageStatus className="flex flex-alc"></MessageStatus>
             </MessageLeftText>
           </MessageItemLeft>
         </>
       )}
     </MessageItem>
   )
-}
+})
 
 const ListWrapper = styled.div`
   position: relative;
   width: calc(100% - 80px) !important;
 `
-const RowWrapper = styled.div``
 
 const Container = styled.div`
+  flex: 1;
+  height: 100%;
+`
+const ChatWindow = styled.div`
   flex: 1;
 `
 const UserInfo = styled.div`
@@ -254,6 +326,7 @@ const UserInfo = styled.div`
 
 const Top = styled.div`
   flex: 1;
+  max-height: 60px;
   box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
 `
 const TopUserInfo = styled.div`
@@ -265,7 +338,21 @@ const TopUserName = styled.span`
   font-size: 18px;
   font-weight: bold;
 `
-const LastOnline = styled.div`
+const EditBtn = styled.div`
+  margin-left: auto;
+  margin-right: 30px;
+  cursor: pointer;
+
+  & div {
+    padding: 8px;
+    border-radius: 50%;
+
+    &:hover {
+      background-color: ${p => p.theme.colors.hovercolor};
+    }
+  }
+`
+const GroupDesc = styled.div`
   font-size: 14px;
   color: ${props => props.theme.colors.secondary};
 `
@@ -326,6 +413,7 @@ const MessageStatus = styled.span`
 `
 const Bottom = styled.div`
   flex: 1;
+  max-height: 80px;
 `
 const BottomWrapper = styled.div`
   width: 70%;

@@ -5,7 +5,6 @@ import RouterAuth from "../components/RouterAuth/RouterAuth"
 import MyApp from "../pages"
 import Favorites from "../pages/Friends/Favorites"
 import Friends from "../pages/Friends/Friends"
-import Liked from "../pages/Friends/Liked"
 import List from "../pages/Friends/List"
 import Chat from "../pages/Chat/Chat"
 import Message from "../pages/Chat/Message"
@@ -59,10 +58,6 @@ const Routes = () => {
             {
               path: "favorites",
               element: <Favorites />
-            },
-            {
-              path: "liked",
-              element: <Liked />
             }
           ]
         },

@@ -58,7 +58,7 @@ const GrougpChat: React.FC<GrougpChatProps> = props => {
       group_id: `g-${nanoid(13)}`,
       group_avatar: "",
       group_name: groupName,
-      group_desc: "",
+      group_desc: null,
       group_owner: state.user_info?.result.user_id!
     }
     const newGroupNumbers = [...groupNumbers.map(item => item.friend.friend_id)]

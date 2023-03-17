@@ -229,6 +229,7 @@ const Container = styled.div`
 const Wrapper = styled.div`
   width: 100%;
   height: 100%;
+  overflow: hidden;
 `
 
 const Left = styled.div`
@@ -240,6 +241,13 @@ const Left = styled.div`
 `
 const CreateGroup = styled.div`
   cursor: pointer;
+
+  padding: 10px;
+  border-radius: 50%;
+
+  &:hover {
+    background-color: ${p => p.theme.colors.hovercolor};
+  }
 `
 
 const List = styled.div`

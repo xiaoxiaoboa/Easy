@@ -36,13 +36,6 @@ const Friends = () => {
                 <BsChevronRight size={20} />
               </li>
             </MyNavLink>
-            <MyNavLink path="liked">
-              <li>
-                <RiChatHeartLine size={25} />
-                特别关注
-                <BsChevronRight size={20} />
-              </li>
-            </MyNavLink>
           </ul>
         </LeftWrapper>
       </Left>

@@ -16,10 +16,11 @@ const Avatar: React.FC<AvatarProps> = props => {
 
   const handleRoute = () => {
     if (!id) return
-    const toPath = `profile/${id}`
-    const nowPath = pathname.replace("/", "")
+    const toPath = `/profile/${id}`
+    navigate(toPath)
+    // const nowPath = pathname.replace("/", "")
 
-    if (toPath !== nowPath) navigate(toPath)
+    // if (toPath !== nowPath) navigate(toPath)
   }
 
   return (

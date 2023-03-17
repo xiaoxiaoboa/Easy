@@ -13,7 +13,7 @@ const MyApp = () => {
       <Container className="flex-c">
         <TopBar />
         <Childrens className="flex flex-jcc">
-          <Wrapper>
+          <Wrapper className="w">
             <Outlet />
           </Wrapper>
           <ToggleTheme />
