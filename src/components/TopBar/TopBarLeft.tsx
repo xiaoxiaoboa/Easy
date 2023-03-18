@@ -10,13 +10,13 @@ const TopBarLeft = () => {
   const inputRef = React.useRef<HTMLInputElement>(null)
 
   React.useEffect(() => {
-    document.onclick = e => {
-      if (e.target === bottomRef.current || e.target === inputRef.current) return
-      setIsInput(false)
-    }
+    // document.onclick = e => {
+    //   if (e.target === bottomRef.current || e.target === inputRef.current) return
+    //   setIsInput(false)
+    // }
 
     return () => {
-      document.onclick = null
+      // document.onclick = null
     }
   }, [])
 

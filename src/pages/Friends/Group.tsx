@@ -3,7 +3,6 @@ import styled from "styled-components"
 import { MyContext } from "../../context/context"
 import { Card, CardButton } from "./List"
 import { ChatGroupType, ConversationType } from "../../types/chat.type"
-import { getJoinedGroups } from "../../api/chat_group.api"
 import { ActionTypes } from "../../types/reducer"
 import { useNavigate } from "react-router-dom"
 
@@ -42,7 +41,7 @@ const Group = () => {
 
   return (
     <Container className="flex-c">
-      <Wrapper className="flex">
+      <Wrapper className="">
         {state.groups.map(item => (
           <Card key={item.group_id} name={item.group_name} avatar={item.group_avatar}>
             <CardButton className="flex">
@@ -51,6 +50,9 @@ const Group = () => {
             </CardButton>
           </Card>
         ))}
+        <div></div>
+        <div></div>
+        <div></div>
       </Wrapper>
     </Container>
   )
@@ -65,5 +67,6 @@ const Container = styled.div`
 const Wrapper = styled.div`
   padding: 30px;
   gap: 34px;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 `

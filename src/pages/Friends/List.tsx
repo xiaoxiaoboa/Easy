@@ -42,7 +42,7 @@ const List = () => {
 
   return (
     <Container className="flex-c">
-      <Wrapper className="flex">
+      <Wrapper className="">
         {state.friends.map(item => (
           <Card
             key={item.friend_id}
@@ -56,6 +56,9 @@ const List = () => {
             </CardButton>
           </Card>
         ))}
+        <div></div>
+        <div></div>
+        <div></div>
       </Wrapper>
     </Container>
   )
@@ -66,7 +69,7 @@ export default List
 interface CardProps {
   name: string
   avatar: string
-  id: string
+  id?: string
   children: React.ReactElement
 }
 export const Card = (props: CardProps) => {
@@ -75,7 +78,7 @@ export const Card = (props: CardProps) => {
     <CardContainer>
       <CardWrapper className="flex-c flex-alc">
         <UserAvatar>
-          <Avatar src={avatar} size="60" id={id} />
+          <Avatar src={avatar} size="70" id={id} />
         </UserAvatar>
         <Name>{name}</Name>
         {children}
@@ -91,7 +94,8 @@ const Container = styled.div`
 const Wrapper = styled.div`
   padding: 30px;
   gap: 34px;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 `
 const CardContainer = styled.div`
   height: max-content;
@@ -99,9 +103,9 @@ const CardContainer = styled.div`
   background-color: ${props => props.theme.colors.nav_bg};
 `
 const CardWrapper = styled.div`
-  width: 240px;
+  width: 100%;
   gap: 6px;
-  padding: 14px 0;
+  padding: 8px 0 14px 0;
   overflow: hidden;
 `
 const UserAvatar = styled.div`
@@ -116,15 +120,7 @@ const Name = styled.div`
   overflow: hidden;
   text-overflow: ellipsis;
 `
-const Desc = styled.p`
-  font-size: 14px;
-  max-width: 80%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 
-  color: ${props => props.theme.colors.secondary};
-`
 export const CardButton = styled.div`
   gap: 8px;
   width: 100%;

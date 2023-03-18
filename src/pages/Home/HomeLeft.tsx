@@ -31,9 +31,6 @@ const HomeLeft: React.FC<HomeLeftProps> = props => {
           <Li>
             <MyLink to="chat" classname="message" text="Message" />
           </Li>
-          <Li>
-            <MyLink to="friends/liked" classname="star" text="特别关注" />
-          </Li>
         </Ul>
       </Wrapper>
     </Container>
@@ -44,19 +41,17 @@ export default HomeLeft
 
 /* styled */
 const Container = styled.div`
-  padding: 10px;
-  position: fixed;
-  left: 0;
-  width: 320px;
+  flex: 1;
+  position: sticky;
+  top: 60px;
   height: 100%;
-
+`
+const Wrapper = styled.div`
+  padding: 10px;
+  width: 100%;
   @media (max-width: 1100px) {
     display: none;
   }
-`
-const Wrapper = styled.div`
-  position: sticky;
-  top: 70px;
 `
 const Ul = styled.ul`
   list-style: none;

@@ -10,10 +10,9 @@ import { useLocation } from "react-router-dom"
 
 export const Photos = () => {
   const { state } = React.useContext(MyContext)
-  const contentsRef = React.useRef<HTMLDivElement>(null)
-  const imgWrapperRef = React.useRef<HTMLDivElement>(null)
-  const [current, setCurrent] = React.useState<string | null>(null)
   const location = useLocation()
+  const initHeight = React.useRef<string>("500px")
+  const [current, setCurrent] = React.useState<string | null>(null)
   const [images, setImages] = React.useState<Feed_attachType[]>([])
   const [videos, setVideos] = React.useState<Feed_attachType[]>([])
 
@@ -22,10 +21,11 @@ export const Photos = () => {
   }, [location])
 
   React.useEffect(() => {
-    allAttaches(state.user_info?.result.user_id!).then(val => {
+    allAttaches(state.user_info?.result.user_id!, state.user_info?.token!).then(val => {
       if (val.code === 1) {
         setImages(val.data.filter(i => i.attach_type === "image"))
         setVideos(val.data.filter(i => i.attach_type === "video"))
+        initHeight.current = "auto"
       }
     })
   }, [])
@@ -33,16 +33,16 @@ export const Photos = () => {
   return (
     <PhotoProvider>
       <Container className="flex flex-jcc">
-        <Wrapper className="flex-c">
+        <Wrapper className="flex-c w">
           <h3>{current === "photos" ? "你的照片" : "你的视频"}</h3>
-          <Contents ref={contentsRef}>
+          <Contents style={{ height: initHeight.current }}>
             {current === "photos" &&
               images.map(item => (
-                <div ref={imgWrapperRef} className="flex" key={item.attach_id}>
+                <ItemWrapper className="flex" key={item.attach_id}>
                   <PhotoView src={getUnionUrl(item.attach_link)}>
                     <img src={getUnionUrl(item.attach_link)} />
                   </PhotoView>
-                </div>
+                </ItemWrapper>
               ))}
             {current === "videos" &&
               videos.map(item => (
@@ -73,15 +73,14 @@ export const Photos = () => {
                     )
                   }}
                 >
-                  <div ref={imgWrapperRef} className="flex" key={item.attach_id}>
+                  <ItemWrapper className="flex" key={item.attach_id}>
                     <video src={getUnionUrl(item.attach_link)} />
-                  </div>
+                  </ItemWrapper>
                 </PhotoView>
               ))}
-            <div className="empty"></div>
-            <div className="empty"></div>
-            <div className="empty"></div>
-            <div className="empty"></div>
+            <div></div>
+            <div></div>
+            <div></div>
           </Contents>
         </Wrapper>
       </Container>
@@ -113,20 +112,15 @@ const Contents = styled.div`
 
   gap: 10px;
 
-  & div {
-    height: 300px;
-    border-radius: 8px;
-    overflow: hidden;
-  }
-
   & img,
   & video {
     width: 100%;
     object-fit: cover;
     cursor: pointer;
   }
-
-  & .empty {
-    height: 0;
-  }
+`
+const ItemWrapper = styled.div`
+  height: 300px;
+  border-radius: 8px;
+  overflow: hidden;
 `

@@ -144,41 +144,43 @@ const EditGroup: React.FC<EditGroupProps> = props => {
   const handleChange: React.ChangeEventHandler<HTMLInputElement> = e => {
     if (e.target.files) {
       setAvatar(e.target.files[0])
-      updateAvatar(group.group_id, e.target.files[0]).then(val => {
-        if (val.code === 1) {
-          dispatch({
-            type: ActionTypes.CURRENT_TALK,
-            payload: {
-              ...state.current_talk!,
-              avatar: val.data
-            }
-          })
-          dispatch({
-            type: ActionTypes.CONVERSATIONS,
-            payload: [
-              ...state.conversations.map(i => {
-                if (i.conversation_id === state.current_talk?.conversation_id) {
-                  return { ...i, avatar: val.data }
-                } else {
-                  return i
-                }
-              })
-            ]
-          })
-          dispatch({
-            type: ActionTypes.GROUPS,
-            payload: [
-              ...state.groups.map(i => {
-                if (i.group_id === state.current_talk?.conversation_id) {
-                  return { ...i, group_avatar: val.data }
-                } else {
-                  return i
-                }
-              })
-            ]
-          })
+      updateAvatar(group.group_id, e.target.files[0], state.user_info?.token!).then(
+        val => {
+          if (val.code === 1) {
+            dispatch({
+              type: ActionTypes.CURRENT_TALK,
+              payload: {
+                ...state.current_talk!,
+                avatar: val.data
+              }
+            })
+            dispatch({
+              type: ActionTypes.CONVERSATIONS,
+              payload: [
+                ...state.conversations.map(i => {
+                  if (i.conversation_id === state.current_talk?.conversation_id) {
+                    return { ...i, avatar: val.data }
+                  } else {
+                    return i
+                  }
+                })
+              ]
+            })
+            dispatch({
+              type: ActionTypes.GROUPS,
+              payload: [
+                ...state.groups.map(i => {
+                  if (i.group_id === state.current_talk?.conversation_id) {
+                    return { ...i, group_avatar: val.data }
+                  } else {
+                    return i
+                  }
+                })
+              ]
+            })
+          }
         }
-      })
+      )
     }
   }
 

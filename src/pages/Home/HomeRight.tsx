@@ -4,7 +4,7 @@ import Avatar from "../../components/Avatar/Avatar"
 import Division from "../../components/Division/Division"
 import { MyContext } from "../../context/context"
 import { UserType } from "../../types/user.type"
-import { getFriends, queryUser } from "../../api/user.api"
+import { getFriends } from "../../api/user.api"
 import getTimeDiff from "../../utils/getTimeDiff"
 import { Socket } from "socket.io-client"
 import { FriendType } from "../../types/friend.type"
@@ -25,20 +25,22 @@ const HomeRight: React.FC<HomeRightProps> = props => {
       notice_id,
       (res: any, err: any) => {
         if (res) {
-          getFriends(state.user_info?.result.user_id!).then(val => {
-            if (val.code === 1) {
-              dispatch({
-                type: ActionTypes.FRIENDS,
-                payload: val.data
-              })
-              dispatch({
-                type: ActionTypes.REQUESTFRIENDS,
-                payload: state.requestFriends.filter(
-                  item => item.notice.notice_id !== notice_id
-                )
-              })
+          getFriends(state.user_info?.result.user_id!, state.user_info?.token!).then(
+            val => {
+              if (val.code === 1) {
+                dispatch({
+                  type: ActionTypes.FRIENDS,
+                  payload: val.data
+                })
+                dispatch({
+                  type: ActionTypes.REQUESTFRIENDS,
+                  payload: state.requestFriends.filter(
+                    item => item.notice.notice_id !== notice_id
+                  )
+                })
+              }
             }
-          })
+          )
         }
       }
     )
@@ -109,17 +111,20 @@ const HomeRight: React.FC<HomeRightProps> = props => {
 export default HomeRight
 
 const Container = styled.div`
-  position: fixed;
-  right: 0;
+  flex: 1;
+  /* position: fixed;
+  right: 0; */
+  position: sticky;
+  top: 60px;
   /* width: 340px; */
-  margin-right: 30px;
-
-  @media (max-width: 1400px) {
-    display: none;
-  }
+  /* margin-right: 30px; */
+  height: 100%;
 `
 const Wrapper = styled.div`
   padding: 20px 10px;
+  @media (max-width: 1300px) {
+    display: none;
+  }
 `
 const FriendsRequest = styled.div`
   gap: 8px;
@@ -135,7 +140,7 @@ const RequestHead = styled.div`
 `
 const Main = styled.div`
   gap: 4px;
-  min-width: 320px;
+  /* min-width: 320px; */
 `
 
 const Contacts = styled.div`

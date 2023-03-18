@@ -6,21 +6,41 @@ import { BsFillChatDotsFill } from "react-icons/bs"
 import { MyContext } from "../../context/context"
 import getUnionUrl from "../../utils/getUnionUrl"
 import { useNavigate } from "react-router-dom"
+import Dialog from "../Dialog/Dialog"
+import TopBarRightUser from "../Dialog/TopBarRightUser"
+import TopBarRightNotice from "../Dialog/TopBarRightNotice"
+import { ActionTypes } from "../../types/reducer"
 
 const TopBarRight = () => {
-  const { state } = React.useContext(MyContext)
+  const { state, dispatch } = React.useContext(MyContext)
   const navigate = useNavigate()
+  const settingRef = React.useRef<HTMLDivElement | null>(null)
 
   return (
     <Container className="flex flex-rr flex-alc flex-jcs">
-      <Avatar
-        src={state.user_info?.result.avatar}
-        size="44"
-        id={state.user_info?.result.user_id || ""}
-      />
-      <TopBarRightButton handleFun={() => {}}>
-        <MdNotificationsActive size="22" />
-      </TopBarRightButton>
+      <div>
+        <div
+          ref={settingRef}
+          style={{ cursor: "pointer" }}
+          onClick={() =>
+            dispatch({
+              type: ActionTypes.POPOVERS,
+              payload: { ...state.popovers, setting: true }
+            })
+          }
+        >
+          <Avatar src={state.user_info?.result.avatar} size="44" />
+        </div>
+
+        <TopBarRightUser element={settingRef.current} />
+      </div>
+      <div>
+        <TopBarRightButton handleFun={() => {}}>
+          <MdNotificationsActive size="22" />
+        </TopBarRightButton>
+
+        <TopBarRightNotice />
+      </div>
       <TopBarRightButton handleFun={() => {}}>
         <BsFillChatDotsFill size="20" />
       </TopBarRightButton>
@@ -32,8 +52,6 @@ const TopBarRight = () => {
       >
         <span style={{ fontWeight: "bold" }}>搜索好友</span>
       </TopBarRightButton>
-
-      {/* <NotificationBar /> */}
     </Container>
   )
 }
@@ -88,31 +106,4 @@ const ButtonWrapper = styled.div<ButtonWrapperProps>`
   background-color: ${props => props.theme.colors.nav_btn_bgcolor};
   cursor: pointer;
   transform-origin: center center;
-`
-
-const NotificationBar = () => {
-  return (
-    <NBContainer>
-      <NBWrapper>
-        <h2>通知</h2>
-      </NBWrapper>
-    </NBContainer>
-  )
-}
-
-const NBContainer = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-`
-const NBWrapper = styled.div`
-  position: absolute;
-  right: 20px;
-  top: 70px;
-  width: 300px;
-  height: 300px;
-  border-radius: 10px;
-  background-color: ${props => props.theme.colors.nav_bg};
 `

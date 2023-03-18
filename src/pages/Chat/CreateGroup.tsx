@@ -64,26 +64,28 @@ const GrougpChat: React.FC<GrougpChatProps> = props => {
     const newGroupNumbers = [...groupNumbers.map(item => item.friend.friend_id)]
 
     if (avatar) {
-      newGroup(newGroupData, newGroupNumbers, avatar).then(val => {
-        if (val.code === 1) {
-          dispatch({
-            type: ActionTypes.CONVERSATIONS,
-            payload: [
-              ...state.conversations,
-              {
-                conversation_id: nanoid(9),
-                avatar: val.data.group_avatar,
-                name: val.data.group_name,
-                msg: "",
-                user_name: "",
-                isGroup: true,
-                msg_length: 0
-              }
-            ]
-          })
-          handleClose(false)
+      newGroup(newGroupData, newGroupNumbers, avatar, state.user_info?.token!).then(
+        val => {
+          if (val.code === 1) {
+            dispatch({
+              type: ActionTypes.CONVERSATIONS,
+              payload: [
+                ...state.conversations,
+                {
+                  conversation_id: nanoid(9),
+                  avatar: val.data.group_avatar,
+                  name: val.data.group_name,
+                  msg: "",
+                  user_name: "",
+                  isGroup: true,
+                  msg_length: 0
+                }
+              ]
+            })
+            handleClose(false)
+          }
         }
-      })
+      )
     }
   }
 

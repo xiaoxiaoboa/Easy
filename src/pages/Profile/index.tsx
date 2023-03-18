@@ -11,7 +11,7 @@ import { MyContext } from "../../context/context"
 import Loading from "../../components/Loading/Loading"
 import compress from "../../api/compress.api.js"
 import useRequested from "../../hooks/useRequested"
-import { alterationCover, queryUser } from "../../api/user.api.js"
+import { queryUser, alterationCover } from "../../api/user.api.js"
 import { DataType } from "../../types/index.js"
 import getBase64 from "../../utils/getBase64"
 import { ActionTypes } from "../../types/reducer"
@@ -29,7 +29,7 @@ const Profile = () => {
     if (state.user_info?.result.user_id === params.user_id) {
       setUser(state.user_info?.result)
     } else {
-      queryUser({ user_id: params.user_id }).then(val => {
+      queryUser(params.user_id!, state.user_info?.token!).then(val => {
         if (val.code === 1) {
           setUser(val.data)
         }
@@ -100,7 +100,7 @@ const Head: React.FC<HeadProps> = props => {
     setLoading(true)
 
     /* 发送修改请求 */
-    const alterationRes = await alterationCover(params)
+    const alterationRes = await alterationCover(params, state.user_info?.token!)
     if (alterationRes.code === 0) return requestedOpt(alterationRes)
 
     /* 修改本地state中用户信息 */

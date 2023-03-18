@@ -49,11 +49,11 @@ const HomeMiddle: React.FC = () => {
   }, [inViewport])
 
   return (
-    <Container className="flex">
+    <Container className="flex flex-jcc">
       <Wrapper className="flex-c flex-alc">
         {state.user_info && <Publish user_info={state.user_info.result} />}
         {state.home_feeds.map(item => (
-          <FeedCard key={item.feed_id} user_info={state.user_info?.result} feed={item} />
+          <FeedCard key={item.feed_id} user_info={state.user_info!} feed={item} />
         ))}
         {!nothing && <SkeletonFeed setElement={setElement} theme={state.theme} />}
         {nothing && <Tip>没有啦！看看别的吧~</Tip>}
@@ -65,7 +65,7 @@ const HomeMiddle: React.FC = () => {
 export default HomeMiddle
 
 const Container = styled.div`
-  width: 100%;
+  flex: 2;
 `
 const Wrapper = styled.div`
   width: 100%;
@@ -225,10 +225,14 @@ const PublishLayer: React.FC<PublishLayerProps> = props => {
     const text = childInputRef.current?.inputValue()
     setLoading(true)
 
-    feed_publish(files, {
-      feed_userID: user_info!.user_id,
-      feed_text: text!
-    }).then(val => {
+    feed_publish(
+      files,
+      {
+        feed_userID: user_info!.user_id,
+        feed_text: text!
+      },
+      state.user_info?.token!
+    ).then(val => {
       if (val.code === 1) {
         val.data.createdAt = new Date(val.data.createdAt)
           .toLocaleString()

@@ -13,10 +13,11 @@ import getTimeDiff from "../../utils/getTimeDiff"
 import useRequested from "../../hooks/useRequested"
 import Loading from "../Loading/Loading"
 import Confirm from "../Comfirm/Comfirm"
+import { DataType } from "../../types"
 
 /* 评论 */
 type CommentProps = {
-  user_info: UserType //登录的用户
+  user_info: DataType
   feed_id: string
   isOpen: boolean
 }
@@ -49,14 +50,14 @@ const FeedComment: React.FC<CommentProps> = props => {
     const newComment: Feed_CommentType = {
       feed_id: feed_id,
       comment_id: nanoid(9),
-      user_id: user_info.user_id,
+      user_id: user_info.result.user_id,
       comment: inputValue,
       createdAt: Date(),
-      avatar: user_info.avatar,
-      nick_name: user_info.nick_name
+      avatar: user_info.result.avatar,
+      nick_name: user_info.result.nick_name
     }
     const { avatar, nick_name, createdAt, ...res } = newComment
-    comment_publish(res).then(val => {
+    comment_publish(res, user_info.token).then(val => {
       if (val.code === 1) {
         setComment(prev => [...prev, newComment])
       }
@@ -87,7 +88,7 @@ const FeedComment: React.FC<CommentProps> = props => {
                 </div>
                 <Text>{item.comment}</Text>
               </TextWrapper>
-              {user_info.user_id === item.user_id && (
+              {user_info.result.user_id === item.user_id && (
                 <div
                   className="delete click flex flex-alc"
                   onClick={() => handleDelComment(item)}
@@ -108,7 +109,7 @@ const FeedComment: React.FC<CommentProps> = props => {
           />
         )}
         <WriteComment className="flex-r flex-alc">
-          <Avatar src={user_info?.avatar} size="32" />
+          <Avatar src={user_info?.result.avatar} size="32" />
           <CommentInput className="flex-r flex-jce flex-alc">
             <MyInput handleKeyDown={handleKeyDown} placeholder="写下你的评论把~" />
           </CommentInput>

@@ -1,5 +1,5 @@
 import { FeedType } from "../feed.type"
-import { DataType, MySocket } from "../index"
+import { DataType, MySocket, PopoversType } from "../index"
 import { Socket } from "socket.io-client"
 import { UserType } from "../user.type"
 import { FriendType, RequestFriendsType } from "../friend.type"
@@ -22,6 +22,7 @@ export interface ReducerState {
   conversations: ConversationType[]
   current_talk: ConversationType | null
   unread_message: MessageType[]
+  popovers: PopoversType
 }
 
 export type ActionMap<M extends { [index: string]: any }> = {
@@ -45,7 +46,8 @@ export enum ActionTypes {
   GROUPS = "groups",
   CONVERSATIONS = "conversations",
   CURRENT_TALK = "current_talk",
-  UNREAD_MESSAGE = "unread_message"
+  UNREAD_MESSAGE = "unread_message",
+  POPOVERS = "popovers"
 }
 
 export interface ReducerActionType {
@@ -57,13 +59,14 @@ export interface ReducerPaylodType {
   [ActionTypes.USER_INFO]: DataType | null
   [ActionTypes.THEME]: "light" | "dark"
   [ActionTypes.HOME_FEEDS]: FeedType[]
-  [ActionTypes.MYSOCKET]: MySocket
+  [ActionTypes.MYSOCKET]: MySocket | null
   [ActionTypes.REQUESTFRIENDS]: BackNoticeType<RequestFriendsType>[]
   [ActionTypes.FRIENDS]: FriendType[]
   [ActionTypes.GROUPS]: ChatGroupType[]
   [ActionTypes.CONVERSATIONS]: ConversationType[]
   [ActionTypes.CURRENT_TALK]: ConversationType | null
   [ActionTypes.UNREAD_MESSAGE]: MessageType[]
+  [ActionTypes.POPOVERS]: PopoversType
 }
 
 export type ActionsType = ActionMap<ReducerPaylodType>[keyof ActionMap<ReducerPaylodType>]

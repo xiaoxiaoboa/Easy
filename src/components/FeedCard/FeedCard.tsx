@@ -12,9 +12,10 @@ import { PhotoProvider, PhotoView } from "react-photo-view"
 import { SlDrawer, SlTrash } from "react-icons/sl"
 import { feed_fav } from "../../api/feeds.api"
 import Confirm from "../Comfirm/Comfirm"
+import { DataType } from "../../types"
 
 interface FeedCard {
-  user_info?: UserType
+  user_info?: DataType
   feed: FeedType
   handleCancelFav?: (feed_id: string, option: any) => void
   handleDelFav?: (feed_id: string) => void
@@ -25,7 +26,7 @@ const FeedCard: React.FC<FeedCard> = props => {
   const [openConfirm, setOpenConfirm] = React.useState<boolean>(false)
   const [openComment, setOpenComment] = React.useState<boolean>(false)
   const [isFav, setIsFav] = React.useState<boolean>(
-    feed.user_favourites.some(item => item.user_id === user_info?.user_id)
+    feed.user_favourites.some(item => item.user_id === user_info?.result.user_id)
   )
 
   const selectTag = (data: Feed_attach) => {
@@ -105,7 +106,7 @@ const FeedCard: React.FC<FeedCard> = props => {
 
   const handleFavourite = () => {
     /* 收藏帖子 */
-    feed_fav(feed.feed_id, user_info?.user_id!).then(val => {
+    feed_fav(feed.feed_id, user_info?.result.user_id!, user_info?.token!).then(val => {
       if (val.code === 1) {
         setIsFav(prev => !prev)
         if (handleCancelFav) handleCancelFav(feed.feed_id, !isFav)
@@ -150,7 +151,7 @@ const FeedCard: React.FC<FeedCard> = props => {
                   <SlDrawer />
                   {isFav ? "取消收藏" : "收藏帖子"}
                 </span>
-                {user_info?.user_id === feed.feed_userID && (
+                {user_info?.result.user_id === feed.feed_userID && (
                   <span
                     className="flex flex-alc remove"
                     onClick={() => setOpenConfirm(true)}
@@ -168,11 +169,7 @@ const FeedCard: React.FC<FeedCard> = props => {
           <PicAndVid className="flex">{generateElement}</PicAndVid>
         </CardContent>
         <Division />
-        <CardFun
-          user_id={user_info?.user_id!}
-          feed={feed}
-          setopenComment={setOpenComment}
-        />
+        <CardFun user_info={user_info!} feed={feed} setopenComment={setOpenComment} />
 
         {openComment && (
           <FeedComment
