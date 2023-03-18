@@ -19,9 +19,9 @@ interface CardFunType {
 const CardFun = React.memo((props: CardFunType) => {
   const { feed, user_id, setopenComment } = props
   const [openSnackbar] = useSnackbar()
-  const [likedCount, setLikedCount] = React.useState<number>(feed.feed_liked.liked.length)
+  const [likedCount, setLikedCount] = React.useState<number>(feed.feed_likeds.length)
   const [isLike, setIsLike] = React.useState<boolean>(
-    feed.feed_liked.liked.includes(user_id!)
+    feed.feed_likeds.map(i => i.liked).includes(user_id!)
   )
 
   const handleLike = () => {

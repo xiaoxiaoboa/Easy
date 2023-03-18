@@ -4,7 +4,7 @@ import styled from "styled-components"
 
 interface SkeletonProps {
   theme: "dark" | "light"
-  setElement: React.Dispatch<React.SetStateAction<HTMLDivElement | null>>
+  setElement?: React.Dispatch<React.SetStateAction<HTMLDivElement | null>>
 }
 
 const backgroundColor_dark = "#818181"
@@ -17,7 +17,7 @@ export const SkeletonFeed = (props: SkeletonProps) => {
   const containerRef = React.useRef<HTMLDivElement>(null)
 
   React.useEffect(() => {
-    if (containerRef.current) {
+    if (containerRef.current && setElement) {
       setElement(containerRef.current)
     }
   }, [])

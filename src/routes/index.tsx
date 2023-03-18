@@ -12,8 +12,7 @@ import Home from "../pages/Home"
 import Login from "../pages/Login/Login"
 import Profile from "../pages/Profile"
 import Moments from "../pages/Profile/Moments"
-import Photos from "../pages/Profile/Photos"
-import Videos from "../pages/Profile/Videos"
+import Attaches from "../pages/Profile/Attaches"
 import Group from "../pages/Friends/Group"
 // const MyApp = React.lazy(() => import("../pages"))
 // const Favorites = React.lazy(() => import("../pages/Friends/Favorites"))
@@ -75,11 +74,11 @@ const Routes = () => {
             },
             {
               path: "photos",
-              element: <Photos />
+              element: <Attaches />
             },
             {
               path: "videos",
-              element: <Videos />
+              element: <Attaches />
             }
           ]
         },

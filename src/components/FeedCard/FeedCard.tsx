@@ -29,17 +29,17 @@ const FeedCard: React.FC<FeedCard> = props => {
   )
 
   const selectTag = (data: Feed_attach) => {
-    switch (data.type) {
+    switch (data.attach_type) {
       case "image":
         return (
           <PhotoProvider>
-            <PhotoView src={getUnionUrl(data.link)}>
-              <img src={getUnionUrl(data.link)} />
+            <PhotoView src={getUnionUrl(data.attach_link)}>
+              <img src={getUnionUrl(data.attach_link)} />
             </PhotoView>
           </PhotoProvider>
         )
       case "video":
-        return <video src={getUnionUrl(data.link)} controls />
+        return <video src={getUnionUrl(data.attach_link)} controls />
       default:
         break
     }
@@ -47,12 +47,12 @@ const FeedCard: React.FC<FeedCard> = props => {
 
   /* 根据图片或视频数量生成dom */
   const generateElement = React.useMemo(() => {
-    const length = feed.feed_attach.attach.length
+    const length = feed.feed_attaches.length
     switch (length) {
       case 1:
         return (
           <div className="flex" style={{ flex: "1" }}>
-            {selectTag(feed.feed_attach.attach[0])}
+            {selectTag(feed.feed_attaches[0])}
           </div>
         )
       case 2:
@@ -61,12 +61,8 @@ const FeedCard: React.FC<FeedCard> = props => {
             className="flex"
             style={{ gap: "10px", display: "grid", gridTemplateColumns: "repeat(2,1fr)" }}
           >
-            <div className="flex image_wrapper">
-              {selectTag(feed.feed_attach.attach[0])}
-            </div>
-            <div className="flex image_wrapper">
-              {selectTag(feed.feed_attach.attach[1])}
-            </div>
+            <div className="flex image_wrapper">{selectTag(feed.feed_attaches[0])}</div>
+            <div className="flex image_wrapper">{selectTag(feed.feed_attaches[1])}</div>
           </div>
         )
       case 3:
@@ -76,17 +72,11 @@ const FeedCard: React.FC<FeedCard> = props => {
             style={{ gap: "10px", display: "grid", gridTemplateColumns: "repeat(2,50%)" }}
           >
             <div className="flex">
-              <div className="flex image_wrapper">
-                {selectTag(feed.feed_attach.attach[0])}
-              </div>
+              <div className="flex image_wrapper">{selectTag(feed.feed_attaches[0])}</div>
             </div>
             <div className="flex-c flex-alc" style={{ gap: "10px" }}>
-              <div className="flex image_wrapper">
-                {selectTag(feed.feed_attach.attach[1])}
-              </div>
-              <div className="flex image_wrapper">
-                {selectTag(feed.feed_attach.attach[2])}
-              </div>
+              <div className="flex image_wrapper">{selectTag(feed.feed_attaches[1])}</div>
+              <div className="flex image_wrapper">{selectTag(feed.feed_attaches[2])}</div>
             </div>
           </div>
         )
@@ -100,7 +90,7 @@ const FeedCard: React.FC<FeedCard> = props => {
               gridTemplateColumns: "repeat(2,50%)"
             }}
           >
-            {feed.feed_attach.attach.map((attach, index) => (
+            {feed.feed_attaches.map((attach, index) => (
               <div key={index} className="flex">
                 {selectTag(attach)}
               </div>

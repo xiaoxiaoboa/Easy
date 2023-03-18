@@ -48,7 +48,12 @@ const Moments = () => {
           <FeedCard user_info={state.user_info?.result} feed={item} />
         </PhotoProvider>
       ))}
-      {!nothing && <SkeletonFeed setElement={setElement} theme={state.theme} />}
+      {!nothing && (
+        <>
+          <SkeletonFeed setElement={setElement} theme={state.theme} />
+          <SkeletonFeed theme={state.theme} />
+        </>
+      )}
       {nothing && <Tip>没有啦！看看别的吧~</Tip>}
     </Container>
   )
@@ -60,4 +65,5 @@ const Container = styled.div`
   /* width:100%; */
   padding: 20px 0;
   gap: 30px;
+  flex: 1;
 `

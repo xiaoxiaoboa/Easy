@@ -1,4 +1,4 @@
-import { InComplateFavouriteType, InComplateUserType, UserType } from "./user.type"
+import { InComplateUserType, UserType } from "./user.type"
 
 export interface Feed {
   feed_id: string
@@ -8,40 +8,32 @@ export interface Feed {
   updatedAt: string
 }
 
-export interface FeedType extends Feed {
+export interface PublishFeedType extends Feed {
   comment_count: number
-  feed_liked: Feed_LikedType
-  feed_attach: Feed_attachType
-  user: InComplateUserType
-  user_favourites: InComplateFavouriteType[]
+  feed_likeds: Feed_LikedType[]
+  feed_attaches: Feed_attachType[]
+  user_favourites: User_FavouriteType[]
 }
-export interface PublishFeedType {
-  feed_userID: string
-  feed_text: string
+export interface FeedType extends PublishFeedType {
+  user: Pick<UserType, "user_id" | "avatar" | "nick_name">
 }
 
 /* =====================Feed_attach=========================== */
 export interface Feed_attachType {
   feed_id: string
   feed_userID: string
-  attach: Feed_attach[]
-  count: number
+  attach_id: string
+  attach_type: "image" | "video"
+  attach_link: string
 }
-export type Feed_attachServiceType = {
-  [key in keyof Feed_attachType]: Feed_attachType[key] extends number ? number : string
-}
-export interface Feed_attach {
-  id: string
-  type: "image" | "video"
-  link: string
-}
+export type Feed_attach = Omit<Feed_attachType, "feed_id" | "feed_userID">
 
 /* =====================Feed_liked=========================== */
 export interface Feed_LikedType {
   id: number
   feed_id: string
   feed_userID: string
-  liked: string[]
+  liked: string
 }
 
 /* =====================Feed_comment=========================== */

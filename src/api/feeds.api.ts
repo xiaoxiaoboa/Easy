@@ -2,6 +2,7 @@ import {
   Feed,
   FeedType,
   Feed_attach,
+  Feed_attachType,
   Feed_CommentPublishType,
   Feed_CommentType,
   PublishFeedType,
@@ -31,8 +32,8 @@ export const feeds_query = async (
 /* 发布帖子 */
 export const feed_publish = async (
   files: File[],
-  params: PublishFeedType
-): Promise<ResponseType<FeedType>> => {
+  params: Pick<Feed, "feed_userID" | "feed_text">
+): Promise<ResponseType<PublishFeedType>> => {
   const formData = new FormData()
   files.map((file, index) => formData.append(`file-${index}`, file))
   formData.append("data", JSON.stringify(params))
@@ -131,6 +132,18 @@ export const comment_delete = async (comment_id: string) => {
     url: "/comment_delete",
     methods: "POST",
     body: { comment_id },
+    token: user_info.token
+  })
+}
+
+/* 获取用户关于帖子的所有的图片和视频 */
+export const allAttaches = async (
+  user_id: string
+): Promise<ResponseType<Feed_attachType[]>> => {
+  return await request({
+    url: "/feed_attaches",
+    methods: "POST",
+    body: { user_id },
     token: user_info.token
   })
 }

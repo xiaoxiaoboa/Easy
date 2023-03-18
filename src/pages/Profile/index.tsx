@@ -41,7 +41,9 @@ const Profile = () => {
     <Container>
       <Wrapper className="flex-c">
         <Head user={user!} />
-        <Outlet />
+        <div style={{ flex: "1" }}>
+          <Outlet />
+        </div>
       </Wrapper>
     </Container>
   )

@@ -10,7 +10,7 @@ import { UserType } from "../../types/user.type"
 import { feed_publish, feeds_all } from "../../api/feeds.api"
 import { ActionTypes } from "../../types/reducer"
 import Division from "../../components/Division/Division"
-import { Feed } from "../../types/feed.type"
+import { Feed, FeedType } from "../../types/feed.type"
 import useRequested from "../../hooks/useRequested"
 import Loading from "../../components/Loading/Loading"
 import { PhotoProvider } from "react-photo-view"
@@ -235,9 +235,17 @@ const PublishLayer: React.FC<PublishLayerProps> = props => {
           .replace(/\//g, "-")
         handleCloseSelf()
         requestedOpt(val)
+        const newFeedData: FeedType = {
+          ...val.data,
+          user: {
+            avatar: state.user_info?.result.avatar!,
+            nick_name: state.user_info?.result.nick_name!,
+            user_id: state.user_info?.result.user_id!
+          }
+        }
         dispatch({
           type: ActionTypes.HOME_FEEDS,
-          payload: [val.data, ...state.home_feeds]
+          payload: [newFeedData, ...state.home_feeds]
         })
       }
     })
