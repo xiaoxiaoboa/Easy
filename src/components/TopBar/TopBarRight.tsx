@@ -6,40 +6,47 @@ import { BsFillChatDotsFill } from "react-icons/bs"
 import { MyContext } from "../../context/context"
 import getUnionUrl from "../../utils/getUnionUrl"
 import { useNavigate } from "react-router-dom"
-import Dialog from "../Dialog/Dialog"
-import TopBarRightUser from "../Dialog/TopBarRightUser"
-import TopBarRightNotice from "../Dialog/TopBarRightNotice"
+import Dialog from "../Popovers/Popover"
+import TopBarRightUser from "../Popovers/TopBarRightUser"
+import TopBarRightNotice from "../Popovers/TopBarRightNotice"
 import { ActionTypes } from "../../types/reducer"
 
 const TopBarRight = () => {
   const { state, dispatch } = React.useContext(MyContext)
   const navigate = useNavigate()
   const settingRef = React.useRef<HTMLDivElement | null>(null)
+  const noticeRef = React.useRef<HTMLDivElement | null>(null)
 
   return (
     <Container className="flex flex-rr flex-alc flex-jcs">
       <div>
-        <div
-          ref={settingRef}
-          style={{ cursor: "pointer" }}
-          onClick={() =>
-            dispatch({
-              type: ActionTypes.POPOVERS,
-              payload: { ...state.popovers, setting: true }
-            })
-          }
-        >
-          <Avatar src={state.user_info?.result.avatar} size="44" />
-        </div>
+        <Dialog sourceElement={settingRef.current}>
+          {({ open, setOpen }) => (
+            <>
+              <div
+                ref={settingRef}
+                style={{ cursor: "pointer" }}
+                onClick={() => setOpen(true)}
+              >
+                <Avatar src={state.user_info?.result.avatar} size="44" />
+              </div>
 
-        <TopBarRightUser element={settingRef.current} />
+              <TopBarRightUser isOpen={open} />
+            </>
+          )}
+        </Dialog>
       </div>
       <div>
-        <TopBarRightButton handleFun={() => {}}>
-          <MdNotificationsActive size="22" />
-        </TopBarRightButton>
-
-        <TopBarRightNotice />
+        <Dialog sourceElement={noticeRef.current}>
+          {({ open, setOpen }) => (
+            <div ref={noticeRef}>
+              <TopBarRightButton handleFun={() => setOpen(true)}>
+                <MdNotificationsActive size="22" />
+              </TopBarRightButton>
+              <TopBarRightNotice isOpen={open} />
+            </div>
+          )}
+        </Dialog>
       </div>
       <TopBarRightButton handleFun={() => {}}>
         <BsFillChatDotsFill size="20" />

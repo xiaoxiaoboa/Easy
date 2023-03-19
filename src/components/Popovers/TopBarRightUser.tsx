@@ -5,12 +5,14 @@ import { FiLogOut } from "react-icons/fi"
 import ToggleTheme from "../ToggleTheme/ToggleTheme"
 import { MyContext } from "../../context/context"
 import { ActionTypes } from "../../types/reducer"
+import Dialog from "./Popover"
 
 interface TopBarRightUserProps {
-  element: HTMLDivElement | null
+  isOpen: boolean
+  element?: HTMLDivElement | null
 }
 const TopBarRightUser: React.FC<TopBarRightUserProps> = props => {
-  const { element } = props
+  const { element, isOpen } = props
   const { state, dispatch } = React.useContext(MyContext)
   const containerRef = React.useRef<HTMLDivElement | null>(null)
 
@@ -36,11 +38,11 @@ const TopBarRightUser: React.FC<TopBarRightUserProps> = props => {
   }
 
   const handleLogout = () => {
-    // dispatch({ type: ActionTypes.USER_INFO, payload: null })
+    dispatch({ type: ActionTypes.USER_INFO, payload: null })
   }
 
   return (
-    <Container style={{ opacity: state.popovers.setting ? 1 : 0 }} ref={containerRef}>
+    <Container isOpen={isOpen}>
       <Wrapper className="flex-c">
         <Item style={{ cursor: "auto" }} className="flex flex-alc">
           <BsMoonStars size={22} />
@@ -60,17 +62,22 @@ const TopBarRightUser: React.FC<TopBarRightUserProps> = props => {
 
 export default TopBarRightUser
 
-const Container = styled.div`
+interface ContainerProps {
+  isOpen: boolean
+}
+export const Container = styled.div<ContainerProps>`
   position: absolute;
   right: 10px;
   top: 60px;
   width: 360px;
   border-radius: 10px;
+  opacity: ${p => (p.isOpen ? 1 : 0)};
+  transform: ${p => (p.isOpen ? "scale(1)" : "scale(0)")};
 
   background-color: ${p => p.theme.colors.nav_bg};
   box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px;
 `
-const Wrapper = styled.div`
+export const Wrapper = styled.div`
   padding: 10px;
 `
 const Item = styled.div`
