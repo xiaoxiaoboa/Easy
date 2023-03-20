@@ -6,36 +6,11 @@ import ToggleTheme from "../ToggleTheme/ToggleTheme"
 import { MyContext } from "../../context/context"
 import { ActionTypes } from "../../types/reducer"
 import Dialog from "./Popover"
+import { TopBarRightPopoverProps } from "../../types"
 
-interface TopBarRightUserProps {
-  isOpen: boolean
-  element?: HTMLDivElement | null
-}
-const TopBarRightUser: React.FC<TopBarRightUserProps> = props => {
-  const { element, isOpen } = props
+const TopBarRightUser: React.FC<TopBarRightPopoverProps> = props => {
+  const { isOpen } = props
   const { state, dispatch } = React.useContext(MyContext)
-  const containerRef = React.useRef<HTMLDivElement | null>(null)
-
-  React.useEffect(() => {
-    if (state.popovers.setting) {
-      document.onclick = hanleClick
-    }
-  }, [state.popovers])
-
-  const hanleClick = (e: MouseEvent) => {
-    if (
-      !containerRef.current?.contains(e.target as Node) &&
-      !element?.contains(e.target as Node)
-    ) {
-      if (state.popovers.setting) {
-        dispatch({
-          type: ActionTypes.POPOVERS,
-          payload: { ...state.popovers, setting: false }
-        })
-        document.onclick = null
-      }
-    }
-  }
 
   const handleLogout = () => {
     dispatch({ type: ActionTypes.USER_INFO, payload: null })
@@ -68,7 +43,7 @@ interface ContainerProps {
 export const Container = styled.div<ContainerProps>`
   position: absolute;
   right: 10px;
-  top: 60px;
+  top: 65px;
   width: 360px;
   border-radius: 10px;
   opacity: ${p => (p.isOpen ? 1 : 0)};

@@ -106,6 +106,7 @@ export const MyContextProvider = ({ children }: Props) => {
           }
         }
       )
+      
     }
 
     if (!state.user_info) {

@@ -72,7 +72,7 @@ const GrougpChat: React.FC<GrougpChatProps> = props => {
               payload: [
                 ...state.conversations,
                 {
-                  conversation_id: nanoid(9),
+                  conversation_id: newGroupData.group_id,
                   avatar: val.data.group_avatar,
                   name: val.data.group_name,
                   msg: "",

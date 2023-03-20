@@ -6,7 +6,7 @@ import { Search } from "../Friends/Friends"
 import { NavLink } from "react-router-dom"
 import { MyContext } from "../../context/context"
 import { ActionTypes } from "../../types/reducer"
-import { ConversationType, MessageType } from "../../types/chat.type"
+import { ConversationType } from "../../types/chat.type"
 import { CgAddR } from "react-icons/cg"
 import GrougpChat from "./CreateGroup"
 
@@ -22,86 +22,86 @@ const Chat = () => {
   }, [])
 
   /* 来信消息时，需要把对话推到顶部 */
-  React.useEffect(() => {
-    const lastObj = state.unread_message[state.unread_message.length - 1]
-    /* 先查找现在对话列表中是否有 */
-    const newMessageObj = state.conversations.find(
-      item => item.conversation_id === lastObj?.conversation_id
-    )
-    if (newMessageObj) {
-      dispatch({
-        type: ActionTypes.CONVERSATIONS,
-        payload: [
-          {
-            ...newMessageObj,
-            msg: lastObj.msg,
-            user_name: lastObj.user.nick_name,
-            msg_length:
-              state.current_talk?.conversation_id === newMessageObj.conversation_id
-                ? 0
-                : newMessageObj.msg_length + 1
-          },
-          ...state.conversations.filter(
-            i => i.conversation_id !== newMessageObj?.conversation_id
-          )
-        ]
-      })
-      if (state.current_talk?.conversation_id === newMessageObj.conversation_id) {
-        dispatch({
-          type: ActionTypes.UNREAD_MESSAGE,
-          payload: [
-            ...state.unread_message.filter(
-              i => i.conversation_id !== newMessageObj.conversation_id
-            )
-          ]
-        })
-      }
-    } else {
-      /* 查找是好友，还是群组 */
-      const newMessageObj = state.friends.find(
-        i =>
-          i.friend_id ===
-          state.unread_message[state.unread_message.length - 1]?.conversation_id
-      )
-      if (newMessageObj) {
-        const newData: ConversationType = {
-          conversation_id: newMessageObj.friend_id,
-          avatar: newMessageObj.avatar,
-          name: newMessageObj.nick_name,
-          user_name: state.unread_message[state.unread_message.length - 1].user.nick_name,
-          msg: state.unread_message[state.unread_message.length - 1].msg,
-          isGroup: false,
-          msg_length: 1
-        }
-        dispatch({
-          type: ActionTypes.CONVERSATIONS,
-          payload: [newData, ...state.conversations]
-        })
-      } else {
-        const newMessageObj = state.groups.find(
-          i =>
-            i.group_id ===
-            state.unread_message[state.unread_message.length - 1]?.conversation_id
-        )
-        if (newMessageObj) {
-          const newData: ConversationType = {
-            conversation_id: newMessageObj.group_id,
-            avatar: newMessageObj.group_avatar,
-            name: newMessageObj.group_name,
-            user_name:
-              state.unread_message[state.unread_message.length - 1].user.nick_name,
-            msg: state.unread_message[state.unread_message.length - 1].msg,
-            isGroup: true,
-            msg_length: 1
-          }
-          dispatch({
-            type: ActionTypes.CONVERSATIONS,
-            payload: [newData, ...state.conversations]
-          })
-        }
-      }
-    }
-  }, [state.unread_message])
+  // React.useEffect(() => {
+  //   const lastObj = state.unread_message[state.unread_message.length - 1]
+  //   /* 先查找现在对话列表中是否有 */
+  //   const newMessageObj = state.conversations.find(
+  //     item => item.conversation_id === lastObj?.conversation_id
+  //   )
+  //   if (newMessageObj) {
+  //     dispatch({
+  //       type: ActionTypes.CONVERSATIONS,
+  //       payload: [
+  //         {
+  //           ...newMessageObj,
+  //           msg: lastObj.msg,
+  //           user_name: lastObj.user.nick_name,
+  //           msg_length:
+  //             state.current_talk?.conversation_id === newMessageObj.conversation_id
+  //               ? 0
+  //               : newMessageObj.msg_length + 1
+  //         },
+  //         ...state.conversations.filter(
+  //           i => i.conversation_id !== newMessageObj?.conversation_id
+  //         )
+  //       ]
+  //     })
+  //     if (state.current_talk?.conversation_id === newMessageObj.conversation_id) {
+  //       dispatch({
+  //         type: ActionTypes.UNREAD_MESSAGE,
+  //         payload: [
+  //           ...state.unread_message.filter(
+  //             i => i.conversation_id !== newMessageObj.conversation_id
+  //           )
+  //         ]
+  //       })
+  //     }
+  //   } else {
+  //     /* 查找是好友，还是群组 */
+  //     const newMessageObj = state.friends.find(
+  //       i =>
+  //         i.friend_id ===
+  //         state.unread_message[state.unread_message.length - 1]?.conversation_id
+  //     )
+  //     if (newMessageObj) {
+  //       const newData: ConversationType = {
+  //         conversation_id: newMessageObj.friend_id,
+  //         avatar: newMessageObj.avatar,
+  //         name: newMessageObj.nick_name,
+  //         user_name: state.unread_message[state.unread_message.length - 1].user.nick_name,
+  //         msg: state.unread_message[state.unread_message.length - 1].msg,
+  //         isGroup: false,
+  //         msg_length: 1
+  //       }
+  //       dispatch({
+  //         type: ActionTypes.CONVERSATIONS,
+  //         payload: [newData, ...state.conversations]
+  //       })
+  //     } else {
+  //       const newMessageObj = state.groups.find(
+  //         i =>
+  //           i.group_id ===
+  //           state.unread_message[state.unread_message.length - 1]?.conversation_id
+  //       )
+  //       if (newMessageObj) {
+  //         const newData: ConversationType = {
+  //           conversation_id: newMessageObj.group_id,
+  //           avatar: newMessageObj.group_avatar,
+  //           name: newMessageObj.group_name,
+  //           user_name:
+  //             state.unread_message[state.unread_message.length - 1].user.nick_name,
+  //           msg: state.unread_message[state.unread_message.length - 1].msg,
+  //           isGroup: true,
+  //           msg_length: 1
+  //         }
+  //         dispatch({
+  //           type: ActionTypes.CONVERSATIONS,
+  //           payload: [newData, ...state.conversations]
+  //         })
+  //       }
+  //     }
+  //   }
+  // }, [state.unread_message])
 
   /* 打开对话窗口 */
   const handleTalk = (data: ConversationType) => {
@@ -122,12 +122,18 @@ const Chat = () => {
       ]
     })
 
-    dispatch({
-      type: ActionTypes.UNREAD_MESSAGE,
-      payload: [
-        ...state.unread_message.filter(i => i.conversation_id !== data.conversation_id)
-      ]
-    })
+    // dispatch({
+    //   type: ActionTypes.UNREAD_MESSAGE,
+    //   payload: [
+    //     ...state.unread_message.map(i => {
+    //       if (i.source_id === data.conversation_id) {
+    //         return { ...i, done: 1 }
+    //       } else {
+    //         return i
+    //       }
+    //     })
+    //   ]
+    // })
   }
   return (
     <Container>
@@ -152,7 +158,6 @@ const Chat = () => {
                 key={item.conversation_id}
                 data={item}
                 handleTalk={handleTalk}
-                unread_message={state.unread_message}
                 current_talk={state.current_talk}
               />
             ))}
@@ -171,7 +176,6 @@ export default Chat
 interface ListItemProps {
   data: ConversationType
   handleTalk: (data: ConversationType) => void
-  unread_message: MessageType[]
   current_talk: ConversationType | null
 }
 interface ThisItemProps {
@@ -181,7 +185,7 @@ interface ThisItemProps {
 }
 /* 左侧联系人 */
 const ListItem: React.FC<ListItemProps> = props => {
-  const { data, handleTalk, unread_message, current_talk } = props
+  const { data, handleTalk, current_talk } = props
 
   const ThisItem: React.FC<ThisItemProps> = props => {
     const { avatar, name, isActive } = props

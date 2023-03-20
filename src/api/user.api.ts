@@ -41,13 +41,28 @@ export const queryUser = async (
   })
 }
 
-
 /* 查找好友 */
-export const getFriends = (user_id: string,t:string): Promise<ResponseType<FriendType[]>> => {
+export const getFriends = (
+  user_id: string,
+  t: string
+): Promise<ResponseType<FriendType[]>> => {
   return request({
     url: "/friends",
     methods: "POST",
     body: { user_id },
+    token: t
+  })
+}
+
+export const queryNotice = (
+  user_id: string,
+  type: string,
+  t: string
+): Promise<ResponseType<any>> => {
+  return request({
+    url: "/notice",
+    methods: "POST",
+    body: { user_id, type },
     token: t
   })
 }

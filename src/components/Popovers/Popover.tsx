@@ -3,17 +3,17 @@ import styled from "styled-components"
 
 interface childrenProps {
   open: boolean
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>
+  // setOpen: React.Dispatch<React.SetStateAction<boolean>>
 }
 interface DialogPorps {
   children: (props: childrenProps) => React.ReactNode
-  sourceElement: HTMLDivElement | null
 }
 
 const Dialog: React.FC<DialogPorps> = props => {
-  const { children, sourceElement } = props
+  const { children } = props
   const [open, setOpen] = React.useState<boolean>(false)
   const containerRef = React.useRef<HTMLDivElement | null>(null)
+  const sourceElement = React.useRef<HTMLDivElement | null>(null)
 
   React.useEffect(() => {
     if (open) {
@@ -29,7 +29,7 @@ const Dialog: React.FC<DialogPorps> = props => {
       setOpen(false)
     } else if (
       !containerRef.current?.contains(e.target as Node) &&
-      !sourceElement?.contains(e.target as Node)
+      !sourceElement.current?.contains(e.target as Node)
     ) {
       setOpen(false)
       document.onclick = null
@@ -38,7 +38,9 @@ const Dialog: React.FC<DialogPorps> = props => {
 
   return (
     <Container className="flex" ref={containerRef}>
-      {children({ open, setOpen })}
+      <div ref={sourceElement} onClick={() => setOpen(true)}>
+        {children({ open })}
+      </div>
     </Container>
   )
 }

@@ -65,9 +65,26 @@ const Message = () => {
         }
       })
     } else {
-      state.socket?.chat.on("private_message", (data: MessageType) => {
+      state.socket?.chat.on("private_messagee", (data: MessageType) => {
         if (data.conversation_id === state.current_talk?.conversation_id) {
           setMessages(prev => [...prev, data])
+          dispatch({
+            type: ActionTypes.CONVERSATIONS,
+            payload: [
+              ...state.conversations.map(i => {
+                if (i.conversation_id === data.conversation_id) {
+                  return {
+                    ...i,
+                    msg: data.msg,
+                    msg_length: i.msg_length + 1,
+                    user_name: data.user.nick_name
+                  }
+                } else {
+                  return i
+                }
+              })
+            ]
+          })
         }
       })
     }
@@ -157,10 +174,18 @@ const Message = () => {
         status: 0
       }
       setMessages(prev => [...prev, newMessage])
-      state.socket?.chat.emit("private_chat", newMessage)
+      state.socket?.chat.emit("private_chat", newMessage, (res: any, err: any) => {
+        setMessages(prev => [
+          ...prev.map(i => {
+            if (i.conversation_id === newMessage.conversation_id) {
+              return { ...i, status: res ? 1 : -1 }
+            } else {
+              return i
+            }
+          })
+        ])
+      })
     }
-
-    // setMessages(prev => [...prev, newMessage])
   }
 
   return (

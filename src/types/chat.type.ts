@@ -39,3 +39,14 @@ export interface ChatGroupType {
   group_avatar: string
   group_desc: string | null
 }
+
+export interface UnReadMessageType extends Omit<MessageType, "user" | 'conversation_id'> {
+  source: UnReadMessageSourceType
+  isGroup: boolean
+  id: number
+  read: boolean
+}
+interface UnReadMessageSourceType
+  extends Pick<UserType, "avatar" | "nick_name" | "user_id"> {
+  group: Pick<ChatGroupType, "group_id" | "group_avatar" | "group_name">
+}

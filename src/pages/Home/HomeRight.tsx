@@ -4,7 +4,7 @@ import Avatar from "../../components/Avatar/Avatar"
 import Division from "../../components/Division/Division"
 import { MyContext } from "../../context/context"
 import { UserType } from "../../types/user.type"
-import { getFriends } from "../../api/user.api"
+import { getFriends, queryNotice } from "../../api/user.api"
 import getTimeDiff from "../../utils/getTimeDiff"
 import { Socket } from "socket.io-client"
 import { FriendType } from "../../types/friend.type"
@@ -16,6 +16,19 @@ const HomeRight: React.FC<HomeRightProps> = props => {
   const {} = props
   const { state, dispatch } = React.useContext(MyContext)
   const navigate = useNavigate()
+
+  React.useEffect(() => {
+    queryNotice(state.user_info?.result.user_id!, "0", state.user_info?.token!).then(
+      val => {
+        if (val.code === 1) {
+          dispatch({
+            type: ActionTypes.REQUESTFRIENDS,
+            payload: [...state.requestFriends, ...val.data]
+          })
+        }
+      }
+    )
+  }, [])
 
   const handleAgree = (friend_id: string, notice_id: string) => {
     state.socket?.notice.emit(
@@ -35,7 +48,7 @@ const HomeRight: React.FC<HomeRightProps> = props => {
                 dispatch({
                   type: ActionTypes.REQUESTFRIENDS,
                   payload: state.requestFriends.filter(
-                    item => item.notice.notice_id !== notice_id
+                    item => item.notice_id !== notice_id
                   )
                 })
               }
@@ -55,7 +68,7 @@ const HomeRight: React.FC<HomeRightProps> = props => {
     )
     dispatch({
       type: ActionTypes.REQUESTFRIENDS,
-      payload: state.requestFriends.filter(item => item.notice.notice_id !== notice_id)
+      payload: state.requestFriends.filter(item => item.notice_id !== notice_id)
     })
   }
 
@@ -70,16 +83,12 @@ const HomeRight: React.FC<HomeRightProps> = props => {
             <Main className="flex-c">
               {state.requestFriends.map(item => (
                 <UserItem
-                  key={item.data.user_id}
-                  handleAgree={() =>
-                    handleAgree(item.data.user_id, item.notice.notice_id)
-                  }
-                  handleReject={() =>
-                    handleReject(item.notice.notice_id, item.data.user_id)
-                  }
-                  avatarUrl={item.data.avatar}
-                  timestamp={item.data.timestamp}
-                  nick_name={item.data.nick_name}
+                  key={item.source.user_id}
+                  handleAgree={() => handleAgree(item.source.user_id, item.notice_id)}
+                  handleReject={() => handleReject(item.notice_id, item.source.user_id)}
+                  avatarUrl={item.source.avatar}
+                  timestamp={item.createdAt}
+                  nick_name={item.source.nick_name}
                 />
               ))}
             </Main>
@@ -112,12 +121,8 @@ export default HomeRight
 
 const Container = styled.div`
   flex: 1;
-  /* position: fixed;
-  right: 0; */
   position: sticky;
   top: 60px;
-  /* width: 340px; */
-  /* margin-right: 30px; */
   height: 100%;
 `
 const Wrapper = styled.div`

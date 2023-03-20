@@ -1,10 +1,13 @@
 import { FeedType } from "../feed.type"
 import { DataType, MySocket, PopoversType } from "../index"
-import { Socket } from "socket.io-client"
-import { UserType } from "../user.type"
-import { FriendType, RequestFriendsType } from "../friend.type"
-import { BackNoticeType } from "../notice.type"
-import { ChatGroupType, ConversationType, MessageType } from "../chat.type"
+import { FriendType } from "../friend.type"
+import { UserRequestType } from "../notice.type"
+import {
+  UnReadMessageType,
+  ChatGroupType,
+  ConversationType,
+  MessageType
+} from "../chat.type"
 
 export interface createContextType {
   state: ReducerState
@@ -16,12 +19,12 @@ export interface ReducerState {
   theme: "light" | "dark"
   home_feeds: FeedType[]
   readonly socket: MySocket | null
-  requestFriends: BackNoticeType<RequestFriendsType>[]
+  requestFriends: UserRequestType[]
   friends: FriendType[]
   groups: ChatGroupType[]
   conversations: ConversationType[]
   current_talk: ConversationType | null
-  unread_message: MessageType[]
+  unread_message: UnReadMessageType[]
   popovers: PopoversType
 }
 
@@ -60,12 +63,12 @@ export interface ReducerPaylodType {
   [ActionTypes.THEME]: "light" | "dark"
   [ActionTypes.HOME_FEEDS]: FeedType[]
   [ActionTypes.MYSOCKET]: MySocket | null
-  [ActionTypes.REQUESTFRIENDS]: BackNoticeType<RequestFriendsType>[]
+  [ActionTypes.REQUESTFRIENDS]: UserRequestType[]
   [ActionTypes.FRIENDS]: FriendType[]
   [ActionTypes.GROUPS]: ChatGroupType[]
   [ActionTypes.CONVERSATIONS]: ConversationType[]
   [ActionTypes.CURRENT_TALK]: ConversationType | null
-  [ActionTypes.UNREAD_MESSAGE]: MessageType[]
+  [ActionTypes.UNREAD_MESSAGE]: UnReadMessageType[]
   [ActionTypes.POPOVERS]: PopoversType
 }
 

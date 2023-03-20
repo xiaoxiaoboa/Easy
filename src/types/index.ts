@@ -24,3 +24,7 @@ export interface PopoversType {
   message: boolean
   card: boolean
 }
+
+export interface TopBarRightPopoverProps {
+  isOpen: boolean
+}
