@@ -3,13 +3,13 @@ import styled from "styled-components"
 
 interface childrenProps {
   open: boolean
-  // setOpen: React.Dispatch<React.SetStateAction<boolean>>
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>
 }
 interface DialogPorps {
   children: (props: childrenProps) => React.ReactNode
 }
 
-const Dialog: React.FC<DialogPorps> = props => {
+const Popover: React.FC<DialogPorps> = props => {
   const { children } = props
   const [open, setOpen] = React.useState<boolean>(false)
   const containerRef = React.useRef<HTMLDivElement | null>(null)
@@ -38,13 +38,11 @@ const Dialog: React.FC<DialogPorps> = props => {
 
   return (
     <Container className="flex" ref={containerRef}>
-      <div ref={sourceElement} onClick={() => setOpen(true)}>
-        {children({ open })}
-      </div>
+      <div ref={sourceElement}>{children({ open, setOpen })}</div>
     </Container>
   )
 }
 
-export default Dialog
+export default Popover
 
 const Container = styled.div``

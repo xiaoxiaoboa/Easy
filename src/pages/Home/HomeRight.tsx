@@ -4,31 +4,24 @@ import Avatar from "../../components/Avatar/Avatar"
 import Division from "../../components/Division/Division"
 import { MyContext } from "../../context/context"
 import { UserType } from "../../types/user.type"
-import { getFriends, queryNotice } from "../../api/user.api"
+import { getFriends } from "../../api/user.api"
 import getTimeDiff from "../../utils/getTimeDiff"
 import { Socket } from "socket.io-client"
 import { FriendType } from "../../types/friend.type"
 import { ActionTypes } from "../../types/reducer"
 import { useNavigate } from "react-router-dom"
+import { OtherNoticeType } from "../../types/notice.type"
 
 interface HomeRightProps {}
 const HomeRight: React.FC<HomeRightProps> = props => {
   const {} = props
   const { state, dispatch } = React.useContext(MyContext)
   const navigate = useNavigate()
+  const [friendRequests, setFriendRequests] = React.useState<OtherNoticeType[]>([])
 
   React.useEffect(() => {
-    queryNotice(state.user_info?.result.user_id!, "0", state.user_info?.token!).then(
-      val => {
-        if (val.code === 1) {
-          dispatch({
-            type: ActionTypes.REQUESTFRIENDS,
-            payload: [...state.requestFriends, ...val.data]
-          })
-        }
-      }
-    )
-  }, [])
+    setFriendRequests(p => [...p, ...state.notice.filter(i => i.type === "0")])
+  }, [state.notice])
 
   const handleAgree = (friend_id: string, notice_id: string) => {
     state.socket?.notice.emit(
@@ -41,16 +34,18 @@ const HomeRight: React.FC<HomeRightProps> = props => {
           getFriends(state.user_info?.result.user_id!, state.user_info?.token!).then(
             val => {
               if (val.code === 1) {
+                setFriendRequests(p => [...p.filter(i => i.notice_id !== notice_id)])
                 dispatch({
-                  type: ActionTypes.FRIENDS,
-                  payload: val.data
+                  type: ActionTypes.NOTICE,
+                  payload: state.notice.map(i => {
+                    if (i.notice_id === notice_id) {
+                      return { ...i, type: "01", done: 1 }
+                    } else {
+                      return i
+                    }
+                  })
                 })
-                dispatch({
-                  type: ActionTypes.REQUESTFRIENDS,
-                  payload: state.requestFriends.filter(
-                    item => item.notice_id !== notice_id
-                  )
-                })
+                dispatch({ type: ActionTypes.FRIENDS, payload: val.data })
               }
             }
           )
@@ -66,9 +61,16 @@ const HomeRight: React.FC<HomeRightProps> = props => {
       friend_id,
       state.user_info?.result.user_id
     )
+    setFriendRequests(p => [...p.filter(i => i.notice_id !== notice_id)])
     dispatch({
-      type: ActionTypes.REQUESTFRIENDS,
-      payload: state.requestFriends.filter(item => item.notice_id !== notice_id)
+      type: ActionTypes.NOTICE,
+      payload: state.notice.map(i => {
+        if (i.notice_id === notice_id) {
+          return { ...i, type: "00", done: 1 }
+        } else {
+          return i
+        }
+      })
     })
   }
 
@@ -81,7 +83,7 @@ const HomeRight: React.FC<HomeRightProps> = props => {
               <span>好友请求</span>
             </RequestHead>
             <Main className="flex-c">
-              {state.requestFriends.map(item => (
+              {friendRequests.map(item => (
                 <UserItem
                   key={item.source.user_id}
                   handleAgree={() => handleAgree(item.source.user_id, item.notice_id)}

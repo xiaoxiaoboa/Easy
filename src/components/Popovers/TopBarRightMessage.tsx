@@ -1,73 +1,76 @@
 import React from "react"
+import { useNavigate } from "react-router-dom"
 import styled from "styled-components"
 import { MyContext } from "../../context/context"
 import { TopBarRightPopoverProps } from "../../types"
-import { UnReadMessageType } from "../../types/chat.type"
+import { UnReadMessageType } from "../../types/notice.type"
 import { ActionTypes } from "../../types/reducer"
 import getTimeDiff from "../../utils/getTimeDiff"
 import Avatar from "../Avatar/Avatar"
 import { Container, Wrapper } from "./TopBarRightUser"
 
-type TopBarRightMessageProps = {
-  data: any[]
-} & TopBarRightPopoverProps
+type TopBarRightMessageProps = {} & TopBarRightPopoverProps
 
 const TopBarRightMessage: React.FC<TopBarRightMessageProps> = props => {
-  const { isOpen, data } = props
+  const { isOpen, setOpen } = props
   const { state, dispatch } = React.useContext(MyContext)
+  const navigate = useNavigate()
 
-  React.useEffect(() => {
-    /* 获取下线后未读的消息 */
-    if (!state.user_info || state.groups.length === 0) return
-    state.socket?.notice.emit(
-      "unreadMessages",
-      [state.user_info?.result.user_id!, ...state.groups.map(i => i.group_id)],
-      state.user_info?.result.user_id!,
-      (res: UnReadMessageType[]) => {
-        console.log(res)
-        dispatch({
-          type: ActionTypes.UNREAD_MESSAGE,
-          payload: res
-        })
-      }
-    )
-  }, [state.groups, state.user_info])
-
-  React.useEffect(() => {
+  const handleClick = (id: string) => {
+    dispatch({
+      type: ActionTypes.CURRENT_TALK,
+      payload: state.conversations.filter(i => i.conversation_id === id)[0]
+    })
     dispatch({
       type: ActionTypes.UNREAD_MESSAGE,
       payload: [
         ...state.unread_message.map(i => {
-          if (!i.isGroup && i.user_id === state.current_talk?.conversation_id) {
-            return { ...i, read: true }
-          } else if (i.isGroup && i.to_id === state.current_talk?.conversation_id) {
-            return { ...i, read: true }
+          if (i.source_id === id) {
+            return { ...i, done: 1 }
           } else {
             return i
           }
         })
       ]
     })
-  }, [state.current_talk])
+    dispatch({
+      type: ActionTypes.CONVERSATIONS,
+      payload: [
+        ...state.conversations.map(i => {
+          if (i.conversation_id === id) {
+            return { ...i, msg_length: 0 }
+          } else {
+            return i
+          }
+        })
+      ]
+    })
+
+    document.onclick = null
+    setOpen(false)
+    navigate(`/chat/message/${id}`)
+  }
 
   return (
     <Container isOpen={isOpen}>
-      <Wrapper className="flex-c" style={{ gap: "10px" }}>
+      <Wrapper className="flex-c">
         <h3>聊天消息</h3>
         <List className="flex-c">
           {state.unread_message.map(item => (
-            <Item key={item.id} className="flex flex-alc">
+            <Item
+              key={item.notice_id}
+              className="flex flex-alc"
+              onClick={e => handleClick(item.source_id)}
+            >
               <Avatar src={item.source.avatar} size="46" />
               <Information className="flex-c">
-                <Name>
-                  {item.isGroup ? item.source.group.group_name : item.source.nick_name}
-                </Name>
+                <Name>{item.source.nick_name}</Name>
                 <Msg className="flex flex-alc">
-                  <Text>{item.msg}</Text>
+                  <Text>{item.message.msg}</Text>
                   <TimeStamp>{getTimeDiff(item.createdAt)}</TimeStamp>
                 </Msg>
               </Information>
-              {!item.read && <UnRead />}
+              {!item.done && <UnRead />}
             </Item>
           ))}
         </List>
@@ -79,7 +82,7 @@ const TopBarRightMessage: React.FC<TopBarRightMessageProps> = props => {
 export default TopBarRightMessage
 
 const List = styled.div``
-const Item = styled.div`
+export const Item = styled.div`
   gap: 10px;
   cursor: pointer;
   padding: 10px;
@@ -89,32 +92,32 @@ const Item = styled.div`
     background-color: ${p => p.theme.colors.hovercolor};
   }
 `
-const Information = styled.div`
+export const Information = styled.div`
   flex: 1;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 `
-const Name = styled.div`
+export const Name = styled.div`
   font-size: 18px;
   font-weight: bold;
 `
-const Msg = styled.div`
+export const Msg = styled.div`
   font-size: 14px;
   gap: 10px;
   color: ${p => p.theme.colors.primary};
 `
-const Text = styled.div`
+export const Text = styled.div`
   flex: 1;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 `
-const TimeStamp = styled.div`
+export const TimeStamp = styled.div`
   font-size: 12px;
   color: ${p => p.theme.colors.secondary};
 `
-const UnRead = styled.div`
+export const UnRead = styled.div`
   width: 14px;
   height: 14px;
   border-radius: 50%;

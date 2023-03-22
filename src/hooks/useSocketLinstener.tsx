@@ -2,83 +2,45 @@ import React from "react"
 import { queryUser } from "../api/user.api"
 import { MyContext } from "../context/context"
 import { ChatGroupType, ConversationType, MessageType } from "../types/chat.type"
-import { RequestFriendsType } from "../types/friend.type"
-import { UserRequestType } from "../types/notice.type"
+import { OtherNoticeType } from "../types/notice.type"
 import { ActionTypes } from "../types/reducer"
-import { UserType } from "../types/user.type"
-import useSnackbar from "./useSnackbar"
 
 const useSocketLinstener = () => {
   const { state, dispatch } = React.useContext(MyContext)
-  const fr_cacheRef = React.useRef<UserRequestType[]>([])
   const ct_cacheRef = React.useRef<ConversationType | null>(null)
   const c_cacheRef = React.useRef<ConversationType[]>([])
   const g_cacheRef = React.useRef<ChatGroupType[]>([])
+  const cm_cacheRef = React.useRef<MessageType[]>([])
+  const n_cacheRef = React.useRef<OtherNoticeType[]>([])
 
+  /* 监听聊天消息 */
   React.useEffect(() => {
-    /* 监听好友请求 */
-    state.socket?.notice.on("friendsRequest", (user: UserRequestType) => {
-      dispatch({
-        type: ActionTypes.REQUESTFRIENDS,
-        payload: [...fr_cacheRef.current, user]
-      })
-    })
-
-    /* 监听未处理信息 */
-    state.socket?.notice.on(
-      `notice_${state.user_info?.result.user_id}`,
-      (val: UserRequestType, callback) => {
-        switch (val.type) {
-          case "0":
-            // setRequestFriends(val)
-            break
-          case "00":
-            callback("我已收到")
-            break
-          default:
-            break
-        }
-      }
-    )
-
     /* 私聊 */
     state.socket?.chat.on("private_message", (data: MessageType, callback) => {
-      // callback('save')
-      const current_path = window.location.pathname
-      /* 在不在chat页面 */
-      if (current_path.includes("chat")) {
-        console.log("@")
-        const findeItem = c_cacheRef.current.find(
-          i => i.conversation_id === data.conversation_id
-        )
-        /* 在不在Conversation中 */
-        if (findeItem) {
-          inConversations(findeItem, data, callback)
-        } else {
-          noConversations(data)
-        }
+      const findeItem = c_cacheRef.current.find(
+        i => i.conversation_id === data.conversation_id
+      )
+      /* 在不在Conversation中 */
+      if (findeItem) {
+        inConversations(findeItem, data, callback)
+      } else {
+        noConversations(data)
       }
     })
 
     /* 群聊 */
-    state.socket?.group.on("group_messages", (data: MessageType) => {
+    state.socket?.group.on("group_messages", (data: MessageType, callback) => {
       console.log(data)
-      const current_path = window.location.pathname
-      /* 在不在chat页面 */
-      if (current_path.includes("chat")) {
-        const findeItem = c_cacheRef.current.find(
-          i => i.conversation_id === data.conversation_id
-        )
-        const findGroup = g_cacheRef.current.find(
-          i => i.group_id === data.conversation_id
-        )
+      const findeItem = c_cacheRef.current.find(
+        i => i.conversation_id === data.conversation_id
+      )
+      const findGroup = g_cacheRef.current.find(i => i.group_id === data.conversation_id)
 
-        /* 在不在Conversation中 */
-        if (findeItem) {
-          inConversations(findeItem, data)
-        } else {
-          noConversations(data, findGroup)
-        }
+      /* 在不在Conversation中 */
+      if (findeItem) {
+        inConversations(findeItem, data, callback)
+      } else {
+        noConversations(data, findGroup)
       }
     })
 
@@ -92,15 +54,39 @@ const useSocketLinstener = () => {
     }
   }, [])
 
+  /* 好友相关的通知 */
+  React.useEffect(() => {
+    /* 监听好友请求 */
+    state.socket?.notice.on("friendsRequest", (data: OtherNoticeType) => {
+      dispatch({ type: ActionTypes.NOTICE, payload: [data, ...n_cacheRef.current] })
+    })
+    /* 拒绝 */
+    state.socket?.notice.on("rejectRequest", (data: OtherNoticeType) => {
+      dispatch({ type: ActionTypes.NOTICE, payload: [...n_cacheRef.current, data] })
+    })
+    /* 同意 */
+    state.socket?.notice.on("agreeRequest", (data: OtherNoticeType) => {
+      dispatch({ type: ActionTypes.NOTICE, payload: [data, ...n_cacheRef.current] })
+    })
+    /* 点赞帖子 */
+    state.socket?.notice.on("notice", (data: OtherNoticeType) => {
+      if (data.source.user_id === state.user_info?.result.user_id!) return
+      dispatch({ type: ActionTypes.NOTICE, payload: [data, ...n_cacheRef.current] })
+    })
+
+    return () => {
+      state.socket?.notice.off("friendsRequest")
+      state.socket?.notice.off("rejectRequest")
+      state.socket?.notice.off("agreetRequest")
+      state.socket?.notice.off("liked_feed")
+      state.socket?.notice.off("comment_feed")
+    }
+  }, [])
+
   /* 缓存current_talk，因为useEffect中有socket监听，不能加依赖，所以无法访问到最新值 */
   React.useEffect(() => {
     ct_cacheRef.current = state.current_talk
   }, [state.current_talk])
-
-  /* 缓存好友请求 */
-  React.useEffect(() => {
-    fr_cacheRef.current = state.requestFriends
-  }, [state.requestFriends])
 
   /* 缓存conversation */
   React.useEffect(() => {
@@ -111,6 +97,14 @@ const useSocketLinstener = () => {
   React.useEffect(() => {
     g_cacheRef.current = state.groups
   }, [state.groups])
+  /* 缓存current_messages */
+  React.useEffect(() => {
+    cm_cacheRef.current = state.current_messages
+  }, [state.current_messages])
+  /* 缓存notice */
+  React.useEffect(() => {
+    n_cacheRef.current = state.notice
+  }, [state.notice])
 
   /* 在conversaton里 */
   const inConversations = (
@@ -118,8 +112,12 @@ const useSocketLinstener = () => {
     data: MessageType,
     callback?: any
   ) => {
+    /* 在不在chat页面 */
+    const inChat = window.location.pathname.includes("chat")
+    /* 是不是正在聊天 */
     const isInCurrtenTalk =
-      state.current_talk?.conversation_id === findeItem.conversation_id
+      ct_cacheRef.current?.conversation_id === findeItem.conversation_id
+
     dispatch({
       type: ActionTypes.CONVERSATIONS,
       payload: [
@@ -129,15 +127,20 @@ const useSocketLinstener = () => {
           user_name: data.user.nick_name,
           msg_length: isInCurrtenTalk ? 0 : findeItem.msg_length + 1
         },
-        ...state.conversations.filter(
-          i => i.conversation_id !== findeItem.conversation_id
-        )
+        ...c_cacheRef.current.filter(i => i.conversation_id !== findeItem.conversation_id)
       ]
     })
-    callback("noNotice")
-    if (isInCurrtenTalk) callback("nosave")
+    dispatch({
+      type: ActionTypes.CURRENT_MESSAGES,
+      payload: [...cm_cacheRef.current, data]
+    })
+
+    if (inChat) {
+      callback("noNotice")
+      if (isInCurrtenTalk) callback("nosave")
+    }
   }
-  /* 不在conversa里 */
+  /* 不在conversation里 */
   const noConversations = (data: MessageType, group?: ChatGroupType) => {
     const newData: ConversationType = {
       conversation_id: data.conversation_id,
@@ -148,9 +151,15 @@ const useSocketLinstener = () => {
       isGroup: group ? true : false,
       msg_length: 1
     }
+
     dispatch({
       type: ActionTypes.CONVERSATIONS,
-      payload: [newData, ...state.conversations]
+      payload: [newData, ...c_cacheRef.current]
+    })
+
+    dispatch({
+      type: ActionTypes.CURRENT_MESSAGES,
+      payload: [...cm_cacheRef.current, data]
     })
   }
 

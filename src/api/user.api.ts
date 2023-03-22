@@ -4,6 +4,7 @@ import { ResponseType, DataType } from "../types/index"
 import getLocalData from "../utils/getLocalData"
 import { AlterationCoverType, UserType } from "../types/user.type"
 import { FriendType } from "../types/friend.type"
+import { OtherNoticeType, UnReadMessageType } from "../types/notice.type"
 
 /* 登录 */
 export const sign_in = <T>(params: T): Promise<ResponseType<DataType>> => {
@@ -54,15 +55,41 @@ export const getFriends = (
   })
 }
 
-export const queryNotice = (
+/* 查询未读消息的notice */
+export const queryMessageNotice = async (
   user_id: string,
   type: string,
   t: string
-): Promise<ResponseType<any>> => {
-  return request({
-    url: "/notice",
+): Promise<ResponseType<UnReadMessageType[]>> => {
+  return await request({
+    url: "/notice_message",
     methods: "POST",
     body: { user_id, type },
+    token: t
+  })
+}
+/* 查询好友请求点赞评论未读的notice */
+export const queryNotice = async (
+  user_id: string,
+  t: string
+): Promise<ResponseType<OtherNoticeType[]>> => {
+  return await request({
+    url: "/notice",
+    methods: "POST",
+    body: { target_id: user_id },
+    token: t
+  })
+}
+
+/* 将和已读消息相关的记录都更新为已读 */
+export const updateNotice = async (
+  { source_id, notice_id }: { source_id?: string; notice_id?: string },
+  t: string
+): Promise<ResponseType<any>> => {
+  return await request({
+    url: "/read",
+    methods: "POST",
+    body: { source_id, notice_id },
     token: t
   })
 }

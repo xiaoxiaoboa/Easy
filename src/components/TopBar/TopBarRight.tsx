@@ -6,99 +6,124 @@ import { BsFillChatDotsFill } from "react-icons/bs"
 import { MyContext } from "../../context/context"
 import getUnionUrl from "../../utils/getUnionUrl"
 import { useNavigate } from "react-router-dom"
-import Dialog from "../Popovers/Popover"
+import Popover from "../Popovers/Popover"
 import TopBarRightUser from "../Popovers/TopBarRightUser"
 import TopBarRightNotice from "../Popovers/TopBarRightNotice"
 import { ActionTypes } from "../../types/reducer"
 import TopBarRightMessage from "../Popovers/TopBarRightMessage"
-import { queryNotice } from "../../api/user.api"
-import { ConversationType } from "../../types/chat.type"
+import { queryMessageNotice } from "../../api/user.api"
+import { UnReadMessageType } from "../../types/notice.type"
+import { getGroupUnReadMsg } from "../../api/chat_group.api"
 
 const TopBarRight = () => {
   const { state, dispatch } = React.useContext(MyContext)
   const navigate = useNavigate()
+  const [haveNewMessage, setHaveNewMessage] = React.useState<boolean>(false)
+  const [haveNewNotice, setHaveNewNotice] = React.useState<boolean>(false)
+  const um_cacheRef = React.useRef<UnReadMessageType[]>([])
 
+  /* 缓存unread_message的值 */
   React.useEffect(() => {
-    queryNotice(state.user_info?.result.user_id!, "1", state.user_info?.token!).then(
-      val => {
-        if (val.code === 1) {
-          console.log(val)
-          dispatch({ type: ActionTypes.UNREAD_MESSAGE, payload: val.data })
-          // const findeItem = c_cacheRef.current.find(
-          //   i => i.conversation_id === data.conversation_id
-          // )
-        }
+    um_cacheRef.current = state.unread_message
+  }, [state.unread_message])
+
+  /* 监听新通知消息 */
+  React.useEffect(() => {
+    /* 监听未处理信息 */
+    state.socket?.notice.on(`new_notice_message`, (val: UnReadMessageType) => {
+      if (val.message.user_id === state.user_info?.result.user_id!) return
+      dispatch({
+        type: ActionTypes.UNREAD_MESSAGE,
+        payload: [val, ...um_cacheRef.current.filter(i => i.source_id !== val.source_id)]
+      })
+    })
+    return () => {
+      state.socket?.notice.off(`new_message`)
+    }
+  }, [])
+
+  /* 获取私聊的未读消息 */
+  React.useEffect(() => {
+    queryMessageNotice(
+      state.user_info?.result.user_id!,
+      "1",
+      state.user_info?.token!
+    ).then(val => {
+      if (val.code === 1) {
+        dispatch({ type: ActionTypes.UNREAD_MESSAGE, payload: val.data })
       }
-    )
-    // state.socket?.notice.on("new_message", (data: UnReadMessageType) => {
-    //   setUnReadMessages(prev => [
-    //     data,
-    //     ...prev.filter(i => i.source_id !== data.source_id)
-    //   ])
-    // })
+    })
 
     return () => {
       state.socket?.notice.off(`notice_messages_${state.user_info?.result.user_id!}`)
     }
   }, [])
 
-  // React.useEffect(() => {
-  //   state.unread_message.map(item => {
-  //     const findeItem = state.conversations.find(
-  //       i => i.conversation_id === item.source_id
-  //     )
-      
-  //     if (!findeItem) {
-  //       const newData: ConversationType = {
-  //         conversation_id: item.source_id,
-  //         avatar: item.source.avatar,
-  //         name: item.source.nick_name,
-  //         user_name: item.source.nick_name,
-  //         msg: item.message.msg,
-  //         isGroup: state.groups.find(i => i.group_id === item.source_id) ? true : false,
-  //         msg_length: 1
-  //       }
-  //       dispatch({
-  //         type: ActionTypes.CONVERSATIONS,
-  //         payload: [newData, ...state.conversations]
-  //       })
-  //     }
-  //   })
-  // }, [state.unread_message])
+  /* 获取下线后未读的群组消息 */
+  React.useEffect(() => {
+    if (!state.user_info || state.groups.length === 0) return
+    getGroupUnReadMsg(
+      [...state.groups.map(i => i.group_id)],
+      state.user_info.result.user_id!,
+      state.user_info.token!
+    ).then(
+      val =>
+        val.code === 1 &&
+        dispatch({
+          type: ActionTypes.UNREAD_MESSAGE,
+          payload: [...state.unread_message, ...val.data]
+        })
+    )
+  }, [state.groups, state.user_info])
+
+  /* 是否还有新消息 */
+  React.useEffect(() => {
+    setHaveNewMessage(state.unread_message.filter(i => i.done === 0).length > 0)
+  }, [state.unread_message])
+  /* 是否还有新通知 */
+  React.useEffect(() => {
+    setHaveNewNotice(state.notice.filter(i => i.done === 0).length > 0)
+  }, [state.notice])
 
   return (
     <Container className="flex flex-rr flex-alc flex-jcs">
-      <Dialog>
-        {({ open }) => (
+      <Popover>
+        {({ open, setOpen }) => (
           <>
-            <div style={{ cursor: "pointer" }} onClick={() => {}}>
+            <div style={{ cursor: "pointer" }} onClick={() => setOpen(true)}>
               <Avatar src={state.user_info?.result.avatar} size="44" />
             </div>
 
-            <TopBarRightUser isOpen={open} />
+            <TopBarRightUser isOpen={open} setOpen={() => {}} />
           </>
         )}
-      </Dialog>
-      <Dialog>
-        {({ open }) => (
+      </Popover>
+      <Popover>
+        {({ open, setOpen }) => (
           <>
-            <TopBarRightButton handleFun={() => {}}>
-              <MdNotificationsActive size="22" />
+            <TopBarRightButton handleFun={() => setOpen(true)}>
+              <>
+                <MdNotificationsActive size="22" />
+                {haveNewNotice && <NewMessageNotice />}
+              </>
             </TopBarRightButton>
             <TopBarRightNotice isOpen={open} />
           </>
         )}
-      </Dialog>
-      <Dialog>
-        {({ open }) => (
+      </Popover>
+      <Popover>
+        {({ open, setOpen }) => (
           <>
-            <TopBarRightButton handleFun={() => {}}>
-              <BsFillChatDotsFill size="20" />
+            <TopBarRightButton handleFun={() => setOpen(true)}>
+              <>
+                <BsFillChatDotsFill size="20" />
+                {haveNewMessage && <NewMessageNotice />}
+              </>
             </TopBarRightButton>
-            <TopBarRightMessage isOpen={open} data={state.unread_message} />
+            <TopBarRightMessage isOpen={open} setOpen={setOpen} />
           </>
         )}
-      </Dialog>
+      </Popover>
 
       <TopBarRightButton
         handleFun={() => navigate("/friends/list")}
@@ -162,4 +187,13 @@ const ButtonWrapper = styled.div<ButtonWrapperProps>`
   background-color: ${props => props.theme.colors.nav_btn_bgcolor};
   cursor: pointer;
   transform-origin: center center;
+`
+const NewMessageNotice = styled.div`
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background-color: ${p => p.theme.colors.primary};
 `

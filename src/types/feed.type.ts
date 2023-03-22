@@ -45,6 +45,7 @@ export interface Feed_CommentType {
   createdAt: string
   nick_name: string
   avatar: string
+  feed_userId:string
 }
 
 export type Feed_CommentPublishType = Omit<

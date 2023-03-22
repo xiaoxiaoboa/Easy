@@ -142,6 +142,7 @@ const EditGroup: React.FC<EditGroupProps> = props => {
   }
 
   const handleChange: React.ChangeEventHandler<HTMLInputElement> = e => {
+    if (group.group_owner !== state.user_info?.result.user_id!) return
     if (e.target.files) {
       setAvatar(e.target.files[0])
       updateAvatar(group.group_id, e.target.files[0], state.user_info?.token!).then(
@@ -189,41 +190,57 @@ const EditGroup: React.FC<EditGroupProps> = props => {
       <Wrapper className="flex-c">
         <Top className="flex-c flex-alc">
           <div className="flex">
-            <Upload accept="image/*" id={group.group_id} handleChange={handleChange}>
-              {avatar ? (
-                <AvatarWrapper className="flex">
-                  <img src={URL.createObjectURL(avatar)} />
-                </AvatarWrapper>
-              ) : (
-                <Avatar src={group.group_avatar} size="70" />
-              )}
-            </Upload>
+            {group.group_owner === state.user_info?.result.user_id ? (
+              <Upload accept="image/*" id={group.group_id} handleChange={handleChange}>
+                {avatar ? (
+                  <AvatarWrapper className="flex">
+                    <img src={URL.createObjectURL(avatar)} />
+                  </AvatarWrapper>
+                ) : (
+                  <Avatar src={group.group_avatar} size="70" />
+                )}
+              </Upload>
+            ) : (
+              <Avatar src={group.group_avatar} size="70" />
+            )}
           </div>
           <Name className="flex flex-alc flex-jcc">
             <div
-              style={{ gap: "10px" }}
+              style={{
+                gap: "10px",
+                marginLeft:
+                  group.group_owner === state.user_info?.result.user_id ? "22px" : 0
+              }}
               contentEditable={nameEdit}
               ref={nameRef}
               suppressContentEditableWarning
             >
               {group?.group_name}
             </div>
-            <EditBtn title="点击编辑" onClick={() => setNameEdit(true)}>
-              <FiEdit size={18} />
-            </EditBtn>
+            {group.group_owner === state.user_info?.result.user_id && (
+              <EditBtn title="点击编辑" onClick={() => setNameEdit(true)}>
+                <FiEdit size={18} />
+              </EditBtn>
+            )}
           </Name>
           <Desc className="flex">
             <div
-              style={{ gap: "10px" }}
+              style={{
+                gap: "10px",
+                marginLeft:
+                  group.group_owner === state.user_info?.result.user_id ? "22px" : 0
+              }}
               contentEditable={descEdit}
               ref={descRef}
               suppressContentEditableWarning
             >
               {group?.group_desc ? group?.group_desc : "添加群组简介"}
             </div>
-            <EditBtn title="点击编辑" onClick={() => setDescEdit(true)}>
-              <FiEdit size={18} />
-            </EditBtn>
+            {group.group_owner === state.user_info?.result.user_id && (
+              <EditBtn title="点击编辑" onClick={() => setDescEdit(true)}>
+                <FiEdit size={18} />
+              </EditBtn>
+            )}
           </Desc>
         </Top>
         <Bottom className="flex-c">
@@ -304,7 +321,7 @@ const Name = styled.div`
   }
 
   & div {
-    margin-left: 22px;
+    /* margin-left: 22px; */
   }
 
   & [contentEditable="false"] {
@@ -337,7 +354,7 @@ const Desc = styled.div`
   & div {
     white-space: pre-wrap;
     word-wrap: break-word;
-    margin-left: 22px;
+    /* margin-left: 22px; */
     color: ${p => p.theme.colors.secondary};
   }
   & [contentEditable="true"] + span {

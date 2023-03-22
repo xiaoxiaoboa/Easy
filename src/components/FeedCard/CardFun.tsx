@@ -26,7 +26,12 @@ const CardFun = React.memo((props: CardFunType) => {
 
   const handleLike = () => {
     if (!user_info.result.user_id) return openSnackbar(message, duration)
-    feed_like(feed.feed_id, user_info.result.user_id, user_info.token).then(val => {
+    feed_like(
+      feed.feed_id,
+      user_info.result.user_id,
+      feed.feed_userID,
+      user_info.token
+    ).then(val => {
       if (val.code === 1) {
         setLikedCount(prev => (isLike ? prev - 1 : prev + 1))
         setIsLike(prev => !prev)

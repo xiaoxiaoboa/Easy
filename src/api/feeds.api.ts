@@ -60,12 +60,13 @@ export const feeds_all = async (
 export const feed_like = async (
   feed_id: string,
   user_id: string,
+  feed_userId:string,
   t: string
 ): Promise<ResponseType<void>> => {
   return await request({
     url: "/feed_like",
     methods: "POST",
-    body: { feed_id, user_id },
+    body: { feed_id, user_id, feed_userId },
     token: t
   })
 }

@@ -15,14 +15,6 @@ const initSocket = () =>
         notice: io("ws://localhost:8000", { autoConnect: true })
       }
     : null
-const initPopovers = () => {
-  return {
-    setting: false,
-    notice: false,
-    message: false,
-    card: false
-  }
-}
 
 /* reducer初始化值 */
 const initialValue: ReducerState = {
@@ -30,13 +22,13 @@ const initialValue: ReducerState = {
   user_info: getLocalData("user_info"),
   home_feeds: [],
   socket: initSocket(),
-  requestFriends: [],
+  notice: [],
   friends: [],
   groups: [],
   conversations: getLocalData("conversations") || [],
   current_talk: getLocalData("current_talk"),
   unread_message: [],
-  popovers: initPopovers()
+  current_messages: []
 }
 
 export const MyContext = React.createContext<createContextType>({
@@ -47,6 +39,8 @@ export const MyContext = React.createContext<createContextType>({
 type Props = { children: React.ReactNode }
 export const MyContextProvider = ({ children }: Props) => {
   const [state, dispatch] = React.useReducer(reducer, initialValue)
+
+  // dispatch(() => ({type: ActionTypes.CONVERSATIONS, payload: []}))
 
   React.useEffect(() => {
     if (state.user_info) {
@@ -78,8 +72,10 @@ export const MyContextProvider = ({ children }: Props) => {
     })
 
     return () => {
-      state.socket?.chat.off("getSocketId")
       state.socket?.notice.off("online")
+      state.socket?.chat.off("connect")
+      state.socket?.notice.off("connect")
+      state.socket?.group.off("connect")
     }
   }, [])
 
@@ -106,7 +102,6 @@ export const MyContextProvider = ({ children }: Props) => {
           }
         }
       )
-      
     }
 
     if (!state.user_info) {

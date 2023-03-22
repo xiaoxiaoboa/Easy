@@ -14,15 +14,31 @@ import { FriendType } from "../../types/friend.type"
 import { ActionTypes } from "../../types/reducer"
 import { FiMoreHorizontal } from "react-icons/fi"
 import EditGroup from "./EditGroup/EditGroup"
+import { updateNotice } from "../../api/user.api"
+import { usePrevious } from "ahooks"
 
 const Message = () => {
   const params = useParams()
   const { state, dispatch } = React.useContext(MyContext)
   const listRef = React.useRef<any>(null)
   const sizeRef = React.useRef<{ [key: number]: number }>()
-  const [messages, setMessages] = React.useState<MessageType[]>([])
   const [openEditGroup, setOpenEditGroup] = React.useState<boolean>(false)
   const navigate = useNavigate()
+  const cm_cacheRef = React.useRef<MessageType[]>([])
+
+  /* 缓存current_messages */
+  React.useEffect(() => {
+    cm_cacheRef.current = state.current_messages
+  }, [state.current_messages])
+  /* 进入聊天后，更新通知 */
+  React.useEffect(() => {
+    const res = state.unread_message.find(
+      i => i.source_id === state.current_talk?.conversation_id
+    )
+    if (res && res.source_id[0] !== "g") {
+      updateNotice({ source_id: res.source_id }, state.user_info?.token!)
+    }
+  }, [state.current_talk])
 
   React.useEffect(() => {
     if (!state.current_talk) {
@@ -32,13 +48,14 @@ const Message = () => {
     return () => dispatch({ type: ActionTypes.CURRENT_TALK, payload: null })
   }, [])
 
+  /* 获取聊天记录 */
   React.useEffect(() => {
     if (state.current_talk?.isGroup) {
       state.socket?.group.emit(
         "group_chat_history",
         state.current_talk.conversation_id,
         (data: MessageType[]) => {
-          setMessages(data)
+          dispatch({ type: ActionTypes.CURRENT_MESSAGES, payload: data })
         }
       )
     } else {
@@ -47,57 +64,19 @@ const Message = () => {
         state.user_info?.result.user_id,
         params.id,
         (data: MessageType[]) => {
-          setMessages(data)
+          dispatch({ type: ActionTypes.CURRENT_MESSAGES, payload: data })
         }
       )
     }
 
     return () => {
-      setMessages([])
+      dispatch({ type: ActionTypes.CURRENT_MESSAGES, payload: [] })
     }
   }, [params.id])
 
   React.useEffect(() => {
-    if (state.current_talk?.isGroup) {
-      state.socket?.group.on("group_messages", (data: MessageType) => {
-        if (data.conversation_id === state.current_talk?.conversation_id) {
-          setMessages(prev => [...prev, data])
-        }
-      })
-    } else {
-      state.socket?.chat.on("private_messagee", (data: MessageType) => {
-        if (data.conversation_id === state.current_talk?.conversation_id) {
-          setMessages(prev => [...prev, data])
-          dispatch({
-            type: ActionTypes.CONVERSATIONS,
-            payload: [
-              ...state.conversations.map(i => {
-                if (i.conversation_id === data.conversation_id) {
-                  return {
-                    ...i,
-                    msg: data.msg,
-                    msg_length: i.msg_length + 1,
-                    user_name: data.user.nick_name
-                  }
-                } else {
-                  return i
-                }
-              })
-            ]
-          })
-        }
-      })
-    }
-
-    return () => {
-      state.socket?.chat.off("private_message")
-      state.socket?.group.off("group_messages")
-    }
-  }, [params.id])
-
-  React.useEffect(() => {
-    listRef.current?.scrollToItem(messages.length, "end")
-  }, [messages])
+    listRef.current?.scrollToItem(state.current_messages.length, "end")
+  }, [state.current_messages])
 
   /* 设置每个item高度 */
   const setSize = React.useCallback((index: number, size: number) => {
@@ -130,33 +109,27 @@ const Message = () => {
         conversation_id: state.current_talk?.conversation_id!,
         status: 0
       }
-      setMessages(prev => [...prev, newMessage])
+      dispatch({
+        type: ActionTypes.CURRENT_MESSAGES,
+        payload: [...state.current_messages, newMessage]
+      })
       state.socket?.group.emit(
         "group_chat",
         state.current_talk?.conversation_id!,
         newMessage,
         (res: any, err: any) => {
-          if (res) {
-            setMessages(prev => [
-              ...prev.map(i => {
+          dispatch({
+            type: ActionTypes.CURRENT_MESSAGES,
+            payload: [
+              ...cm_cacheRef.current.map(i => {
                 if (i.conversation_id === newMessage.conversation_id) {
-                  return { ...i, status: 1 }
+                  return { ...i, status: res ? 1 : -1 }
                 } else {
                   return i
                 }
               })
-            ])
-          } else {
-            setMessages(prev => [
-              ...prev.map(i => {
-                if (i.conversation_id === newMessage.conversation_id) {
-                  return { ...i, status: -1 }
-                } else {
-                  return i
-                }
-              })
-            ])
-          }
+            ]
+          })
         }
       )
     } else {
@@ -173,17 +146,23 @@ const Message = () => {
         conversation_id: state.user_info?.result.user_id!,
         status: 0
       }
-      setMessages(prev => [...prev, newMessage])
+      dispatch({
+        type: ActionTypes.CURRENT_MESSAGES,
+        payload: [...state.current_messages, newMessage]
+      })
       state.socket?.chat.emit("private_chat", newMessage, (res: any, err: any) => {
-        setMessages(prev => [
-          ...prev.map(i => {
-            if (i.conversation_id === newMessage.conversation_id) {
-              return { ...i, status: res ? 1 : -1 }
-            } else {
-              return i
-            }
-          })
-        ])
+        dispatch({
+          type: ActionTypes.CURRENT_MESSAGES,
+          payload: [
+            ...cm_cacheRef.current.map(i => {
+              if (i.conversation_id === newMessage.conversation_id) {
+                return { ...i, status: res ? 1 : -1 }
+              } else {
+                return i
+              }
+            })
+          ]
+        })
       })
     }
   }
@@ -230,7 +209,7 @@ const Message = () => {
                     style={{ overflowY: "scroll" }}
                     height={height}
                     width={width}
-                    itemCount={messages.length}
+                    itemCount={state.current_messages.length}
                     itemSize={getSize}
                     innerElementType={ListWrapper}
                     ref={listRef}
@@ -239,7 +218,7 @@ const Message = () => {
                     {({ index, style }) => (
                       <div className="flex flex-alc" style={style}>
                         <Row
-                          data={messages}
+                          data={state.current_messages}
                           index={index}
                           setSize={setSize}
                           user_id={state.user_info?.result.user_id!}

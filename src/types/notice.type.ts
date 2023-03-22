@@ -16,5 +16,8 @@ export interface UnReadMessageType extends NoticeType {
   message: Omit<MessageType, "user"> & { ch_id: string }
 }
 
-export type UserRequestType = NoticeType
-
+export interface OtherNoticeType extends NoticeType {
+  msg: string
+  comment_msg?: string
+  feed_id?: string
+}

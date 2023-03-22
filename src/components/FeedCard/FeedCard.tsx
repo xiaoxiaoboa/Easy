@@ -175,7 +175,7 @@ const FeedCard: React.FC<FeedCard> = props => {
           <FeedComment
             isOpen={openComment}
             user_info={user_info!}
-            feed_id={feed.feed_id}
+            feed={feed}
           />
         )}
 

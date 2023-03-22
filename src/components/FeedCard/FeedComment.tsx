@@ -18,7 +18,7 @@ import { DataType } from "../../types"
 /* 评论 */
 type CommentProps = {
   user_info: DataType
-  feed_id: string
+  feed: FeedType
   isOpen: boolean
 }
 
@@ -26,7 +26,7 @@ const message = "请登录！"
 const duration = 3000
 
 const FeedComment: React.FC<CommentProps> = props => {
-  const { user_info, feed_id, isOpen } = props
+  const { user_info, feed, isOpen } = props
   const [comments, setComment] = React.useState<Feed_CommentType[]>([])
   const commentsRef = React.useRef<HTMLDivElement>(null)
   const [openSnackbar] = useSnackbar()
@@ -36,25 +36,26 @@ const FeedComment: React.FC<CommentProps> = props => {
 
   React.useEffect(() => {
     setLoading(true)
-    feed_comments(feed_id).then(val => {
+    feed_comments(feed.feed_id).then(val => {
       if (val.code === 1) {
         setComment(val.data)
         setLoading(false)
       }
     })
-  }, [feed_id])
+  }, [feed])
 
   /* 发出评论 */
   const handleKeyDown = (inputValue: string) => {
     if (!user_info) return openSnackbar(message, duration)
     const newComment: Feed_CommentType = {
-      feed_id: feed_id,
+      feed_id: feed.feed_id,
       comment_id: nanoid(9),
       user_id: user_info.result.user_id,
       comment: inputValue,
       createdAt: Date(),
       avatar: user_info.result.avatar,
-      nick_name: user_info.result.nick_name
+      nick_name: user_info.result.nick_name,
+      feed_userId: feed.feed_userID
     }
     const { avatar, nick_name, createdAt, ...res } = newComment
     comment_publish(res, user_info.token).then(val => {
@@ -70,7 +71,7 @@ const FeedComment: React.FC<CommentProps> = props => {
   }
 
   return (
-    <CommentContainer isOpen={isOpen}>
+    <CommentContainer>
       <Division padding="0 20px" margin="0 0 10px 0" />
       <CommentWrapper className="flex-c">
         {/* <p>查看剩余1条评论</p> */}
@@ -121,10 +122,9 @@ const FeedComment: React.FC<CommentProps> = props => {
 
 export default FeedComment
 
-type CommentContainerProps = { isOpen: boolean }
 /* styled */
-const CommentContainer = styled.div<CommentContainerProps>`
-  overflow: hidden;
+const CommentContainer = styled.div`
+  /* overflow: hidden; */
 `
 const CommentWrapper = styled.div`
   padding: 0 20px;

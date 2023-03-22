@@ -2,6 +2,7 @@ import { ChatGroupType } from "../types/chat.type"
 import request, { uploadRequest } from "../utils/request"
 import { ResponseType } from "../types/index"
 import getLocalData from "../utils/getLocalData"
+import { UnReadMessageType } from "../types/notice.type"
 
 /* 新群组 */
 export const newGroup = async (
@@ -40,7 +41,7 @@ export const getJoinedGroups = async (
 export const updateAvatar = async (
   group_id: string,
   file: File,
-  t:string
+  t: string
 ): Promise<ResponseType<string>> => {
   const formData = new FormData()
   formData.append("files", file)
@@ -50,6 +51,20 @@ export const updateAvatar = async (
     url: "/group_avatar",
     methods: "POST",
     body: formData,
+    token: t
+  })
+}
+
+/* 获取群组未读消息 */
+export const getGroupUnReadMsg = async (
+  ids: string[],
+  user_id: string,
+  t: string
+): Promise<ResponseType<UnReadMessageType[]>> => {
+  return await request({
+    url: "/group_unreadmsg",
+    methods: "POST",
+    body: { ids, user_id },
     token: t
   })
 }

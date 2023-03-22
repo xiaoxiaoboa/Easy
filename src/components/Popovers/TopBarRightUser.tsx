@@ -54,6 +54,7 @@ export const Container = styled.div<ContainerProps>`
 `
 export const Wrapper = styled.div`
   padding: 10px;
+  gap: 10px;
 `
 const Item = styled.div`
   padding: 12px;

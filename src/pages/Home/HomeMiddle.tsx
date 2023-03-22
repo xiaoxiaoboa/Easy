@@ -333,7 +333,7 @@ const PublishLayerWrapper = styled.div`
   background-color: ${props => props.theme.colors.nav_bg};
   width: 500px;
   padding: 20px;
-  overflow: hidden;
+  /* overflow: hidden; */
   gap: 10px;
   border-radius: 10px;
   box-shadow: 0px 0px 8px 4px rgba(0, 0, 0, 0.18);

@@ -11,8 +11,8 @@ const reducer = (state: ReducerState, action: ActionsType) => {
       return { ...state, user_info: payload }
     case ActionTypes.HOME_FEEDS:
       return { ...state, home_feeds: payload }
-    case ActionTypes.REQUESTFRIENDS:
-      return { ...state, requestFriends: payload }
+    case ActionTypes.NOTICE:
+      return { ...state, notice: payload }
     case ActionTypes.FRIENDS:
       return { ...state, friends: payload }
     case ActionTypes.GROUPS:
@@ -23,8 +23,8 @@ const reducer = (state: ReducerState, action: ActionsType) => {
       return { ...state, current_talk: payload }
     case ActionTypes.UNREAD_MESSAGE:
       return { ...state, unread_message: payload }
-    case ActionTypes.POPOVERS:
-      return { ...state, popovers: payload }
+    case ActionTypes.CURRENT_MESSAGES:
+      return { ...state, current_messages: payload }
     default:
       return state
   }
