@@ -12,9 +12,10 @@ import { PhotoProvider, PhotoView } from "react-photo-view"
 import { SlDrawer, SlTrash } from "react-icons/sl"
 import { feed_fav } from "../../api/feeds.api"
 import Confirm from "../Comfirm/Comfirm"
+import { DataType } from "../../types"
 
 interface FeedCard {
-  user_info?: UserType
+  user_info?: DataType
   feed: FeedType
   handleCancelFav?: (feed_id: string, option: any) => void
   handleDelFav?: (feed_id: string) => void
@@ -25,21 +26,21 @@ const FeedCard: React.FC<FeedCard> = props => {
   const [openConfirm, setOpenConfirm] = React.useState<boolean>(false)
   const [openComment, setOpenComment] = React.useState<boolean>(false)
   const [isFav, setIsFav] = React.useState<boolean>(
-    feed.user_favourites.some(item => item.user_id === user_info?.user_id)
+    feed.user_favourites.some(item => item.user_id === user_info?.result.user_id)
   )
 
   const selectTag = (data: Feed_attach) => {
-    switch (data.type) {
+    switch (data.attach_type) {
       case "image":
         return (
           <PhotoProvider>
-            <PhotoView src={getUnionUrl(data.link)}>
-              <img src={getUnionUrl(data.link)} />
+            <PhotoView src={getUnionUrl(data.attach_link)}>
+              <img src={getUnionUrl(data.attach_link)} />
             </PhotoView>
           </PhotoProvider>
         )
       case "video":
-        return <video src={getUnionUrl(data.link)} controls />
+        return <video src={getUnionUrl(data.attach_link)} controls />
       default:
         break
     }
@@ -47,12 +48,12 @@ const FeedCard: React.FC<FeedCard> = props => {
 
   /* 根据图片或视频数量生成dom */
   const generateElement = React.useMemo(() => {
-    const length = feed.feed_attach.attach.length
+    const length = feed.feed_attaches.length
     switch (length) {
       case 1:
         return (
           <div className="flex" style={{ flex: "1" }}>
-            {selectTag(feed.feed_attach.attach[0])}
+            {selectTag(feed.feed_attaches[0])}
           </div>
         )
       case 2:
@@ -61,12 +62,8 @@ const FeedCard: React.FC<FeedCard> = props => {
             className="flex"
             style={{ gap: "10px", display: "grid", gridTemplateColumns: "repeat(2,1fr)" }}
           >
-            <div className="flex image_wrapper">
-              {selectTag(feed.feed_attach.attach[0])}
-            </div>
-            <div className="flex image_wrapper">
-              {selectTag(feed.feed_attach.attach[1])}
-            </div>
+            <div className="flex image_wrapper">{selectTag(feed.feed_attaches[0])}</div>
+            <div className="flex image_wrapper">{selectTag(feed.feed_attaches[1])}</div>
           </div>
         )
       case 3:
@@ -76,17 +73,11 @@ const FeedCard: React.FC<FeedCard> = props => {
             style={{ gap: "10px", display: "grid", gridTemplateColumns: "repeat(2,50%)" }}
           >
             <div className="flex">
-              <div className="flex image_wrapper">
-                {selectTag(feed.feed_attach.attach[0])}
-              </div>
+              <div className="flex image_wrapper">{selectTag(feed.feed_attaches[0])}</div>
             </div>
             <div className="flex-c flex-alc" style={{ gap: "10px" }}>
-              <div className="flex image_wrapper">
-                {selectTag(feed.feed_attach.attach[1])}
-              </div>
-              <div className="flex image_wrapper">
-                {selectTag(feed.feed_attach.attach[2])}
-              </div>
+              <div className="flex image_wrapper">{selectTag(feed.feed_attaches[1])}</div>
+              <div className="flex image_wrapper">{selectTag(feed.feed_attaches[2])}</div>
             </div>
           </div>
         )
@@ -100,7 +91,7 @@ const FeedCard: React.FC<FeedCard> = props => {
               gridTemplateColumns: "repeat(2,50%)"
             }}
           >
-            {feed.feed_attach.attach.map((attach, index) => (
+            {feed.feed_attaches.map((attach, index) => (
               <div key={index} className="flex">
                 {selectTag(attach)}
               </div>
@@ -115,7 +106,7 @@ const FeedCard: React.FC<FeedCard> = props => {
 
   const handleFavourite = () => {
     /* 收藏帖子 */
-    feed_fav(feed.feed_id, user_info?.user_id!).then(val => {
+    feed_fav(feed.feed_id, user_info?.result.user_id!, user_info?.token!).then(val => {
       if (val.code === 1) {
         setIsFav(prev => !prev)
         if (handleCancelFav) handleCancelFav(feed.feed_id, !isFav)
@@ -160,7 +151,7 @@ const FeedCard: React.FC<FeedCard> = props => {
                   <SlDrawer />
                   {isFav ? "取消收藏" : "收藏帖子"}
                 </span>
-                {user_info?.user_id === feed.feed_userID && (
+                {user_info?.result.user_id === feed.feed_userID && (
                   <span
                     className="flex flex-alc remove"
                     onClick={() => setOpenConfirm(true)}
@@ -178,17 +169,13 @@ const FeedCard: React.FC<FeedCard> = props => {
           <PicAndVid className="flex">{generateElement}</PicAndVid>
         </CardContent>
         <Division />
-        <CardFun
-          user_id={user_info?.user_id!}
-          feed={feed}
-          setopenComment={setOpenComment}
-        />
+        <CardFun user_info={user_info!} feed={feed} setopenComment={setOpenComment} />
 
         {openComment && (
           <FeedComment
             isOpen={openComment}
             user_info={user_info!}
-            feed_id={feed.feed_id}
+            feed={feed}
           />
         )}
 

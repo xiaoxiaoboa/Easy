@@ -2,7 +2,6 @@ import React from "react"
 import TopBar from "../components/TopBar"
 import styled from "styled-components"
 import { Outlet } from "react-router-dom"
-import ToggleTheme from "../components/ToggleTheme/ToggleTheme"
 import useSocketLinstener from "../hooks/useSocketLinstener"
 
 const MyApp = () => {
@@ -13,10 +12,9 @@ const MyApp = () => {
       <Container className="flex-c">
         <TopBar />
         <Childrens className="flex flex-jcc">
-          <Wrapper>
+          <Wrapper className="w">
             <Outlet />
           </Wrapper>
-          <ToggleTheme />
         </Childrens>
       </Container>
     </>

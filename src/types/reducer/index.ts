@@ -1,10 +1,8 @@
 import { FeedType } from "../feed.type"
-import { DataType, MySocket } from "../index"
-import { Socket } from "socket.io-client"
-import { UserType } from "../user.type"
-import { FriendType, RequestFriendsType } from "../friend.type"
-import { BackNoticeType } from "../notice.type"
-import { ChatGroupType, ConversationType, MessageSendType } from "../chat.type"
+import { DataType, MySocket, PopoversType } from "../index"
+import { FriendType } from "../friend.type"
+import { ChatGroupType, ConversationType, MessageType } from "../chat.type"
+import { OtherNoticeType, UnReadMessageType } from "../notice.type"
 
 export interface createContextType {
   state: ReducerState
@@ -16,12 +14,13 @@ export interface ReducerState {
   theme: "light" | "dark"
   home_feeds: FeedType[]
   readonly socket: MySocket | null
-  requestFriends: BackNoticeType<RequestFriendsType>[]
   friends: FriendType[]
   groups: ChatGroupType[]
   conversations: ConversationType[]
   current_talk: ConversationType | null
-  unread_message: MessageSendType[]
+  unread_message: UnReadMessageType[]
+  current_messages: MessageType[]
+  notice: OtherNoticeType[]
 }
 
 export type ActionMap<M extends { [index: string]: any }> = {
@@ -40,30 +39,32 @@ export enum ActionTypes {
   THEME = "theme",
   HOME_FEEDS = "home_feeds",
   MYSOCKET = "mysocket",
-  REQUESTFRIENDS = "requestFriends",
   FRIENDS = "friends",
   GROUPS = "groups",
   CONVERSATIONS = "conversations",
   CURRENT_TALK = "current_talk",
-  UNREAD_MESSAGE = "unread_message"
+  UNREAD_MESSAGE = "unread_message",
+  CURRENT_MESSAGES = "current_messages",
+  NOTICE = "notice"
 }
 
 export interface ReducerActionType {
   type: ActionTypes
-  payload: ReducerPaylodType
+  payload: ReducerPaylodType | ((prevState: ReducerPaylodType) => ReducerPaylodType)
 }
 
 export interface ReducerPaylodType {
   [ActionTypes.USER_INFO]: DataType | null
   [ActionTypes.THEME]: "light" | "dark"
   [ActionTypes.HOME_FEEDS]: FeedType[]
-  [ActionTypes.MYSOCKET]: MySocket
-  [ActionTypes.REQUESTFRIENDS]: BackNoticeType<RequestFriendsType>[]
+  [ActionTypes.MYSOCKET]: MySocket | null
   [ActionTypes.FRIENDS]: FriendType[]
   [ActionTypes.GROUPS]: ChatGroupType[]
   [ActionTypes.CONVERSATIONS]: ConversationType[]
   [ActionTypes.CURRENT_TALK]: ConversationType | null
-  [ActionTypes.UNREAD_MESSAGE]: MessageSendType[]
+  [ActionTypes.UNREAD_MESSAGE]: UnReadMessageType[]
+  [ActionTypes.CURRENT_MESSAGES]: MessageType[]
+  [ActionTypes.NOTICE]: OtherNoticeType[]
 }
 
 export type ActionsType = ActionMap<ReducerPaylodType>[keyof ActionMap<ReducerPaylodType>]

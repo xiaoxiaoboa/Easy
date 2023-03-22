@@ -18,16 +18,17 @@ const initSocket = () =>
 
 /* reducer初始化值 */
 const initialValue: ReducerState = {
-  theme: "light",
+  theme: getLocalData("color_mode") || "light",
   user_info: getLocalData("user_info"),
   home_feeds: [],
   socket: initSocket(),
-  requestFriends: [],
+  notice: [],
   friends: [],
   groups: [],
   conversations: getLocalData("conversations") || [],
   current_talk: getLocalData("current_talk"),
-  unread_message: []
+  unread_message: [],
+  current_messages: []
 }
 
 export const MyContext = React.createContext<createContextType>({
@@ -38,6 +39,8 @@ export const MyContext = React.createContext<createContextType>({
 type Props = { children: React.ReactNode }
 export const MyContextProvider = ({ children }: Props) => {
   const [state, dispatch] = React.useReducer(reducer, initialValue)
+
+  // dispatch(() => ({type: ActionTypes.CONVERSATIONS, payload: []}))
 
   React.useEffect(() => {
     if (state.user_info) {
@@ -69,29 +72,45 @@ export const MyContextProvider = ({ children }: Props) => {
     })
 
     return () => {
-      state.socket?.chat.off("getSocketId")
       state.socket?.notice.off("online")
+      state.socket?.chat.off("connect")
+      state.socket?.notice.off("connect")
+      state.socket?.group.off("connect")
     }
   }, [])
 
   React.useEffect(() => {
+    /* 存入本地 */
+    localStorage.setItem("user_info", JSON.stringify(state.user_info))
+
     /* 一开始没登陆，然后登录了，需要初始化socket */
     if (state.user_info && !state.socket) {
       dispatch({ type: ActionTypes.MYSOCKET, payload: initSocket()! })
     }
     /* 获取用户列表 */
     if (state.user_info) {
-      getFriends(state.user_info.result.user_id).then(val => {
+      getFriends(state.user_info.result.user_id, state.user_info.token).then(val => {
         if (val.code === 1) {
           dispatch({ type: ActionTypes.FRIENDS, payload: val.data })
         }
       })
       /* 获取加入的群组 */
-      getJoinedGroups(state.user_info?.result.user_id!).then(val => {
-        if (val.code === 1) {
-          dispatch({ type: ActionTypes.GROUPS, payload: val.data })
+      getJoinedGroups(state.user_info?.result.user_id!, state.user_info.token).then(
+        val => {
+          if (val.code === 1) {
+            dispatch({ type: ActionTypes.GROUPS, payload: val.data })
+          }
         }
-      })
+      )
+    }
+
+    if (!state.user_info) {
+      state.socket?.chat.disconnect()
+      state.socket?.group.disconnect()
+      state.socket?.notice.disconnect()
+      dispatch({ type: ActionTypes.MYSOCKET, payload: null })
+      dispatch({ type: ActionTypes.CONVERSATIONS, payload: [] })
+      dispatch({ type: ActionTypes.UNREAD_MESSAGE, payload: [] })
     }
   }, [state.user_info])
 

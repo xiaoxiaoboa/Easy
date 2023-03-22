@@ -9,7 +9,7 @@ import { NavLink } from "react-router-dom"
 const Home = () => {
   const { state } = React.useContext(MyContext)
   return (
-    <Container className="flex flex-jcc">
+    <Container className="flex flex-jcsb">
       {state.user_info ? (
         <HomeLeft user_info={state?.user_info.result} />
       ) : (
@@ -45,15 +45,15 @@ const LoginPrompt = () => {
 }
 
 const LoginPromptContainer = styled.div`
-  position: fixed;
-  left: 0;
-  padding: 20px;
-  width: 300px;
-  margin: 20px 0 0 20px;
+  position: sticky;
+  top: 80px;
+  flex: 1;
   border-radius: 8px;
+  height: 100%;
   background-color: ${props => props.theme.colors.nav_bg};
 `
 const LoginPromptWrapper = styled.div`
+  padding: 20px;
   gap: 10px;
   & p {
     font-size: 13px;

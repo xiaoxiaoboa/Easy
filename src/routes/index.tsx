@@ -5,7 +5,6 @@ import RouterAuth from "../components/RouterAuth/RouterAuth"
 import MyApp from "../pages"
 import Favorites from "../pages/Friends/Favorites"
 import Friends from "../pages/Friends/Friends"
-import Liked from "../pages/Friends/Liked"
 import List from "../pages/Friends/List"
 import Chat from "../pages/Chat/Chat"
 import Message from "../pages/Chat/Message"
@@ -13,8 +12,7 @@ import Home from "../pages/Home"
 import Login from "../pages/Login/Login"
 import Profile from "../pages/Profile"
 import Moments from "../pages/Profile/Moments"
-import Photos from "../pages/Profile/Photos"
-import Videos from "../pages/Profile/Videos"
+import Attaches from "../pages/Profile/Attaches"
 import Group from "../pages/Friends/Group"
 // const MyApp = React.lazy(() => import("../pages"))
 // const Favorites = React.lazy(() => import("../pages/Friends/Favorites"))
@@ -59,10 +57,6 @@ const Routes = () => {
             {
               path: "favorites",
               element: <Favorites />
-            },
-            {
-              path: "liked",
-              element: <Liked />
             }
           ]
         },
@@ -80,11 +74,11 @@ const Routes = () => {
             },
             {
               path: "photos",
-              element: <Photos />
+              element: <Attaches />
             },
             {
               path: "videos",
-              element: <Videos />
+              element: <Attaches />
             }
           ]
         },

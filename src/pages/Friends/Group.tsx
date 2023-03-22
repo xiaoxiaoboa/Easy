@@ -2,8 +2,7 @@ import React from "react"
 import styled from "styled-components"
 import { MyContext } from "../../context/context"
 import { Card, CardButton } from "./List"
-import { ChatGroupSendType, ChatGroupType } from "../../types/chat.type"
-import { getJoinedGroups } from "../../api/chat_group.api"
+import { ChatGroupType, ConversationType } from "../../types/chat.type"
 import { ActionTypes } from "../../types/reducer"
 import { useNavigate } from "react-router-dom"
 
@@ -11,31 +10,38 @@ const Group = () => {
   const { state, dispatch } = React.useContext(MyContext)
   const navigate = useNavigate()
 
+  /* 点击聊天 */
   const handleTalk = (data: ChatGroupType) => {
     navigate(`/chat/message/${data.group_id}`)
-    const isExist = state.conversations.some(
-      item => (item as ChatGroupType).group_id === data.group_id
+    const existedItem = state.conversations.find(
+      item => item.conversation_id === data.group_id
     )
-    if (isExist) {
-      const existedItem = state.conversations.find(
-        item => (item as ChatGroupType).group_id === data.group_id
-      )
+    if (existedItem) {
       dispatch({ type: ActionTypes.CURRENT_TALK, payload: existedItem! })
     } else {
+      const newData: ConversationType = {
+        conversation_id: data.group_id,
+        avatar: data.group_avatar,
+        name: data.group_name,
+        user_name: "",
+        msg: "",
+        isGroup: true,
+        msg_length: 0
+      }
       dispatch({
         type: ActionTypes.CONVERSATIONS,
-        payload: [...state.conversations, { ...data, conversation_id: data.group_id }]
+        payload: [...state.conversations, newData]
       })
       dispatch({
         type: ActionTypes.CURRENT_TALK,
-        payload: { ...data, conversation_id: data.group_id }
+        payload: newData
       })
     }
   }
 
   return (
     <Container className="flex-c">
-      <Wrapper className="flex">
+      <Wrapper className="">
         {state.groups.map(item => (
           <Card key={item.group_id} name={item.group_name} avatar={item.group_avatar}>
             <CardButton className="flex">
@@ -44,6 +50,9 @@ const Group = () => {
             </CardButton>
           </Card>
         ))}
+        <div></div>
+        <div></div>
+        <div></div>
       </Wrapper>
     </Container>
   )
@@ -58,5 +67,6 @@ const Container = styled.div`
 const Wrapper = styled.div`
   padding: 30px;
   gap: 34px;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 `

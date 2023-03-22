@@ -26,8 +26,6 @@ const Login = () => {
   const handleLoginSubmit: SubmitHandler<LoginFormProps> = (data: FieldValues) => {
     setLoading(true)
     sign_in(data).then(val => {
-      
-      localStorage.setItem("user_info", JSON.stringify(val.data))
       dispatch({ type: ActionTypes.USER_INFO, payload: val.data })
 
       requestedOpt(val, () => navigate("/"))

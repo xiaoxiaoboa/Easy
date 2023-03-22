@@ -4,29 +4,34 @@ import { TiArrowForwardOutline } from "react-icons/ti"
 import styled from "styled-components"
 import { feed_like } from "../../api/feeds.api"
 import useSnackbar from "../../hooks/useSnackbar"
+import { DataType } from "../../types"
 import { FeedType } from "../../types/feed.type"
-import { UserType } from "../../types/user.type"
 
 const message = "请登录！"
 const duration = 3000
 
 /* card点赞、评论、分享功能 */
 interface CardFunType {
-  user_id: string
+  user_info: DataType
   feed: FeedType
   setopenComment: React.Dispatch<React.SetStateAction<boolean>>
 }
 const CardFun = React.memo((props: CardFunType) => {
-  const { feed, user_id, setopenComment } = props
+  const { feed, user_info, setopenComment } = props
   const [openSnackbar] = useSnackbar()
-  const [likedCount, setLikedCount] = React.useState<number>(feed.feed_liked.liked.length)
+  const [likedCount, setLikedCount] = React.useState<number>(feed.feed_likeds.length)
   const [isLike, setIsLike] = React.useState<boolean>(
-    feed.feed_liked.liked.includes(user_id!)
+    feed.feed_likeds.map(i => i.liked).includes(user_info?.result.user_id)
   )
 
   const handleLike = () => {
-    if (!user_id) return openSnackbar(message, duration)
-    feed_like({ feed_id: feed.feed_id, user_id }).then(val => {
+    if (!user_info.result.user_id) return openSnackbar(message, duration)
+    feed_like(
+      feed.feed_id,
+      user_info.result.user_id,
+      feed.feed_userID,
+      user_info.token
+    ).then(val => {
       if (val.code === 1) {
         setLikedCount(prev => (isLike ? prev - 1 : prev + 1))
         setIsLike(prev => !prev)
@@ -34,7 +39,7 @@ const CardFun = React.memo((props: CardFunType) => {
     })
   }
   const handleShare = () => {
-    if (!user_id) return openSnackbar(message, duration)
+    if (!user_info.result.user_id) return openSnackbar(message, duration)
     console.log("share")
   }
   return (

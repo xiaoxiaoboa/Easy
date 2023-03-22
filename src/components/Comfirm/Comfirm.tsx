@@ -42,7 +42,7 @@ const Confirm: React.FC<ConfirmProps> = props => {
   /* 删除帖子 */
   const deleteFeed = () => {
     setLoading(true)
-    feed_delete(data.feed_id).then(val => {
+    feed_delete(data.feed_id, state.user_info?.token!).then(val => {
       requestedOpt(val, () => {
         setLoading(false)
         setOpenConfirm(false)
@@ -61,7 +61,7 @@ const Confirm: React.FC<ConfirmProps> = props => {
     setLoading(true)
     const id = (data as Feed_CommentType).comment_id
 
-    comment_delete(id).then(val => {
+    comment_delete(id, state.user_info?.token!).then(val => {
       requestedOpt(val, () => {
         if (afteHandler) {
           setLoading(false)

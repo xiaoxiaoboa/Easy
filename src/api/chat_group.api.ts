@@ -1,15 +1,15 @@
-import { DataType } from "../types"
-import { ChatGroupSaveType, ChatGroupType } from "../types/chat.type"
-import getLocalData from "../utils/getLocalData"
+import { ChatGroupType } from "../types/chat.type"
 import request, { uploadRequest } from "../utils/request"
 import { ResponseType } from "../types/index"
+import getLocalData from "../utils/getLocalData"
+import { UnReadMessageType } from "../types/notice.type"
 
-const user_info: DataType = getLocalData("user_info")
-
+/* 新群组 */
 export const newGroup = async (
-  data: ChatGroupSaveType,
+  data: ChatGroupType,
   numbers: string[],
-  file: File
+  file: File,
+  t: string
 ): Promise<ResponseType<ChatGroupType>> => {
   const formData = new FormData()
   formData.append("file", file)
@@ -20,17 +20,51 @@ export const newGroup = async (
     url: "/group_create",
     methods: "POST",
     body: formData,
-    token: user_info.token
+    token: t
   })
 }
 
+/* 用户加入的群组 */
 export const getJoinedGroups = async (
-  user_id: string
-): Promise<ResponseType<ChatGroupSaveType[]>> => {
+  user_id: string,
+  t: string
+): Promise<ResponseType<ChatGroupType[]>> => {
   return await request({
     url: "/group_joined",
     methods: "POST",
     body: { user_id },
-    token: user_info.token
+    token: t
+  })
+}
+
+/* 更新群组头像 */
+export const updateAvatar = async (
+  group_id: string,
+  file: File,
+  t: string
+): Promise<ResponseType<string>> => {
+  const formData = new FormData()
+  formData.append("files", file)
+  formData.append("group_id", JSON.stringify(group_id))
+
+  return await uploadRequest({
+    url: "/group_avatar",
+    methods: "POST",
+    body: formData,
+    token: t
+  })
+}
+
+/* 获取群组未读消息 */
+export const getGroupUnReadMsg = async (
+  ids: string[],
+  user_id: string,
+  t: string
+): Promise<ResponseType<UnReadMessageType[]>> => {
+  return await request({
+    url: "/group_unreadmsg",
+    methods: "POST",
+    body: { ids, user_id },
+    token: t
   })
 }

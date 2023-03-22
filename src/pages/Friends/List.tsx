@@ -1,12 +1,11 @@
 import React from "react"
 import { useNavigate } from "react-router-dom"
 import styled from "styled-components"
-import bg from "../../assets/bg.jpg"
 import Avatar from "../../components/Avatar/Avatar"
 import { MyContext } from "../../context/context"
 import { FriendType } from "../../types/friend.type"
 import { ActionTypes } from "../../types/reducer"
-import { nanoid } from "nanoid"
+import { ConversationType } from "../../types/chat.type"
 
 const List = () => {
   const { state, dispatch } = React.useContext(MyContext)
@@ -15,37 +14,51 @@ const List = () => {
   const handleTalk = (data: FriendType) => {
     navigate(`/chat/message/${data.friend_id}`)
 
-    const isExist = state.conversations.some(
-      item => (item as FriendType).friend_id === data.friend_id
+    const existedItem = state.conversations.find(
+      item => item.conversation_id === data.friend_id
     )
-    if (isExist) {
-      const existedItem = state.conversations.find(
-        item => (item as FriendType).friend_id === data.friend_id
-      )
+    if (existedItem) {
       dispatch({ type: ActionTypes.CURRENT_TALK, payload: existedItem! })
     } else {
+      const newData: ConversationType = {
+        conversation_id: data.friend_id,
+        avatar: data.avatar,
+        name: data.nick_name,
+        user_name: "",
+        msg: "",
+        isGroup: false,
+        msg_length: 0
+      }
       dispatch({
         type: ActionTypes.CONVERSATIONS,
-        payload: [...state.conversations, { ...data, conversation_id: data.friend_id }]
+        payload: [...state.conversations, newData]
       })
       dispatch({
         type: ActionTypes.CURRENT_TALK,
-        payload: { ...data, conversation_id: data.friend_id }
+        payload: newData
       })
     }
   }
 
   return (
     <Container className="flex-c">
-      <Wrapper className="flex">
+      <Wrapper className="">
         {state.friends.map(item => (
-          <Card key={item.friend_id} name={item.nick_name} avatar={item.avatar}>
+          <Card
+            key={item.friend_id}
+            name={item.nick_name}
+            avatar={item.avatar}
+            id={item.friend_id}
+          >
             <CardButton className="flex">
               <button onClick={() => handleTalk(item)}>发消息</button>
               <button>删除</button>
             </CardButton>
           </Card>
         ))}
+        <div></div>
+        <div></div>
+        <div></div>
       </Wrapper>
     </Container>
   )
@@ -56,15 +69,16 @@ export default List
 interface CardProps {
   name: string
   avatar: string
+  id?: string
   children: React.ReactElement
 }
 export const Card = (props: CardProps) => {
-  const { name, avatar, children } = props
+  const { name, avatar, children, id } = props
   return (
     <CardContainer>
       <CardWrapper className="flex-c flex-alc">
         <UserAvatar>
-          <Avatar src={avatar} size="60" />
+          <Avatar src={avatar} size="70" id={id} />
         </UserAvatar>
         <Name>{name}</Name>
         {children}
@@ -80,7 +94,8 @@ const Container = styled.div`
 const Wrapper = styled.div`
   padding: 30px;
   gap: 34px;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 `
 const CardContainer = styled.div`
   height: max-content;
@@ -88,9 +103,9 @@ const CardContainer = styled.div`
   background-color: ${props => props.theme.colors.nav_bg};
 `
 const CardWrapper = styled.div`
-  width: 240px;
+  width: 100%;
   gap: 6px;
-  padding: 14px 0;
+  padding: 8px 0 14px 0;
   overflow: hidden;
 `
 const UserAvatar = styled.div`
@@ -105,15 +120,7 @@ const Name = styled.div`
   overflow: hidden;
   text-overflow: ellipsis;
 `
-const Desc = styled.p`
-  font-size: 14px;
-  max-width: 80%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 
-  color: ${props => props.theme.colors.secondary};
-`
 export const CardButton = styled.div`
   gap: 8px;
   width: 100%;

@@ -11,6 +11,7 @@ const ToggleTheme = () => {
   const [theme, setTheme] = useLocalStorageState<"light" | "dark">("color_mode", {
     defaultValue: "light"
   })
+  const wrapperRef = React.useRef<HTMLDivElement | null>(null)
 
   React.useEffect(() => {
     dispatch({ type: ActionTypes.THEME, payload: theme })
@@ -21,9 +22,12 @@ const ToggleTheme = () => {
   }
 
   return (
-    <Container className="flex flex-alc flex-jcc" onClick={handleToggle}>
-      <Wrapper className="flex flex-alc flex-jcc">
-        {theme === "dark" ? <img src={sun} /> : <img src={moon} />}
+    <Container className="flex" onClick={handleToggle}>
+      <Wrapper
+        className={`flex flex-alc ${theme === "light" ? "switch-close" : "switch-open"}`}
+        ref={wrapperRef}
+      >
+        <span></span>
       </Wrapper>
     </Container>
   )
@@ -32,26 +36,36 @@ const ToggleTheme = () => {
 export default ToggleTheme
 
 const Container = styled.div`
-  position: fixed;
-  bottom: 30px;
-  right: 50px;
-  background-color: ${props => props.theme.colors.theme_btn_bg};
-  padding: 6px;
-  border-radius: 50%;
-  opacity: 0.8;
+  width: 55px;
   cursor: pointer;
-  box-shadow: rgba(0, 0, 0, 0.15) 0px 2px 8px;
 
-  &:hover {
-    opacity: 1;
+  & .switch-close {
+    & span {
+      transform: translateX(0);
+    }
+  }
+  & .switch-open {
+    border-color: transparent;
+    background-color: ${p => p.theme.colors.primary};
+    & span {
+      transform: translateX(30px);
+    }
   }
 `
 const Wrapper = styled.div`
-  width: 40px;
-  height: 40px;
+  width: 100%;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 14px;
+  padding: 2px;
+  background-color: ${p => p.theme.colors.inputbtn_bg};
 
-  & img {
-    width: 100%;
-    height: 100%;
+  & span {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: white;
+    transition: transform 0.2s ease-in-out;
+    box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
   }
 `

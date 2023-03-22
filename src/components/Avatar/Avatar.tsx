@@ -12,14 +12,11 @@ interface AvatarProps {
 const Avatar: React.FC<AvatarProps> = props => {
   const { src, size, id } = props
   const navigate = useNavigate()
-  const { pathname } = useLocation()
 
   const handleRoute = () => {
     if (!id) return
-    const toPath = `profile/${id}`
-    const nowPath = pathname.replace("/", "")
-
-    if (toPath !== nowPath) navigate(toPath)
+    const toPath = `/profile/${id}`
+    navigate(toPath)
   }
 
   return (
@@ -49,7 +46,7 @@ interface WrapperPorps {
 const Wrapper = styled.div<WrapperPorps>`
   border-radius: 50%;
   overflow: hidden;
-  cursor: ${p => (p.id ? "pointer" : "auto")};
+  cursor: ${p => (p.id ? "pointer" : "inherit")};
   border: 1px solid #ccc;
 
   & img {

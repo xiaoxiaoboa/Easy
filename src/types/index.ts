@@ -17,3 +17,15 @@ export interface MySocket {
   group: Socket
   notice: Socket
 }
+
+export interface PopoversType {
+  setting: boolean
+  notice: boolean
+  message: boolean
+  card: boolean
+}
+
+export interface TopBarRightPopoverProps {
+  isOpen: boolean
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>
+}

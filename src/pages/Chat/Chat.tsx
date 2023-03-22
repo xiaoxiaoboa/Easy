@@ -6,7 +6,7 @@ import { Search } from "../Friends/Friends"
 import { NavLink } from "react-router-dom"
 import { MyContext } from "../../context/context"
 import { ActionTypes } from "../../types/reducer"
-import { ConversationType, MessageSendType } from "../../types/chat.type"
+import { ConversationType } from "../../types/chat.type"
 import { CgAddR } from "react-icons/cg"
 import GrougpChat from "./CreateGroup"
 
@@ -21,87 +21,38 @@ const Chat = () => {
     }
   }, [])
 
-  /* 来信消息时，需要把对话推到顶部 */
-  React.useEffect(() => {
-    /* 先查找现在对话列表中是否有 */
-    const newMessageObj = state.conversations.find(item => {
-      if ("friend_id" in item) {
-        return (
-          item.user_id === state.unread_message[state.unread_message.length - 1]?.to_id
-        )
-      } else {
-        return (
-          item.conversation_id ===
-          state.unread_message[state.unread_message.length - 1]?.to_id
-        )
-      }
-    })
-    if (newMessageObj) {
-      dispatch({
-        type: ActionTypes.CONVERSATIONS,
-        payload: [
-          newMessageObj,
-          ...state.conversations.filter(
-            i => i.conversation_id !== newMessageObj?.conversation_id
-          )
-        ]
-      })
-    } else {
-      /* 查找是好友，还是群组 */
-      const newMessageObj = state.friends.find(
-        i => i.friend_id === state.unread_message[0]?.conversation_id
-      )
-      if (newMessageObj) {
-        const newData: ConversationType = {
-          conversation_id: newMessageObj.friend_id,
-          ...newMessageObj
-        }
-        dispatch({
-          type: ActionTypes.CONVERSATIONS,
-          payload: [newData, ...state.conversations]
-        })
-      } else {
-        const newMessageObj = state.groups.find(
-          i => i.group_id === state.unread_message[0]?.conversation_id
-        )
-        if (newMessageObj) {
-          const newData: ConversationType = {
-            conversation_id: newMessageObj.group_id,
-            ...newMessageObj
-          }
-          console.log(newData)
-          dispatch({
-            type: ActionTypes.CONVERSATIONS,
-            payload: [newData, ...state.conversations]
-          })
-        }
-      }
-    }
-  }, [state.unread_message])
 
+  /* 打开对话窗口 */
   const handleTalk = (data: ConversationType) => {
     if (state.current_talk?.conversation_id === data.conversation_id) return
 
-    dispatch({ type: ActionTypes.CURRENT_TALK, payload: data })
+    dispatch({ type: ActionTypes.CURRENT_TALK, payload: { ...data, msg_length: 0 } })
 
-    if ("friend_id" in data) {
-      dispatch({
-        type: ActionTypes.UNREAD_MESSAGE,
-        payload: [
-          ...state.unread_message.filter(item => item.user_id !== data.conversation_id)
-        ]
-      })
-    } else {
-      dispatch({
-        type: ActionTypes.UNREAD_MESSAGE,
-        payload: [
-          ...state.unread_message,
-          ...state.unread_message.filter(
-            item => item.conversation_id !== data.conversation_id
-          )
-        ]
-      })
-    }
+    dispatch({
+      type: ActionTypes.CONVERSATIONS,
+      payload: [
+        ...state.conversations.map(i => {
+          if (i.conversation_id === data.conversation_id) {
+            return { ...i, msg_length: 0 }
+          } else {
+            return i
+          }
+        })
+      ]
+    })
+
+    dispatch({
+      type: ActionTypes.UNREAD_MESSAGE,
+      payload: [
+        ...state.unread_message.map(i => {
+          if (i.source_id === data.conversation_id) {
+            return { ...i, done: 1 }
+          } else {
+            return i
+          }
+        })
+      ]
+    })
   }
   return (
     <Container>
@@ -126,7 +77,7 @@ const Chat = () => {
                 key={item.conversation_id}
                 data={item}
                 handleTalk={handleTalk}
-                unread_message={state.unread_message}
+                current_talk={state.current_talk}
               />
             ))}
           </List>
@@ -144,7 +95,7 @@ export default Chat
 interface ListItemProps {
   data: ConversationType
   handleTalk: (data: ConversationType) => void
-  unread_message: MessageSendType[]
+  current_talk: ConversationType | null
 }
 interface ThisItemProps {
   avatar: string
@@ -153,33 +104,7 @@ interface ThisItemProps {
 }
 /* 左侧联系人 */
 const ListItem: React.FC<ListItemProps> = props => {
-  const { data, handleTalk, unread_message } = props
-
-  const msgs = React.useMemo(() => {
-    return "friend_id" in data
-      ? unread_message.filter(i => i.user_id === data.friend_id)
-      : unread_message.filter(i => i.conversation_id === data.conversation_id)
-  }, [unread_message])
-
-  /* 筛选出最新消息 */
-  const handleNewMessage = React.useCallback(() => {
-    // if (msgs.length < 1) return <></>
-
-    const res =
-      msgs.length > 0 ? `${msgs[0]?.user.nick_name}：${msgs[msgs.length - 1].msg}` : ""
-
-    return res
-  }, [unread_message])
-
-  /* 未读消息数量 */
-  const HandleNewMessageCount = React.useCallback(() => {
-    const length = msgs.length
-    return length > 0 ? (
-      <MessageCount className="flex flex-alc flex-jcc">{length}</MessageCount>
-    ) : (
-      <></>
-    )
-  }, [unread_message])
+  const { data, handleTalk, current_talk } = props
 
   const ThisItem: React.FC<ThisItemProps> = props => {
     const { avatar, name, isActive } = props
@@ -189,32 +114,32 @@ const ListItem: React.FC<ListItemProps> = props => {
         <UserInfo className="flex-c">
           <UserName>{name}</UserName>
           <Notice className="flex" isActive={isActive}>
-            <span>{handleNewMessage()}</span>
+            {data.msg.length > 0 ? (
+              <span>{`${data.user_name}：${data.msg}`}</span>
+            ) : (
+              <></>
+            )}
           </Notice>
         </UserInfo>
-        <HandleNewMessageCount />
+        {current_talk?.conversation_id !== data.conversation_id && data.msg_length > 0 ? (
+          <MessageCount className="flex flex-alc flex-jcc">
+            {data.msg_length}
+          </MessageCount>
+        ) : (
+          <></>
+        )}
       </ListItemContainer>
     )
   }
 
-  return "friend_id" in data ? (
+  return (
     <NavLink
-      key={data.friend_id}
+      key={data.conversation_id}
       to={`message/${data.conversation_id}`}
       onClick={() => handleTalk(data)}
     >
       {({ isActive, isPending }) => (
-        <ThisItem avatar={data.avatar} isActive={isActive} name={data.nick_name} />
-      )}
-    </NavLink>
-  ) : (
-    <NavLink
-      key={data.group_id}
-      to={`message/${data.conversation_id}`}
-      onClick={() => handleTalk(data)}
-    >
-      {({ isActive, isPending }) => (
-        <ThisItem avatar={data.group_avatar} isActive={isActive} name={data.group_name} />
+        <ThisItem avatar={data.avatar} isActive={isActive} name={data.name} />
       )}
     </NavLink>
   )
@@ -227,6 +152,7 @@ const Container = styled.div`
 const Wrapper = styled.div`
   width: 100%;
   height: 100%;
+  overflow: hidden;
 `
 
 const Left = styled.div`
@@ -238,6 +164,13 @@ const Left = styled.div`
 `
 const CreateGroup = styled.div`
   cursor: pointer;
+
+  padding: 10px;
+  border-radius: 50%;
+
+  &:hover {
+    background-color: ${p => p.theme.colors.hovercolor};
+  }
 `
 
 const List = styled.div`

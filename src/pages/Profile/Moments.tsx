@@ -28,16 +28,18 @@ const Moments = () => {
 
   React.useEffect(() => {
     if (inViewport) {
-      feeds_query(user_id!, limit, offsetRef.current).then(val => {
-        if (val.code !== 1) return
-        if (val.data.length === 0) {
-          setNothing(true)
-          return
-        }
+      feeds_query(user_id!, limit, offsetRef.current, state.user_info?.token!).then(
+        val => {
+          if (val.code !== 1) return
+          if (val.data.length === 0) {
+            setNothing(true)
+            return
+          }
 
-        setFeeds(prev => [...prev, ...val.data])
-        offsetRef.current += limit
-      })
+          setFeeds(prev => [...prev, ...val.data])
+          offsetRef.current += limit
+        }
+      )
     }
   }, [inViewport])
 
@@ -45,10 +47,15 @@ const Moments = () => {
     <Container className="flex-c flex-alc">
       {feeds.map(item => (
         <PhotoProvider key={item.feed_id}>
-          <FeedCard user_info={state.user_info?.result} feed={item} />
+          <FeedCard user_info={state.user_info!} feed={item} />
         </PhotoProvider>
       ))}
-      {!nothing && <SkeletonFeed setElement={setElement} theme={state.theme} />}
+      {!nothing && (
+        <>
+          <SkeletonFeed setElement={setElement} theme={state.theme} />
+          <SkeletonFeed theme={state.theme} />
+        </>
+      )}
       {nothing && <Tip>没有啦！看看别的吧~</Tip>}
     </Container>
   )
@@ -60,4 +67,5 @@ const Container = styled.div`
   /* width:100%; */
   padding: 20px 0;
   gap: 30px;
+  flex: 1;
 `

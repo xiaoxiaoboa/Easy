@@ -25,17 +25,20 @@ const Favorites = () => {
 
   React.useEffect(() => {
     if (inViewport) {
-      favourited_feeds(state.user_info?.result.user_id!, limit, offsetRef.current).then(
-        val => {
-          if (val.code !== 1) return
-          if (val.data.length === 0) {
-            setNothing(true)
-            return
-          }
-          setFavFeeds(val.data)
-          offsetRef.current += limit
+      favourited_feeds(
+        state.user_info?.result.user_id!,
+        limit,
+        offsetRef.current,
+        state.user_info?.token!
+      ).then(val => {
+        if (val.code !== 1) return
+        if (val.data.length === 0) {
+          setNothing(true)
+          return
         }
-      )
+        setFavFeeds(val.data)
+        offsetRef.current += limit
+      })
     }
   }, [inViewport])
 
@@ -54,7 +57,7 @@ const Favorites = () => {
           <FeedCard
             key={item.feed_id}
             feed={item.feed}
-            user_info={state.user_info?.result}
+            user_info={state.user_info!}
             handleCancelFav={cancelFav}
             handleDelFav={deleteFav}
           />
