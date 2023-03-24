@@ -18,10 +18,10 @@ const useRequested = (initState: boolean = false): useRequested => {
   const [openSnackbar] = useSnackbar()
 
   /* 通用处理函数 */
-  const requestedOpt = (params: ResponseType<unknown>, option?: () => void) => {
-    const { code, message } = params
+  const requestedOpt = (params: ResponseType<any>, option?: () => void) => {
+    const { code, message, data } = params
     if (code === 0) {
-      openSnackbar(message, duration)
+      openSnackbar(`${message}-[${data}]`, duration)
       setLoading(false)
       return
     }

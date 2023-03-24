@@ -1,5 +1,5 @@
 /* 登录 */
-import request from "../utils/request"
+import request, { uploadRequest } from "../utils/request"
 import { ResponseType, DataType } from "../types/index"
 import getLocalData from "../utils/getLocalData"
 import { AlterationCoverType, UserType } from "../types/user.type"
@@ -21,10 +21,14 @@ export const alterationCover = (
   params: AlterationCoverType,
   t: string
 ): Promise<ResponseType<UserType>> => {
-  return request({
+  const { files, user_id } = params
+  const formData = new FormData()
+  formData.append("background", params.files.background)
+  formData.append("data", JSON.stringify({ user_id, blur: files.background_blur }))
+  return uploadRequest({
     url: "/cover",
     methods: "POST",
-    body: { ...params },
+    body: formData,
     token: t
   })
 }
@@ -90,6 +94,23 @@ export const updateNotice = async (
     url: "/read",
     methods: "POST",
     body: { source_id, notice_id },
+    token: t
+  })
+}
+
+/* 消息中的图片和视频上传 */
+export const messageUpload = async (
+  file: File,
+  user_id: string,
+  t: string
+): Promise<ResponseType<string>> => {
+  const formData = new FormData()
+  formData.append("file", file)
+  formData.append("user_id", user_id)
+  return await uploadRequest({
+    url: "/message_upload",
+    methods: "POST",
+    body: formData,
     token: t
   })
 }

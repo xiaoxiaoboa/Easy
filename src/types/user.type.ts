@@ -11,14 +11,15 @@ export interface UserType {
 }
 
 export interface CompressedType {
-  compressed: string
+  fileName: string
+  base64: string
 }
 
 export interface AlterationCoverType {
   user_id: string
-  base64: {
-    background: string
-    background_blur: string
+  files: {
+    background: File
+    background_blur: CompressedType
   }
 }
 
@@ -32,5 +33,3 @@ export interface User_FavouriteType {
   createdAt: string
 }
 export type InComplateFavouriteType = Omit<User_FavouriteType, "feed_id">
-
-

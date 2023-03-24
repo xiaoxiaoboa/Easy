@@ -5,7 +5,7 @@ export enum Message_type {
   TEXT = "text",
   FILE = "file",
   IMAGE = "image",
-  IVDEO = "video"
+  VIDEO = "video"
 }
 
 export interface MessageType {
@@ -28,6 +28,7 @@ export type ConversationType = {
   name: string
   user_name: string
   msg: string
+  msg_type:string
   isGroup: boolean
   msg_length: number
 }

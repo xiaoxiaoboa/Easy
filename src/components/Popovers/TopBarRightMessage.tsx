@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom"
 import styled from "styled-components"
 import { MyContext } from "../../context/context"
 import { TopBarRightPopoverProps } from "../../types"
+import { Message_type } from "../../types/chat.type"
 import { UnReadMessageType } from "../../types/notice.type"
 import { ActionTypes } from "../../types/reducer"
 import getTimeDiff from "../../utils/getTimeDiff"
@@ -51,6 +52,19 @@ const TopBarRightMessage: React.FC<TopBarRightMessageProps> = props => {
     navigate(`/chat/message/${id}`)
   }
 
+  const messageType = (data: UnReadMessageType) => {
+    switch (data.message.msg_type) {
+      case Message_type.TEXT:
+        return data.message.msg
+      case Message_type.IMAGE:
+        return "[图片]"
+      case Message_type.VIDEO:
+        return "[视频]"
+      default:
+        break
+    }
+  }
+
   return (
     <Container isOpen={isOpen}>
       <Wrapper className="flex-c">
@@ -66,7 +80,7 @@ const TopBarRightMessage: React.FC<TopBarRightMessageProps> = props => {
               <Information className="flex-c">
                 <Name>{item.source.nick_name}</Name>
                 <Msg className="flex flex-alc">
-                  <Text>{item.message.msg}</Text>
+                  <Text>{messageType(item)}</Text>
                   <TimeStamp>{getTimeDiff(item.createdAt)}</TimeStamp>
                 </Msg>
               </Information>

@@ -2,7 +2,7 @@ import React from "react"
 import styled from "styled-components"
 import { MyContext } from "../../context/context"
 import { Card, CardButton } from "./List"
-import { ChatGroupType, ConversationType } from "../../types/chat.type"
+import { ChatGroupType, ConversationType, Message_type } from "../../types/chat.type"
 import { ActionTypes } from "../../types/reducer"
 import { useNavigate } from "react-router-dom"
 
@@ -25,6 +25,7 @@ const Group = () => {
         name: data.group_name,
         user_name: "",
         msg: "",
+        msg_type: Message_type.TEXT,
         isGroup: true,
         msg_length: 0
       }

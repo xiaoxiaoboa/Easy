@@ -7,13 +7,20 @@ import { MyContext } from "../../context/context"
 import { ActionTypes } from "../../types/reducer"
 import Dialog from "./Popover"
 import { TopBarRightPopoverProps } from "../../types"
+import { useNavigate } from "react-router-dom"
 
 const TopBarRightUser: React.FC<TopBarRightPopoverProps> = props => {
   const { isOpen } = props
   const { state, dispatch } = React.useContext(MyContext)
+  const navigate = useNavigate()
 
   const handleLogout = () => {
+    navigate("/", { replace: true })
     dispatch({ type: ActionTypes.USER_INFO, payload: null })
+    dispatch({ type: ActionTypes.MYSOCKET, payload: null })
+    dispatch({ type: ActionTypes.CONVERSATIONS, payload: [] })
+    dispatch({ type: ActionTypes.UNREAD_MESSAGE, payload: [] })
+    dispatch({ type: ActionTypes.FRIENDS, payload: [] })
   }
 
   return (

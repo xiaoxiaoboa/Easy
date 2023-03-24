@@ -16,7 +16,7 @@ import { DataType } from "../../types/index.js"
 import getBase64 from "../../utils/getBase64"
 import { ActionTypes } from "../../types/reducer"
 import { useParams } from "react-router-dom"
-import { AlterationCoverType, UserType } from "../../types/user.type"
+import { AlterationCoverType, CompressedType, UserType } from "../../types/user.type"
 import { CgAddR } from "react-icons/cg"
 import { SiAddthis } from "react-icons/si"
 
@@ -66,19 +66,26 @@ const Head: React.FC<HeadProps> = props => {
   const { state, dispatch } = React.useContext(MyContext)
   const { loading, setLoading, requestedOpt } = useRequested()
   const [uploadedCover, setUploadedCover] = React.useState<File | null>(null)
-  const [compressedCover, setCompressedCover] = React.useState<string | null>(null)
+  const [compressedCover, setCompressedCover] = React.useState<CompressedType | null>(
+    null
+  )
   const friend_ids = state.friends.map(item => item.friend_id)
-
   /* 更改封面 */
   const handleUploadChange: React.ChangeEventHandler<HTMLInputElement> = e => {
     if (e.target.files) {
       const coverFile = e.target.files[0]
       if (coverFile) {
         setLoading(true)
-        compress(state.user_info?.result.user_id!, coverFile).then(val => {
-          setUploadedCover(coverFile)
-          setCompressedCover(val.data.compressed)
-          setLoading(false)
+        compress(
+          state.user_info?.result.user_id!,
+          coverFile,
+          state.user_info?.token!
+        ).then(val => {
+          if (val.code === 1) {
+            setUploadedCover(coverFile)
+            setCompressedCover(val.data)
+            setLoading(false)
+          }
         })
       }
     }
@@ -86,13 +93,11 @@ const Head: React.FC<HeadProps> = props => {
 
   /* 保存更改 */
   const handleSaveChange = async () => {
-    /* 获取base64码 */
-    const res = await getBase64(uploadedCover!)
     /* 传给后端的信息，用户id和图片base64 */
     const params: AlterationCoverType = {
       user_id: state.user_info?.result.user_id!,
-      base64: {
-        background: res.base64 as string,
+      files: {
+        background: uploadedCover!,
         background_blur: compressedCover!
       }
     }
@@ -142,7 +147,7 @@ const Head: React.FC<HeadProps> = props => {
     <HeadContainer className="flex-c flex-jcsb flex-alc">
       <div className="blurbglayer"></div>
       <div className="blurbg">
-        <img src={compressedCover || getUnionUrl(user?.profile_blurImg)} alt="" />
+        <img src={compressedCover?.base64 || getUnionUrl(user?.profile_blurImg)} alt="" />
       </div>
       <Background className="flex flex-alc">
         {loading && (
@@ -168,7 +173,7 @@ const Head: React.FC<HeadProps> = props => {
             </AvatarWrapper>
             <span>{user?.nick_name}</span>
             {state.user_info?.result.user_id !== params.user_id &&
-              !friend_ids.includes(params.user_id!) && (
+              !state.friends.find(i => i.friend_id === params.user_id) && (
                 <RequestBtns>
                   <div className="flex flex-alc click" onClick={hanleFriends}>
                     <SiAddthis />

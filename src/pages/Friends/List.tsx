@@ -5,7 +5,7 @@ import Avatar from "../../components/Avatar/Avatar"
 import { MyContext } from "../../context/context"
 import { FriendType } from "../../types/friend.type"
 import { ActionTypes } from "../../types/reducer"
-import { ConversationType } from "../../types/chat.type"
+import { ConversationType, Message_type } from "../../types/chat.type"
 
 const List = () => {
   const { state, dispatch } = React.useContext(MyContext)
@@ -26,6 +26,7 @@ const List = () => {
         name: data.nick_name,
         user_name: "",
         msg: "",
+        msg_type: Message_type.TEXT,
         isGroup: false,
         msg_length: 0
       }
