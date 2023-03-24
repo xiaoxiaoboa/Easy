@@ -214,7 +214,6 @@ const PublishLayer: React.FC<PublishLayerProps> = props => {
   /* 上传图片或视频 */
   const handleChange: React.ChangeEventHandler<HTMLInputElement> = e => {
     const newFiles = e.target.files
-    console.log(newFiles)
     if (newFiles) setFiles(prev => [...newFiles, ...prev])
     e.target.files = null
   }
@@ -251,6 +250,8 @@ const PublishLayer: React.FC<PublishLayerProps> = props => {
           type: ActionTypes.HOME_FEEDS,
           payload: [newFeedData, ...state.home_feeds]
         })
+      } else {
+        requestedOpt(val)
       }
     })
   }
@@ -288,7 +289,7 @@ const PublishLayer: React.FC<PublishLayerProps> = props => {
           </EditableArea>
         </PublishLayerMain>
         <Files className="flex">
-          <Upload id="image" accept="image/*" handleChange={handleChange}>
+          <Upload id="image" accept="image/*" multiple handleChange={handleChange}>
             <div className="addPic click" title="上传图片"></div>
           </Upload>
           <Upload id="video" accept="video/*" handleChange={handleChange}>

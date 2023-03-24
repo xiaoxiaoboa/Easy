@@ -15,24 +15,21 @@ import { queryNotice, updateNotice } from "../../api/user.api"
 import { MyContext } from "../../context/context"
 import { ActionTypes } from "../../types/reducer"
 import getTimeDiff from "../../utils/getTimeDiff"
+import { TopBarRightPopoverProps } from "../../types"
 
-interface TopBarRightNoticeProps {
-  isOpen: boolean
-}
+type TopBarRightNoticeProps = TopBarRightPopoverProps
 const TopBarRightNotice: React.FC<TopBarRightNoticeProps> = props => {
-  const { isOpen } = props
+  const { isOpen, setOpen } = props
   const { state, dispatch } = React.useContext(MyContext)
 
   /* 获取相关通知 */
   React.useEffect(() => {
     /* 获取添加好友相关的通知 */
-    queryNotice(state.user_info?.result.user_id!, state.user_info?.token!).then(
-      val => {
-        if (val.code === 1) {
-          dispatch({ type: ActionTypes.NOTICE, payload: [...state.notice, ...val.data] })
-        }
+    queryNotice(state.user_info?.result.user_id!, state.user_info?.token!).then(val => {
+      if (val.code === 1) {
+        dispatch({ type: ActionTypes.NOTICE, payload: [...state.notice, ...val.data] })
       }
-    )
+    })
   }, [])
 
   const handleClick = (id: string) => {
@@ -49,6 +46,8 @@ const TopBarRightNotice: React.FC<TopBarRightNoticeProps> = props => {
         })
       ]
     })
+    document.onclick = null
+    setOpen(false)
   }
 
   return (

@@ -104,10 +104,10 @@ const TopBarRight = () => {
             <TopBarRightButton handleFun={() => setOpen(true)}>
               <>
                 <MdNotificationsActive size="22" />
-                {haveNewNotice && <NewMessageNotice />}
+                {haveNewNotice && <NewNotice />}
               </>
             </TopBarRightButton>
-            <TopBarRightNotice isOpen={open} />
+            <TopBarRightNotice isOpen={open} setOpen={setOpen} />
           </>
         )}
       </Popover>
@@ -117,7 +117,7 @@ const TopBarRight = () => {
             <TopBarRightButton handleFun={() => setOpen(true)}>
               <>
                 <BsFillChatDotsFill size="20" />
-                {haveNewMessage && <NewMessageNotice />}
+                {haveNewMessage && <NewNotice />}
               </>
             </TopBarRightButton>
             <TopBarRightMessage isOpen={open} setOpen={setOpen} />
@@ -188,7 +188,7 @@ const ButtonWrapper = styled.div<ButtonWrapperProps>`
   cursor: pointer;
   transform-origin: center center;
 `
-const NewMessageNotice = styled.div`
+const NewNotice = styled.div`
   position: absolute;
   bottom: 0;
   right: 0;

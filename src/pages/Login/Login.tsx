@@ -75,6 +75,7 @@ const Container = styled.div`
   height: 100vh;
   position: relative;
   background-color: #f0f2f5;
+
 `
 const Wrapper = styled.div`
   height: max-content;
@@ -88,6 +89,7 @@ const Desc = styled.div`
     color: ${props => props.theme.colors.primary};
   }
   & p {
+    color: black;
     font-size: 22px;
   }
 `
@@ -101,6 +103,7 @@ const LoginForm = styled.div`
   }
 
   & input {
+    color: black;
     border: 1px solid #ccc;
     outline: none;
     padding: 10px;
@@ -220,6 +223,10 @@ const RegisterForm = styled.div`
   border-radius: 8px;
   position: relative;
 
+  & h1{
+    color: black;
+  }
+
   & form {
     gap: 10px;
 
@@ -238,6 +245,8 @@ const RegisterForm = styled.div`
     width: 300px;
     font-size: 17px;
     border-radius: 6px;
+    background-color: transparent;
+    color: black;
   }
 `
 

@@ -84,7 +84,7 @@ export const MyContextProvider = ({ children }: Props) => {
     localStorage.setItem("user_info", JSON.stringify(state.user_info))
 
     /* 一开始没登陆，然后登录了，需要初始化socket */
-    if (state.user_info && !state.socket) {
+    if (state.user_info) {
       dispatch({ type: ActionTypes.MYSOCKET, payload: initSocket()! })
     }
     /* 获取用户列表 */
@@ -108,9 +108,6 @@ export const MyContextProvider = ({ children }: Props) => {
       state.socket?.chat.disconnect()
       state.socket?.group.disconnect()
       state.socket?.notice.disconnect()
-      dispatch({ type: ActionTypes.MYSOCKET, payload: null })
-      dispatch({ type: ActionTypes.CONVERSATIONS, payload: [] })
-      dispatch({ type: ActionTypes.UNREAD_MESSAGE, payload: [] })
     }
   }, [state.user_info])
 

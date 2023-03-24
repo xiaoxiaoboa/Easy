@@ -10,12 +10,16 @@ import { BiX } from "react-icons/bi"
 import { MyContext } from "../../context/context"
 import { useParams, useNavigate } from "react-router-dom"
 import { MessageType, Message_type } from "../../types/chat.type"
-import { FriendType } from "../../types/friend.type"
 import { ActionTypes } from "../../types/reducer"
 import { FiMoreHorizontal } from "react-icons/fi"
 import EditGroup from "./EditGroup/EditGroup"
-import { updateNotice } from "../../api/user.api"
-import { usePrevious } from "ahooks"
+import { messageUpload, updateNotice } from "../../api/user.api"
+import { TbPhoto } from "react-icons/tb"
+import Upload from "../../components/Upload"
+import getUnionUrl from "../../utils/getUnionUrl"
+import Zoom from "react-medium-image-zoom"
+import "react-medium-image-zoom/dist/styles.css"
+import useRequested from "../../hooks/useRequested"
 
 const Message = () => {
   const params = useParams()
@@ -25,6 +29,7 @@ const Message = () => {
   const [openEditGroup, setOpenEditGroup] = React.useState<boolean>(false)
   const navigate = useNavigate()
   const cm_cacheRef = React.useRef<MessageType[]>([])
+  const { requestedOpt } = useRequested()
 
   /* 缓存current_messages */
   React.useEffect(() => {
@@ -93,14 +98,14 @@ const Message = () => {
   }
 
   /* 发送消息 */
-  const handleKeyDown = (value: string) => {
+  const handleMessage = (value: string, type?: Message_type) => {
     let newMessage: MessageType
     if (state.current_talk?.isGroup) {
       newMessage = {
         user_id: state.user_info?.result.user_id!,
         createdAt: new Date().toLocaleString(),
         msg: value,
-        msg_type: Message_type.TEXT,
+        msg_type: type || Message_type.TEXT,
         to_id: state.current_talk?.conversation_id!,
         user: {
           avatar: state.user_info?.result.avatar!,
@@ -113,31 +118,13 @@ const Message = () => {
         type: ActionTypes.CURRENT_MESSAGES,
         payload: [...state.current_messages, newMessage]
       })
-      state.socket?.group.emit(
-        "group_chat",
-        state.current_talk?.conversation_id!,
-        newMessage,
-        (res: any, err: any) => {
-          dispatch({
-            type: ActionTypes.CURRENT_MESSAGES,
-            payload: [
-              ...cm_cacheRef.current.map(i => {
-                if (i.conversation_id === newMessage.conversation_id) {
-                  return { ...i, status: res ? 1 : -1 }
-                } else {
-                  return i
-                }
-              })
-            ]
-          })
-        }
-      )
+      handleSend(newMessage)
     } else {
       newMessage = {
         user_id: state.user_info?.result.user_id!,
         createdAt: new Date().toLocaleString(),
         msg: value,
-        msg_type: Message_type.TEXT,
+        msg_type: type || Message_type.TEXT,
         to_id: state.current_talk?.conversation_id!,
         user: {
           avatar: state.user_info?.result.avatar!,
@@ -150,12 +137,73 @@ const Message = () => {
         type: ActionTypes.CURRENT_MESSAGES,
         payload: [...state.current_messages, newMessage]
       })
-      state.socket?.chat.emit("private_chat", newMessage, (res: any, err: any) => {
+      handleSend(newMessage)
+    }
+  }
+
+  /* 发送文件 */
+  const hanleFiles: React.ChangeEventHandler<HTMLInputElement> = e => {
+    if (e.target.files) {
+      const file = e.target.files[0]
+      const url = URL.createObjectURL(e.target.files[0])
+      if (file.type.includes("image")) {
+        messageUpload(
+          file,
+          state.user_info?.result.user_id!,
+          state.user_info?.token!
+        ).then(val => {
+          if (val.code === 1) {
+            handleMessage(val.data, Message_type.IMAGE)
+          } else {
+            requestedOpt(val)
+          }
+        })
+      } else if (file.type.includes("video")) {
+        messageUpload(
+          file,
+          state.user_info?.result.user_id!,
+          state.user_info?.token!
+        ).then(val => {
+          if (val.code === 1) {
+            handleMessage(val.data, Message_type.VIDEO)
+          } else {
+            requestedOpt(val)
+          }
+        })
+      }
+    }
+  }
+
+  const handleSend = (data: MessageType) => {
+    if (state.current_talk?.isGroup) {
+      state.socket?.group.emit(
+        "group_chat",
+        state.current_talk?.conversation_id!,
+        data,
+        (res: any, err: any) => {
+          dispatch({
+            type: ActionTypes.CURRENT_MESSAGES,
+            payload: [
+              ...cm_cacheRef.current.map(i => {
+                if (i.conversation_id === data.conversation_id) {
+                  return { ...i, status: res ? 1 : -1 }
+                } else {
+                  return i
+                }
+              })
+            ]
+          })
+        }
+      )
+    } else {
+      state.socket?.chat.emit("private_chat", data, (res: any, err: any) => {
+        if (data.msg_type === Message_type.IMAGE || data.msg_type === Message_type.VIDEO)
+          return
         dispatch({
           type: ActionTypes.CURRENT_MESSAGES,
           payload: [
             ...cm_cacheRef.current.map(i => {
-              if (i.conversation_id === newMessage.conversation_id) {
+              if (i.conversation_id === data.conversation_id) {
                 return { ...i, status: res ? 1 : -1 }
               } else {
                 return i
@@ -232,8 +280,13 @@ const Message = () => {
           </MiddleWrapper>
         </Middle>
         <Bottom className="flex flex-alc flex-jcc">
+          <Upload id="attach" accept="*" handleChange={hanleFiles}>
+            <AttachButton className="flex flex-alc click">
+              <TbPhoto size={22} className="" />
+            </AttachButton>
+          </Upload>
           <BottomWrapper>
-            <MyInput placeholder="ah~" handleKeyDown={handleKeyDown} />
+            <MyInput placeholder="ah~" handleKeyDown={handleMessage} />
           </BottomWrapper>
         </Bottom>
       </ChatWindow>
@@ -265,47 +318,82 @@ const Row: React.FC<RowProps> = React.memo(props => {
     setSize(index, rowRef.current?.getBoundingClientRect().height)
   }, [setSize, index])
 
+  const messageType = (data: MessageType) => {
+    switch (data.msg_type) {
+      case Message_type.TEXT:
+        return data.user_id === user_id ? (
+          <MessageRightText>
+            {data.msg}
+            <MessageStatus className="flex flex-alc">
+              {data.status === 1 ? (
+                <BsCheck size={20} color="#5fff50" />
+              ) : data.status === -1 ? (
+                <BiX size={20} color="#ff2323" />
+              ) : (
+                <></>
+              )}
+            </MessageStatus>
+          </MessageRightText>
+        ) : (
+          <MessageLeftText>
+            {data.msg}
+            <MessageStatus className="flex flex-alc">
+              {data.status === 1 ? (
+                <BsCheck size={20} color="#5fff50" />
+              ) : data.status === -1 ? (
+                <BiX size={20} color="#ff2323" />
+              ) : (
+                <></>
+              )}
+            </MessageStatus>
+          </MessageLeftText>
+        )
+      case Message_type.IMAGE:
+        return (
+          <MessageMediaWrapper className="flex">
+            <Zoom>
+              <img src={getUnionUrl(data.msg)} />
+            </Zoom>
+          </MessageMediaWrapper>
+        )
+      case Message_type.VIDEO:
+        return (
+          <MessageMediaWrapper className="flex">
+            <video controls src={getUnionUrl(data.msg)} />
+          </MessageMediaWrapper>
+        )
+      default:
+        break
+    }
+  }
+
   return (
     <MessageItem ref={rowRef} className="flex-c">
       {data[index].user_id === user_id ? (
         <>
-          <MessageRightTimeStamp className="flex flex-alc flex-jce messagestamp">
-            <span>{data[index].createdAt}</span>
-            <span>{data[index].user.nick_name}</span>
-          </MessageRightTimeStamp>
           <MessageItemRight className="flex-rr right">
             <MessageAvatar className="flex-c flex-jce">
               <Avatar src={data[index].user.avatar} size="40" />
             </MessageAvatar>
-            <MessageRightText>
-              {data[index].msg}
-              <MessageStatus className="flex flex-alc">
-                {data[index].status === 1 ? (
-                  <BsCheck size={20} color="#5fff50" />
-                ) : data[index].status === -1 ? (
-                  <BiX size={20} color="#ff2323" />
-                ) : (
-                  <></>
-                )}
-              </MessageStatus>
-            </MessageRightText>
+            {messageType(data[index])}
           </MessageItemRight>
+          <MessageRightTimeStamp className="flex flex-alc flex-jce messagestamp">
+            <span>{data[index].createdAt}</span>
+            <span>{data[index].user.nick_name}</span>
+          </MessageRightTimeStamp>
         </>
       ) : (
         <>
-          <MessageLeftTimeStamp className="flex flex-alc messagestamp">
-            <span>{data[index].user.nick_name}</span>
-            <span>{data[index].createdAt}</span>
-          </MessageLeftTimeStamp>
           <MessageItemLeft className="flex left">
             <MessageAvatar className="flex-c flex-jce">
               <Avatar src={data[index].user.avatar} size="40" />
             </MessageAvatar>
-            <MessageLeftText>
-              {data[index].msg}
-              <MessageStatus className="flex flex-alc"></MessageStatus>
-            </MessageLeftText>
+            {messageType(data[index])}
           </MessageItemLeft>
+          <MessageLeftTimeStamp className="flex flex-alc messagestamp">
+            <span>{data[index].user.nick_name}</span>
+            <span>{data[index].createdAt}</span>
+          </MessageLeftTimeStamp>
         </>
       )}
     </MessageItem>
@@ -400,11 +488,12 @@ const MessageLeftText = styled.div`
 const MessageRightText = styled(MessageLeftText)`
   border-radius: 14px 14px 0 14px;
   color: white;
+
   background-color: ${props => props.theme.colors.message_bgcolor};
 `
 const MessageRightTimeStamp = styled.span`
   font-size: 13px;
-  gap: 10px;
+  gap: 16px;
   opacity: 0;
   color: ${props => props.theme.colors.secondary};
 `
@@ -415,12 +504,35 @@ const MessageStatus = styled.span`
   float: right;
   top: 8px;
 `
+const MessageMediaWrapper = styled.div`
+  overflow: hidden;
+  border-radius: 8px;
+
+  & img,
+  & video {
+    height: 200px;
+  }
+  & img {
+    object-fit: cover;
+  }
+`
 const Bottom = styled.div`
   flex: 1;
   max-height: 80px;
+  gap: 10px;
 `
 const BottomWrapper = styled.div`
   width: 70%;
   border-radius: 18px;
   background-color: ${props => props.theme.colors.inputbtn_bg};
+`
+const AttachButton = styled.div`
+  padding: 8px;
+  border-radius: 50%;
+  color: ${p => p.theme.colors.secondary};
+
+  cursor: pointer;
+  &:hover {
+    background-color: ${p => p.theme.colors.hovercolor};
+  }
 `

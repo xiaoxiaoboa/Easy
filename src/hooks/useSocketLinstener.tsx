@@ -2,6 +2,7 @@ import React from "react"
 import { queryUser } from "../api/user.api"
 import { MyContext } from "../context/context"
 import { ChatGroupType, ConversationType, MessageType } from "../types/chat.type"
+import { FriendType } from "../types/friend.type"
 import { OtherNoticeType } from "../types/notice.type"
 import { ActionTypes } from "../types/reducer"
 
@@ -12,6 +13,7 @@ const useSocketLinstener = () => {
   const g_cacheRef = React.useRef<ChatGroupType[]>([])
   const cm_cacheRef = React.useRef<MessageType[]>([])
   const n_cacheRef = React.useRef<OtherNoticeType[]>([])
+  const f_cacheRef = React.useRef<FriendType[]>([])
 
   /* 监听聊天消息 */
   React.useEffect(() => {
@@ -67,6 +69,10 @@ const useSocketLinstener = () => {
     /* 同意 */
     state.socket?.notice.on("agreeRequest", (data: OtherNoticeType) => {
       dispatch({ type: ActionTypes.NOTICE, payload: [data, ...n_cacheRef.current] })
+      dispatch({
+        type: ActionTypes.FRIENDS,
+        payload: [...f_cacheRef.current, data.source as FriendType]
+      })
     })
     /* 点赞帖子 */
     state.socket?.notice.on("notice", (data: OtherNoticeType) => {
@@ -105,6 +111,10 @@ const useSocketLinstener = () => {
   React.useEffect(() => {
     n_cacheRef.current = state.notice
   }, [state.notice])
+  /* 缓存friend */
+  React.useEffect(() => {
+    f_cacheRef.current = state.friends
+  }, [state.friends])
 
   /* 在conversaton里 */
   const inConversations = (
@@ -124,6 +134,7 @@ const useSocketLinstener = () => {
         {
           ...findeItem,
           msg: data.msg,
+          msg_type: data.msg_type,
           user_name: data.user.nick_name,
           msg_length: isInCurrtenTalk ? 0 : findeItem.msg_length + 1
         },
@@ -142,12 +153,14 @@ const useSocketLinstener = () => {
   }
   /* 不在conversation里 */
   const noConversations = (data: MessageType, group?: ChatGroupType) => {
+    console.log(c_cacheRef.current)
     const newData: ConversationType = {
       conversation_id: data.conversation_id,
       avatar: group ? group.group_avatar : data.user.avatar,
       name: group ? group.group_name : data.user.nick_name,
       user_name: data.user.nick_name,
       msg: data.msg,
+      msg_type: data.msg_type,
       isGroup: group ? true : false,
       msg_length: 1
     }

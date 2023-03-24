@@ -6,7 +6,7 @@ import Avatar from "../../components/Avatar/Avatar"
 import { FriendType } from "../../types/friend.type"
 import Upload from "../../components/Upload"
 import avatarImg from "../../assets/avatar.png"
-import { ChatGroupType } from "../../types/chat.type"
+import { ChatGroupType, Message_type } from "../../types/chat.type"
 import { nanoid } from "nanoid"
 import { newGroup } from "../../api/chat_group.api"
 import { ActionTypes } from "../../types/reducer"
@@ -77,6 +77,7 @@ const GrougpChat: React.FC<GrougpChatProps> = props => {
                   name: val.data.group_name,
                   msg: "",
                   user_name: "",
+                  msg_type: Message_type.TEXT,
                   isGroup: true,
                   msg_length: 0
                 }

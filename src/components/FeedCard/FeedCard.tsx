@@ -33,11 +33,9 @@ const FeedCard: React.FC<FeedCard> = props => {
     switch (data.attach_type) {
       case "image":
         return (
-          <PhotoProvider>
-            <PhotoView src={getUnionUrl(data.attach_link)}>
-              <img src={getUnionUrl(data.attach_link)} />
-            </PhotoView>
-          </PhotoProvider>
+          <PhotoView src={getUnionUrl(data.attach_link)}>
+            <img src={getUnionUrl(data.attach_link)} />
+          </PhotoView>
         )
       case "video":
         return <video src={getUnionUrl(data.attach_link)} controls />
@@ -62,8 +60,8 @@ const FeedCard: React.FC<FeedCard> = props => {
             className="flex"
             style={{ gap: "10px", display: "grid", gridTemplateColumns: "repeat(2,1fr)" }}
           >
-            <div className="flex image_wrapper">{selectTag(feed.feed_attaches[0])}</div>
-            <div className="flex image_wrapper">{selectTag(feed.feed_attaches[1])}</div>
+            <div className="flex">{selectTag(feed.feed_attaches[0])}</div>
+            <div className="flex">{selectTag(feed.feed_attaches[1])}</div>
           </div>
         )
       case 3:
@@ -73,11 +71,11 @@ const FeedCard: React.FC<FeedCard> = props => {
             style={{ gap: "10px", display: "grid", gridTemplateColumns: "repeat(2,50%)" }}
           >
             <div className="flex">
-              <div className="flex image_wrapper">{selectTag(feed.feed_attaches[0])}</div>
+              <div className="flex">{selectTag(feed.feed_attaches[0])}</div>
             </div>
             <div className="flex-c flex-alc" style={{ gap: "10px" }}>
-              <div className="flex image_wrapper">{selectTag(feed.feed_attaches[1])}</div>
-              <div className="flex image_wrapper">{selectTag(feed.feed_attaches[2])}</div>
+              <div className="flex">{selectTag(feed.feed_attaches[1])}</div>
+              <div className="flex">{selectTag(feed.feed_attaches[2])}</div>
             </div>
           </div>
         )
@@ -166,17 +164,15 @@ const FeedCard: React.FC<FeedCard> = props => {
         </CardTop>
         <CardContent>
           <TextAndEmoj>{feed.feed_text}</TextAndEmoj>
-          <PicAndVid className="flex">{generateElement}</PicAndVid>
+          <PhotoProvider>
+            <PicAndVid className="flex">{generateElement}</PicAndVid>
+          </PhotoProvider>
         </CardContent>
         <Division />
         <CardFun user_info={user_info!} feed={feed} setopenComment={setOpenComment} />
 
         {openComment && (
-          <FeedComment
-            isOpen={openComment}
-            user_info={user_info!}
-            feed={feed}
-          />
+          <FeedComment isOpen={openComment} user_info={user_info!} feed={feed} />
         )}
 
         {openConfirm && (

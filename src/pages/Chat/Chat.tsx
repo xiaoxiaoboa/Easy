@@ -6,7 +6,7 @@ import { Search } from "../Friends/Friends"
 import { NavLink } from "react-router-dom"
 import { MyContext } from "../../context/context"
 import { ActionTypes } from "../../types/reducer"
-import { ConversationType } from "../../types/chat.type"
+import { ConversationType, Message_type } from "../../types/chat.type"
 import { CgAddR } from "react-icons/cg"
 import GrougpChat from "./CreateGroup"
 
@@ -20,7 +20,6 @@ const Chat = () => {
       navigate(`message/${state.current_talk.conversation_id}`)
     }
   }, [])
-
 
   /* 打开对话窗口 */
   const handleTalk = (data: ConversationType) => {
@@ -106,6 +105,19 @@ interface ThisItemProps {
 const ListItem: React.FC<ListItemProps> = props => {
   const { data, handleTalk, current_talk } = props
 
+  const messageType = (data: ConversationType) => {
+    switch (data.msg_type) {
+      case Message_type.TEXT:
+        return data.msg
+      case Message_type.IMAGE:
+        return "[图片]"
+      case Message_type.VIDEO:
+        return "[视频]"
+      default:
+        break
+    }
+  }
+
   const ThisItem: React.FC<ThisItemProps> = props => {
     const { avatar, name, isActive } = props
     return (
@@ -115,7 +127,7 @@ const ListItem: React.FC<ListItemProps> = props => {
           <UserName>{name}</UserName>
           <Notice className="flex" isActive={isActive}>
             {data.msg.length > 0 ? (
-              <span>{`${data.user_name}：${data.msg}`}</span>
+              <span>{`${data.user_name}：${messageType(data)}`}</span>
             ) : (
               <></>
             )}

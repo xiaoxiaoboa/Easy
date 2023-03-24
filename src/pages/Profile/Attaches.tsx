@@ -6,10 +6,11 @@ import { MyContext } from "../../context/context"
 import { allAttaches } from "../../api/feeds.api"
 import { Feed_attachType } from "../../types/feed.type"
 import getUnionUrl from "../../utils/getUnionUrl"
-import { useLocation } from "react-router-dom"
+import { useLocation, useParams } from "react-router-dom"
 
 export const Photos = () => {
   const { state } = React.useContext(MyContext)
+  const params = useParams
   const location = useLocation()
   const initHeight = React.useRef<string>("500px")
   const [current, setCurrent] = React.useState<string | null>(null)
@@ -21,6 +22,7 @@ export const Photos = () => {
   }, [location])
 
   React.useEffect(() => {
+    console.log(params)
     allAttaches(state.user_info?.result.user_id!, state.user_info?.token!).then(val => {
       if (val.code === 1) {
         setImages(val.data.filter(i => i.attach_type === "image"))
