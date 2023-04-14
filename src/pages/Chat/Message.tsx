@@ -5,7 +5,8 @@ import MyInput from "../../components/MyInput/MyInput"
 import { Search } from "../Friends/Friends"
 import { VariableSizeList as VirtualList } from "react-window"
 import AutoSizer from "react-virtualized-auto-sizer"
-import { BsCheck } from "react-icons/bs"
+import { BsCheck, BsExclamation } from "react-icons/bs"
+import { RiErrorWarningLine } from "react-icons/ri"
 import { BiX } from "react-icons/bi"
 import { MyContext } from "../../context/context"
 import { useParams, useNavigate } from "react-router-dom"
@@ -20,6 +21,8 @@ import getUnionUrl from "../../utils/getUnionUrl"
 import Zoom from "react-medium-image-zoom"
 import "react-medium-image-zoom/dist/styles.css"
 import useRequested from "../../hooks/useRequested"
+import { FriendType } from "../../types/friend.type"
+import useSnackbar from "../../hooks/useSnackbar"
 
 const Message = () => {
   const params = useParams()
@@ -30,7 +33,12 @@ const Message = () => {
   const navigate = useNavigate()
   const cm_cacheRef = React.useRef<MessageType[]>([])
   const { requestedOpt } = useRequested()
+  const [findFriend, setFindFriend] = React.useState<FriendType>()
+  const [openSnackbar] = useSnackbar()
 
+  React.useEffect(() => {
+    setFindFriend(state.friends.find(i => i.friend_id === params.id))
+  }, [state.friends])
   /* 缓存current_messages */
   React.useEffect(() => {
     cm_cacheRef.current = state.current_messages
@@ -131,13 +139,17 @@ const Message = () => {
           nick_name: state.user_info?.result.nick_name!
         },
         conversation_id: state.user_info?.result.user_id!,
-        status: 0
+        status: findFriend?.friendship ? 0 : -1
       }
       dispatch({
         type: ActionTypes.CURRENT_MESSAGES,
         payload: [...state.current_messages, newMessage]
       })
-      handleSend(newMessage)
+      if (findFriend?.friendship) {
+        handleSend(newMessage)
+      } else {
+        openSnackbar("和对方不是双向好友关系", 3000)
+      }
     }
   }
 
@@ -145,12 +157,13 @@ const Message = () => {
   const hanleFiles: React.ChangeEventHandler<HTMLInputElement> = e => {
     if (e.target.files) {
       const file = e.target.files[0]
-      const url = URL.createObjectURL(e.target.files[0])
       if (file.type.includes("image")) {
         messageUpload(
           file,
           state.user_info?.result.user_id!,
-          state.user_info?.token!
+          state.current_talk?.conversation_id!,
+          state.user_info?.token!,
+          state.current_talk?.isGroup
         ).then(val => {
           if (val.code === 1) {
             handleMessage(val.data, Message_type.IMAGE)
@@ -162,7 +175,9 @@ const Message = () => {
         messageUpload(
           file,
           state.user_info?.result.user_id!,
-          state.user_info?.token!
+          state.current_talk?.conversation_id!,
+          state.user_info?.token!,
+          state.current_talk?.isGroup
         ).then(val => {
           if (val.code === 1) {
             handleMessage(val.data, Message_type.VIDEO)
@@ -199,18 +214,23 @@ const Message = () => {
       state.socket?.chat.emit("private_chat", data, (res: any, err: any) => {
         if (data.msg_type === Message_type.IMAGE || data.msg_type === Message_type.VIDEO)
           return
-        dispatch({
-          type: ActionTypes.CURRENT_MESSAGES,
-          payload: [
-            ...cm_cacheRef.current.map(i => {
-              if (i.conversation_id === data.conversation_id) {
-                return { ...i, status: res ? 1 : -1 }
-              } else {
-                return i
-              }
-            })
-          ]
-        })
+
+        if (res) {
+          dispatch({
+            type: ActionTypes.CURRENT_MESSAGES,
+            payload: [
+              ...cm_cacheRef.current.map(i => {
+                if (i.conversation_id === data.conversation_id) {
+                  return { ...i, status: res ? 1 : -1 }
+                } else {
+                  return i
+                }
+              })
+            ]
+          })
+        } else {
+          openSnackbar("和对方不是双向好友关系", 3000)
+        }
       })
     }
   }
@@ -220,9 +240,25 @@ const Message = () => {
       <ChatWindow className="flex-c">
         <Top>
           <TopUserInfo className="flex flex-alc">
-            <Avatar src={state.current_talk?.avatar} size="44" />
+            <Avatar
+              src={state.current_talk?.avatar}
+              size="44"
+            />
             <UserInfo className="flex-c">
-              <TopUserName>{state.current_talk?.name}</TopUserName>
+              <TopUserName
+                className="flex flex-alc"
+                style={{ gap: 10 }}
+              >
+                {state.current_talk?.name}
+                {!findFriend?.friendship && !state.current_talk?.isGroup && (
+                  <div title="你和对方不是双向好友关系">
+                    <RiErrorWarningLine
+                      size={20}
+                      color="red"
+                    />
+                  </div>
+                )}
+              </TopUserName>
               <GroupDesc className="flex">
                 {state.current_talk?.isGroup && (
                   <span>
@@ -264,7 +300,10 @@ const Message = () => {
                     overscanCount={20}
                   >
                     {({ index, style }) => (
-                      <div className="flex flex-alc" style={style}>
+                      <div
+                        className="flex flex-alc"
+                        style={style}
+                      >
                         <Row
                           data={state.current_messages}
                           index={index}
@@ -280,13 +319,23 @@ const Message = () => {
           </MiddleWrapper>
         </Middle>
         <Bottom className="flex flex-alc flex-jcc">
-          <Upload id="attach" accept="*" handleChange={hanleFiles}>
+          <Upload
+            id="attach"
+            accept="*"
+            handleChange={hanleFiles}
+          >
             <AttachButton className="flex flex-alc click">
-              <TbPhoto size={22} className="" />
+              <TbPhoto
+                size={22}
+                className=""
+              />
             </AttachButton>
           </Upload>
           <BottomWrapper>
-            <MyInput placeholder="ah~" handleKeyDown={handleMessage} />
+            <MyInput
+              placeholder="ah~"
+              handleKeyDown={handleMessage}
+            />
           </BottomWrapper>
         </Bottom>
       </ChatWindow>
@@ -326,27 +375,22 @@ const Row: React.FC<RowProps> = React.memo(props => {
             {data.msg}
             <MessageStatus className="flex flex-alc">
               {data.status === 1 ? (
-                <BsCheck size={20} color="#5fff50" />
+                <BsCheck
+                  size={20}
+                  color="#5fff50"
+                />
               ) : data.status === -1 ? (
-                <BiX size={20} color="#ff2323" />
+                <BiX
+                  size={20}
+                  color="#ff2323"
+                />
               ) : (
                 <></>
               )}
             </MessageStatus>
           </MessageRightText>
         ) : (
-          <MessageLeftText>
-            {data.msg}
-            <MessageStatus className="flex flex-alc">
-              {data.status === 1 ? (
-                <BsCheck size={20} color="#5fff50" />
-              ) : data.status === -1 ? (
-                <BiX size={20} color="#ff2323" />
-              ) : (
-                <></>
-              )}
-            </MessageStatus>
-          </MessageLeftText>
+          <MessageLeftText>{data.msg}</MessageLeftText>
         )
       case Message_type.IMAGE:
         return (
@@ -359,7 +403,10 @@ const Row: React.FC<RowProps> = React.memo(props => {
       case Message_type.VIDEO:
         return (
           <MessageMediaWrapper className="flex">
-            <video controls src={getUnionUrl(data.msg)} />
+            <video
+              controls
+              src={getUnionUrl(data.msg)}
+            />
           </MessageMediaWrapper>
         )
       default:
@@ -368,12 +415,18 @@ const Row: React.FC<RowProps> = React.memo(props => {
   }
 
   return (
-    <MessageItem ref={rowRef} className="flex-c">
+    <MessageItem
+      ref={rowRef}
+      className="flex-c"
+    >
       {data[index].user_id === user_id ? (
         <>
           <MessageItemRight className="flex-rr right">
             <MessageAvatar className="flex-c flex-jce">
-              <Avatar src={data[index].user.avatar} size="40" />
+              <Avatar
+                src={data[index].user.avatar}
+                size="40"
+              />
             </MessageAvatar>
             {messageType(data[index])}
           </MessageItemRight>
@@ -386,7 +439,10 @@ const Row: React.FC<RowProps> = React.memo(props => {
         <>
           <MessageItemLeft className="flex left">
             <MessageAvatar className="flex-c flex-jce">
-              <Avatar src={data[index].user.avatar} size="40" />
+              <Avatar
+                src={data[index].user.avatar}
+                size="40"
+              />
             </MessageAvatar>
             {messageType(data[index])}
           </MessageItemLeft>
@@ -426,7 +482,7 @@ const TopUserInfo = styled.div`
   padding: 10px;
   border-radius: 8px;
 `
-const TopUserName = styled.span`
+const TopUserName = styled.div`
   font-size: 18px;
   font-weight: bold;
 `

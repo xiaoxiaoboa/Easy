@@ -1,19 +1,16 @@
 import {
   Feed,
   FeedType,
-  Feed_attach,
   Feed_attachType,
   Feed_CommentPublishType,
   Feed_CommentType,
   PublishFeedType,
   UserFavouritedFeeds
 } from "../types/feed.type.js"
-import { DataType } from "../types/index.js"
-import getLocalData from "../utils/getLocalData.js"
 import request, { uploadRequest } from "../utils/request.js"
 import { ResponseType } from "../types/index"
 
-/* 获取帖子 */
+/* 获取用户的帖子 */
 export const feeds_query = async (
   user_id: string,
   limit: number,
@@ -60,7 +57,7 @@ export const feeds_all = async (
 export const feed_like = async (
   feed_id: string,
   user_id: string,
-  feed_userId:string,
+  feed_userId: string,
   t: string
 ): Promise<ResponseType<void>> => {
   return await request({

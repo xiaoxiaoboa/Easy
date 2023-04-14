@@ -32,13 +32,17 @@ const TopBarRight = () => {
     /* 监听未处理信息 */
     state.socket?.notice.on(`new_notice_message`, (val: UnReadMessageType) => {
       if (val.message.user_id === state.user_info?.result.user_id!) return
+      // dispatch({
+      //   type: ActionTypes.UNREAD_MESSAGE,
+      //   payload: [val, ...um_cacheRef.current.filter(i => i.source_id !== val.source_id)]
+      // })
       dispatch({
         type: ActionTypes.UNREAD_MESSAGE,
         payload: [val, ...um_cacheRef.current.filter(i => i.source_id !== val.source_id)]
       })
     })
     return () => {
-      state.socket?.notice.off(`new_message`)
+      state.socket?.notice.off(`new_notice_message`)
     }
   }, [])
 
@@ -90,11 +94,20 @@ const TopBarRight = () => {
       <Popover>
         {({ open, setOpen }) => (
           <>
-            <div style={{ cursor: "pointer" }} onClick={() => setOpen(true)}>
-              <Avatar src={state.user_info?.result.avatar} size="44" />
+            <div
+              style={{ cursor: "pointer" }}
+              onClick={() => setOpen(true)}
+            >
+              <Avatar
+                src={state.user_info?.result.avatar}
+                size="44"
+              />
             </div>
 
-            <TopBarRightUser isOpen={open} setOpen={() => {}} />
+            <TopBarRightUser
+              isOpen={open}
+              setOpen={() => {}}
+            />
           </>
         )}
       </Popover>
@@ -107,7 +120,10 @@ const TopBarRight = () => {
                 {haveNewNotice && <NewNotice />}
               </>
             </TopBarRightButton>
-            <TopBarRightNotice isOpen={open} setOpen={setOpen} />
+            <TopBarRightNotice
+              isOpen={open}
+              setOpen={setOpen}
+            />
           </>
         )}
       </Popover>
@@ -120,7 +136,10 @@ const TopBarRight = () => {
                 {haveNewMessage && <NewNotice />}
               </>
             </TopBarRightButton>
-            <TopBarRightMessage isOpen={open} setOpen={setOpen} />
+            <TopBarRightMessage
+              isOpen={open}
+              setOpen={setOpen}
+            />
           </>
         )}
       </Popover>

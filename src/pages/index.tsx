@@ -2,7 +2,7 @@ import React from "react"
 import TopBar from "../components/TopBar"
 import styled from "styled-components"
 import { Outlet } from "react-router-dom"
-import useSocketLinstener from "../hooks/useSocketLinstener"
+import useSocketLinstener from "../hooks/useSocketListener"
 
 const MyApp = () => {
   const nothing = useSocketLinstener()

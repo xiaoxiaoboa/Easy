@@ -6,6 +6,7 @@ import { MyContext } from "../../context/context"
 import { FriendType } from "../../types/friend.type"
 import { ActionTypes } from "../../types/reducer"
 import { ConversationType, Message_type } from "../../types/chat.type"
+import { deleteFriend } from "../../api/user.api"
 
 const List = () => {
   const { state, dispatch } = React.useContext(MyContext)
@@ -41,6 +42,24 @@ const List = () => {
     }
   }
 
+  const handleDelete = (data: FriendType) => {
+    deleteFriend(
+      state.user_info?.result.user_id!,
+      data.friend_id,
+      state.user_info?.token!
+    ).then(val => {
+      if (val.code === 1) {
+        dispatch({
+          type: ActionTypes.FRIENDS,
+          payload: state.friends.filter(i => i.friend_id !== data.friend_id)
+        })
+        dispatch({
+          type: ActionTypes.CONVERSATIONS,
+          payload: state.conversations.filter(i => i.conversation_id !== data.friend_id)
+        })
+      }
+    })
+  }
   return (
     <Container className="flex-c">
       <Wrapper className="">
@@ -53,7 +72,7 @@ const List = () => {
           >
             <CardButton className="flex">
               <button onClick={() => handleTalk(item)}>发消息</button>
-              <button>删除</button>
+              <button onClick={() => handleDelete(item)}>删除</button>
             </CardButton>
           </Card>
         ))}
@@ -79,7 +98,11 @@ export const Card = (props: CardProps) => {
     <CardContainer>
       <CardWrapper className="flex-c flex-alc">
         <UserAvatar>
-          <Avatar src={avatar} size="70" id={id} />
+          <Avatar
+            src={avatar}
+            size="70"
+            id={id}
+          />
         </UserAvatar>
         <Name>{name}</Name>
         {children}

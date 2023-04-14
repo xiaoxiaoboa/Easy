@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom"
 import styled from "styled-components"
 import { MyContext } from "../../context/context"
 import { TopBarRightPopoverProps } from "../../types"
-import { Message_type } from "../../types/chat.type"
+import { ConversationType, Message_type } from "../../types/chat.type"
 import { UnReadMessageType } from "../../types/notice.type"
 import { ActionTypes } from "../../types/reducer"
 import getTimeDiff from "../../utils/getTimeDiff"
@@ -17,16 +17,22 @@ const TopBarRightMessage: React.FC<TopBarRightMessageProps> = props => {
   const { state, dispatch } = React.useContext(MyContext)
   const navigate = useNavigate()
 
-  const handleClick = (id: string) => {
+  const handleClick = (item: UnReadMessageType) => {
+    const isGroup = state.groups.find(i => i.group_id === item.source.user_id)
+    const findeItem = state.conversations.find(
+      i => i.conversation_id === item.source.user_id
+    )
     dispatch({
       type: ActionTypes.CURRENT_TALK,
-      payload: state.conversations.filter(i => i.conversation_id === id)[0]
+      payload: state.conversations.filter(
+        i => i.conversation_id === item.source.user_id
+      )[0]
     })
     dispatch({
       type: ActionTypes.UNREAD_MESSAGE,
       payload: [
         ...state.unread_message.map(i => {
-          if (i.source_id === id) {
+          if (i.source.user_id === item.source.user_id) {
             return { ...i, done: 1 }
           } else {
             return i
@@ -34,22 +40,37 @@ const TopBarRightMessage: React.FC<TopBarRightMessageProps> = props => {
         })
       ]
     })
-    dispatch({
-      type: ActionTypes.CONVERSATIONS,
-      payload: [
-        ...state.conversations.map(i => {
-          if (i.conversation_id === id) {
-            return { ...i, msg_length: 0 }
-          } else {
-            return i
-          }
-        })
-      ]
-    })
 
+    if (findeItem) {
+      dispatch({
+        type: ActionTypes.CONVERSATIONS,
+        payload: [
+          {
+            ...findeItem,
+            msg_length: 0
+          },
+          ...state.conversations.filter(i => i.conversation_id !== item.source.user_id)
+        ]
+      })
+    } else {
+      const newData: ConversationType = {
+        conversation_id: item.source.user_id,
+        avatar: isGroup ? isGroup.group_avatar : item.source.avatar,
+        name: isGroup ? isGroup.group_name : item.source.nick_name,
+        user_name: item.source.nick_name,
+        msg: item.message.msg,
+        msg_type: item.message.msg_type,
+        isGroup: isGroup ? true : false,
+        msg_length: 1
+      }
+      dispatch({
+        type: ActionTypes.CONVERSATIONS,
+        payload: [newData, ...state.conversations]
+      })
+    }
     document.onclick = null
     setOpen(false)
-    navigate(`/chat/message/${id}`)
+    navigate(`/chat/message/${item.source.user_id}`)
   }
 
   const messageType = (data: UnReadMessageType) => {
@@ -74,9 +95,12 @@ const TopBarRightMessage: React.FC<TopBarRightMessageProps> = props => {
             <Item
               key={item.notice_id}
               className="flex flex-alc"
-              onClick={e => handleClick(item.source_id)}
+              onClick={e => handleClick(item)}
             >
-              <Avatar src={item.source.avatar} size="46" />
+              <Avatar
+                src={item.source.avatar}
+                size="46"
+              />
               <Information className="flex-c">
                 <Name>{item.source.nick_name}</Name>
                 <Msg className="flex flex-alc">

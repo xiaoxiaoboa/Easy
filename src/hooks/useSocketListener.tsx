@@ -32,7 +32,6 @@ const useSocketLinstener = () => {
 
     /* 群聊 */
     state.socket?.group.on("group_messages", (data: MessageType, callback) => {
-      console.log(data)
       const findeItem = c_cacheRef.current.find(
         i => i.conversation_id === data.conversation_id
       )
@@ -74,9 +73,8 @@ const useSocketLinstener = () => {
         payload: [...f_cacheRef.current, data.source as FriendType]
       })
     })
-    /* 点赞帖子 */
+    /* 点赞评论帖子 */
     state.socket?.notice.on("notice", (data: OtherNoticeType) => {
-      if (data.source.user_id === state.user_info?.result.user_id!) return
       dispatch({ type: ActionTypes.NOTICE, payload: [data, ...n_cacheRef.current] })
     })
 
@@ -141,19 +139,18 @@ const useSocketLinstener = () => {
         ...c_cacheRef.current.filter(i => i.conversation_id !== findeItem.conversation_id)
       ]
     })
-    dispatch({
-      type: ActionTypes.CURRENT_MESSAGES,
-      payload: [...cm_cacheRef.current, data]
-    })
 
     if (inChat) {
-      callback("noNotice")
-      if (isInCurrtenTalk) callback("nosave")
+      isInCurrtenTalk &&
+        dispatch({
+          type: ActionTypes.CURRENT_MESSAGES,
+          payload: [...cm_cacheRef.current, data]
+        })
+      isInCurrtenTalk ? callback("nosave") : callback("noNotice")
     }
   }
   /* 不在conversation里 */
   const noConversations = (data: MessageType, group?: ChatGroupType) => {
-    console.log(c_cacheRef.current)
     const newData: ConversationType = {
       conversation_id: data.conversation_id,
       avatar: group ? group.group_avatar : data.user.avatar,

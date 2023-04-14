@@ -5,7 +5,6 @@ import getLocalData from "../utils/getLocalData"
 import { CompressedType } from "../types/user.type"
 
 const compress = async (
-  user_id: string,
   pic: File,
   t: string
 ): Promise<ResponseType<CompressedType>> => {

@@ -5,14 +5,15 @@ import getLocalData from "../utils/getLocalData"
 import { io, Socket } from "socket.io-client"
 import { getFriends } from "../api/user.api"
 import { getJoinedGroups } from "../api/chat_group.api"
+import findNoFriend from "../utils/findNoFriend"
 
 /* socket初始化 */
 const initSocket = () =>
   getLocalData("user_info")
     ? {
-        chat: io("ws://localhost:8000/chat", { autoConnect: true }),
-        group: io("ws://localhost:8000/group_chat", { autoConnect: true }),
-        notice: io("ws://localhost:8000", { autoConnect: true })
+        chat: io("ws://192.168.1.104:8000/chat", { autoConnect: true }),
+        group: io("ws://192.168.1.104:8000/group_chat", { autoConnect: true }),
+        notice: io("ws://192.168.1.104:8000", { autoConnect: true })
       }
     : null
 
@@ -40,8 +41,6 @@ type Props = { children: React.ReactNode }
 export const MyContextProvider = ({ children }: Props) => {
   const [state, dispatch] = React.useReducer(reducer, initialValue)
 
-  // dispatch(() => ({type: ActionTypes.CONVERSATIONS, payload: []}))
-
   React.useEffect(() => {
     if (state.user_info) {
       state.socket?.notice.on("connect", () => {
@@ -67,12 +66,12 @@ export const MyContextProvider = ({ children }: Props) => {
       })
     }
 
-    state.socket?.notice.on("online", (msg, callback) => {
-      callback("我在线")
-    })
+    // state.socket?.notice.on("online", (msg, callback) => {
+    //   callback("我在线")
+    // })
 
     return () => {
-      state.socket?.notice.off("online")
+      // state.socket?.notice.off("online")
       state.socket?.chat.off("connect")
       state.socket?.notice.off("connect")
       state.socket?.group.off("connect")
@@ -87,11 +86,13 @@ export const MyContextProvider = ({ children }: Props) => {
     if (state.user_info) {
       dispatch({ type: ActionTypes.MYSOCKET, payload: initSocket()! })
     }
-    /* 获取用户列表 */
+    /* 获取好友列表 */
     if (state.user_info) {
       getFriends(state.user_info.result.user_id, state.user_info.token).then(val => {
         if (val.code === 1) {
-          dispatch({ type: ActionTypes.FRIENDS, payload: val.data })
+          console.log(val)
+          const findFriend = findNoFriend(val.data)
+          dispatch({ type: ActionTypes.FRIENDS, payload: findFriend })
         }
       })
       /* 获取加入的群组 */

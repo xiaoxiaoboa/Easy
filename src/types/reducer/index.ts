@@ -48,11 +48,6 @@ export enum ActionTypes {
   NOTICE = "notice"
 }
 
-export interface ReducerActionType {
-  type: ActionTypes
-  payload: ReducerPaylodType | ((prevState: ReducerPaylodType) => ReducerPaylodType)
-}
-
 export interface ReducerPaylodType {
   [ActionTypes.USER_INFO]: DataType | null
   [ActionTypes.THEME]: "light" | "dark"
