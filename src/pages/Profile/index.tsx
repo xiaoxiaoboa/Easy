@@ -76,11 +76,7 @@ const Head: React.FC<HeadProps> = props => {
       const coverFile = e.target.files[0]
       if (coverFile) {
         setLoading(true)
-        compress(
-          state.user_info?.result.user_id!,
-          coverFile,
-          state.user_info?.token!
-        ).then(val => {
+        compress(coverFile, state.user_info?.token!).then(val => {
           if (val.code === 1) {
             setUploadedCover(coverFile)
             setCompressedCover(val.data)
@@ -147,7 +143,10 @@ const Head: React.FC<HeadProps> = props => {
     <HeadContainer className="flex-c flex-jcsb flex-alc">
       <div className="blurbglayer"></div>
       <div className="blurbg">
-        <img src={compressedCover?.base64 || getUnionUrl(user?.profile_blurImg)} alt="" />
+        <img
+          src={compressedCover?.base64 || getUnionUrl(user?.profile_blurImg)}
+          alt=""
+        />
       </div>
       <Background className="flex flex-alc">
         {loading && (
@@ -169,13 +168,19 @@ const Head: React.FC<HeadProps> = props => {
         <UserInfo className="flex-c flex-jce">
           <div className="flex flex-ale">
             <AvatarWrapper>
-              <Avatar src={user?.avatar} size="160" />
+              <Avatar
+                src={user?.avatar}
+                size="160"
+              />
             </AvatarWrapper>
             <span>{user?.nick_name}</span>
             {state.user_info?.result.user_id !== params.user_id &&
               !state.friends.find(i => i.friend_id === params.user_id) && (
                 <RequestBtns>
-                  <div className="flex flex-alc click" onClick={hanleFriends}>
+                  <div
+                    className="flex flex-alc click"
+                    onClick={hanleFriends}
+                  >
                     <SiAddthis />
                     添加好友
                   </div>
@@ -193,7 +198,10 @@ const Head: React.FC<HeadProps> = props => {
                 <GiConfirmed />
                 保存
               </div>
-              <div className="flex flex-alc cancelupload click" onClick={handleCancel}>
+              <div
+                className="flex flex-alc cancelupload click"
+                onClick={handleCancel}
+              >
                 <VscError />
                 放弃
               </div>
@@ -202,7 +210,11 @@ const Head: React.FC<HeadProps> = props => {
             <></>
           )}
           {user?.user_id === state.user_info?.result.user_id && (
-            <Upload id="image" accept="image/*" handleChange={handleUploadChange}>
+            <Upload
+              id="image"
+              accept="image/*"
+              handleChange={handleUploadChange}
+            >
               <div className="flex flex-alc changecover click">
                 <ImCamera />
                 更换封面
@@ -214,17 +226,26 @@ const Head: React.FC<HeadProps> = props => {
       <ProfileNav>
         <ProfileNavWrapper className="flex flex-jcc">
           <NavList className="flex flex-alc ">
-            <NavLink to={"moments"} className="momentwrapper">
+            <NavLink
+              to={"moments"}
+              className="momentwrapper"
+            >
               <li className="mymoment">
                 {user?.user_id === state.user_info?.result.user_id ? "我" : "ta"}的瞬间
               </li>
               <div className="underline"></div>
             </NavLink>
-            <NavLink to={"photos"} className="photowrapper">
+            <NavLink
+              to={"photos"}
+              className="photowrapper"
+            >
               <li className="myphoto">照片</li>
               <div className="underline"></div>
             </NavLink>
-            <NavLink to={"videos"} className="videowrapper">
+            <NavLink
+              to={"videos"}
+              className="videowrapper"
+            >
               <li className="mymoment">视频</li>
               <div className="underline"></div>
             </NavLink>

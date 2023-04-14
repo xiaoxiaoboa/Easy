@@ -13,13 +13,6 @@ import GrougpChat from "./CreateGroup"
 const Chat = () => {
   const { state, dispatch } = React.useContext(MyContext)
   const [openCreate, setOpenCreate] = React.useState<boolean>(false)
-  const navigate = useNavigate()
-
-  React.useEffect(() => {
-    if (state.current_talk) {
-      navigate(`message/${state.current_talk.conversation_id}`)
-    }
-  }, [])
 
   /* 打开对话窗口 */
   const handleTalk = (data: ConversationType) => {
@@ -57,7 +50,10 @@ const Chat = () => {
     <Container>
       <Wrapper className="flex">
         <Left className="flex-c">
-          <div className="flex-c" style={{ gap: "10px" }}>
+          <div
+            className="flex-c"
+            style={{ gap: "10px" }}
+          >
             <div className="flex flex-alc flex-jcsb">
               <h2>聊天</h2>
               <CreateGroup
@@ -121,11 +117,20 @@ const ListItem: React.FC<ListItemProps> = props => {
   const ThisItem: React.FC<ThisItemProps> = props => {
     const { avatar, name, isActive } = props
     return (
-      <ListItemContainer className="flex flex-alc" isActive={isActive}>
-        <Avatar src={avatar} size="52" />
+      <ListItemContainer
+        className="flex flex-alc"
+        isActive={isActive}
+      >
+        <Avatar
+          src={avatar}
+          size="52"
+        />
         <UserInfo className="flex-c">
           <UserName>{name}</UserName>
-          <Notice className="flex" isActive={isActive}>
+          <Notice
+            className="flex"
+            isActive={isActive}
+          >
             {data.msg.length > 0 ? (
               <span>{`${data.user_name}：${messageType(data)}`}</span>
             ) : (
@@ -151,7 +156,11 @@ const ListItem: React.FC<ListItemProps> = props => {
       onClick={() => handleTalk(data)}
     >
       {({ isActive, isPending }) => (
-        <ThisItem avatar={data.avatar} isActive={isActive} name={data.name} />
+        <ThisItem
+          avatar={data.avatar}
+          isActive={isActive}
+          name={data.name}
+        />
       )}
     </NavLink>
   )

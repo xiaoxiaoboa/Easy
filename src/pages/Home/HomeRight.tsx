@@ -11,6 +11,7 @@ import { FriendType } from "../../types/friend.type"
 import { ActionTypes } from "../../types/reducer"
 import { useNavigate } from "react-router-dom"
 import { OtherNoticeType } from "../../types/notice.type"
+import findNoFriend from "../../utils/findNoFriend"
 
 interface HomeRightProps {}
 const HomeRight: React.FC<HomeRightProps> = props => {
@@ -20,7 +21,7 @@ const HomeRight: React.FC<HomeRightProps> = props => {
   const [friendRequests, setFriendRequests] = React.useState<OtherNoticeType[]>([])
 
   React.useEffect(() => {
-    setFriendRequests(p => [...p, ...state.notice.filter(i => i.type === "0")])
+    setFriendRequests(p => state.notice.filter(i => i.type === "0"))
   }, [state.notice])
 
   const handleAgree = (friend_id: string, notice_id: string) => {
@@ -45,7 +46,8 @@ const HomeRight: React.FC<HomeRightProps> = props => {
                     }
                   })
                 })
-                dispatch({ type: ActionTypes.FRIENDS, payload: val.data })
+                const findFriend = findNoFriend(val.data)
+                dispatch({ type: ActionTypes.FRIENDS, payload: findFriend })
               }
             }
           )
@@ -66,7 +68,7 @@ const HomeRight: React.FC<HomeRightProps> = props => {
       type: ActionTypes.NOTICE,
       payload: state.notice.map(i => {
         if (i.notice_id === notice_id) {
-          return { ...i, type: "00", done: 1 }
+          return { ...i, done: 1 }
         } else {
           return i
         }
@@ -177,16 +179,25 @@ const UserItem: React.FC<UserItemPorps> = props => {
       onClick={handleClick}
     >
       <UserInfo className="flex flex-alc">
-        <Avatar src={avatarUrl} size="44" />
+        <Avatar
+          src={avatarUrl}
+          size="44"
+        />
         <span title={nick_name}>{nick_name}</span>
       </UserInfo>
       {timestamp ? (
         <>
           <Btns className="flex flex-alc flex-jcc">
-            <button className="click" onClick={handleAgree}>
+            <button
+              className="click"
+              onClick={handleAgree}
+            >
               同意
             </button>
-            <button className="click" onClick={handleReject}>
+            <button
+              className="click"
+              onClick={handleReject}
+            >
               拒绝
             </button>
           </Btns>

@@ -16,11 +16,14 @@ import { MyContext } from "../../context/context"
 import { ActionTypes } from "../../types/reducer"
 import getTimeDiff from "../../utils/getTimeDiff"
 import { TopBarRightPopoverProps } from "../../types"
+import { OtherNoticeType } from "../../types/notice.type"
+import { useNavigate } from "react-router-dom"
 
 type TopBarRightNoticeProps = TopBarRightPopoverProps
 const TopBarRightNotice: React.FC<TopBarRightNoticeProps> = props => {
   const { isOpen, setOpen } = props
   const { state, dispatch } = React.useContext(MyContext)
+  const navigate = useNavigate()
 
   /* 获取相关通知 */
   React.useEffect(() => {
@@ -32,20 +35,24 @@ const TopBarRightNotice: React.FC<TopBarRightNoticeProps> = props => {
     })
   }, [])
 
-  const handleClick = (id: string) => {
-    updateNotice({ notice_id: id }, state.user_info?.token!)
-    dispatch({
-      type: ActionTypes.NOTICE,
-      payload: [
-        ...state.notice.map(i => {
-          if (i.notice_id === id) {
-            return { ...i, done: 1 }
-          } else {
-            return i
-          }
-        })
-      ]
-    })
+  const handleClick = (item: OtherNoticeType) => {
+    if (item.type !== "0") {
+      updateNotice({ notice_id: item.notice_id }, state.user_info?.token!)
+      dispatch({
+        type: ActionTypes.NOTICE,
+        payload: [
+          ...state.notice.map(i => {
+            if (i.notice_id === item.notice_id) {
+              return { ...i, done: 1 }
+            } else {
+              return i
+            }
+          })
+        ]
+      })
+    } else {
+      navigate("/")
+    }
     document.onclick = null
     setOpen(false)
   }
@@ -59,10 +66,13 @@ const TopBarRightNotice: React.FC<TopBarRightNoticeProps> = props => {
             <Item
               key={item.notice_id}
               className="flex flex-alc"
-              onClick={() => handleClick(item.notice_id)}
+              onClick={() => handleClick(item)}
               title={item.comment_msg || ""}
             >
-              <Avatar src={item.source.avatar} size="46" />
+              <Avatar
+                src={item.source.avatar}
+                size="46"
+              />
               <Information className="flex-c">
                 <Name>{item.source.nick_name}</Name>
                 <Msg className="flex flex-alc">

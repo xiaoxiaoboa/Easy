@@ -3,7 +3,7 @@ import request, { uploadRequest } from "../utils/request"
 import { ResponseType, DataType } from "../types/index"
 import getLocalData from "../utils/getLocalData"
 import { AlterationCoverType, UserType } from "../types/user.type"
-import { FriendType } from "../types/friend.type"
+import { FriendType, FriendsListType } from "../types/friend.type"
 import { OtherNoticeType, UnReadMessageType } from "../types/notice.type"
 
 /* 登录 */
@@ -33,6 +33,9 @@ export const alterationCover = (
   })
 }
 
+/* 修改头像 */
+// export const changeAvatar = (user_id: string, file: File) => {}
+
 /* 查询用户 */
 export const queryUser = async (
   user_id: string,
@@ -50,7 +53,7 @@ export const queryUser = async (
 export const getFriends = (
   user_id: string,
   t: string
-): Promise<ResponseType<FriendType[]>> => {
+): Promise<ResponseType<FriendsListType>> => {
   return request({
     url: "/friends",
     methods: "POST",
@@ -102,15 +105,33 @@ export const updateNotice = async (
 export const messageUpload = async (
   file: File,
   user_id: string,
-  t: string
+  friend_id: string,
+  t: string,
+  isGroup?: boolean
 ): Promise<ResponseType<string>> => {
   const formData = new FormData()
   formData.append("file", file)
   formData.append("user_id", user_id)
+  formData.append("friend_id", friend_id)
+  formData.append("isGroup", JSON.stringify(isGroup))
   return await uploadRequest({
     url: "/message_upload",
     methods: "POST",
     body: formData,
+    token: t
+  })
+}
+
+/* 删除好友 */
+export const deleteFriend = async (
+  user_id: string,
+  friend_id: string,
+  t: string
+): Promise<ResponseType<void>> => {
+  return await request({
+    url: "/del_friend",
+    methods: "POST",
+    body: { user_id, friend_id },
     token: t
   })
 }
