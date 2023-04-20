@@ -15,31 +15,29 @@ const Favorites = () => {
   /* 子组件骨架屏的元素 */
   const [element, setElement] = React.useState<HTMLDivElement | null>(null)
   /* 是否还有数据，显示文字 */
-  const [nothing, setNothing] = React.useState<boolean>(false)
+  const [more, setMore] = React.useState<boolean>(true)
   /* 骨架屏是否在视口内 */
-  const [inViewport] = useInViewport(element, {
-    threshold: 1
+  const [inViewport, ratio] = useInViewport(element, {
+    threshold: 0.9
   })
   const limit = 10
   const offsetRef = React.useRef<number>(0)
 
   React.useEffect(() => {
-    if (inViewport) {
-      favourited_feeds(
-        state.user_info?.result.user_id!,
-        limit,
-        offsetRef.current,
-        state.user_info?.token!
-      ).then(val => {
-        if (val.code !== 1) return
-        if (val.data.length === 0) {
-          setNothing(true)
-          return
-        }
-        setFavFeeds(val.data)
+    if(!inViewport) return 
+    favourited_feeds(
+      state.user_info?.result.user_id!,
+      limit,
+      offsetRef.current,
+      state.user_info?.token!
+    ).then(val => {
+      if (val.code === 1) {
+        setFavFeeds(p => [...p, ...val.data])
         offsetRef.current += limit
-      })
-    }
+
+        setMore(val.more!)
+      }
+    })
   }, [inViewport])
 
   /* 取消收藏时，从列表中删除 */
@@ -62,8 +60,13 @@ const Favorites = () => {
             handleDelFav={deleteFav}
           />
         ))}
-        {!nothing && <SkeletonFeed setElement={setElement} theme={state.theme} />}
-        {nothing && <Tip>没有啦！看看别的吧~</Tip>}
+        {more && (
+          <SkeletonFeed
+            setElement={setElement}
+            theme={state.theme}
+          />
+        )}
+        {!more && <Tip>没有啦！看看别的吧~</Tip>}
       </Wrapper>
     </Container>
   )

@@ -9,6 +9,7 @@ import useRequested from "../../hooks/useRequested"
 import { MyContext } from "../../context/context"
 import { ActionTypes } from "../../types/reducer/index"
 import { useNavigate } from "react-router-dom"
+import useSnackbar from "../../hooks/useSnackbar"
 
 interface LoginFormProps {
   email: string
@@ -17,20 +18,31 @@ interface LoginFormProps {
 
 /* 登录 */
 const Login = () => {
-  const { register, handleSubmit } = useForm<LoginFormProps>()
+  const {
+    register,
+    handleSubmit,
+    formState: { errors }
+  } = useForm<LoginFormProps>()
   const [openRegister, setOpenRegister] = React.useState<boolean>(false)
   const { loading, setLoading, requestedOpt } = useRequested()
   const { state, dispatch } = React.useContext(MyContext)
   const navigate = useNavigate()
+  const [openSnackbar] = useSnackbar()
 
   const handleLoginSubmit: SubmitHandler<LoginFormProps> = (data: FieldValues) => {
     setLoading(true)
     sign_in(data).then(val => {
-      dispatch({ type: ActionTypes.USER_INFO, payload: val.data })
+      if (val.code === 1) {
+        dispatch({ type: ActionTypes.USER_INFO, payload: val.data })
 
-      requestedOpt(val, () => navigate("/"))
+        requestedOpt(val, () => navigate("/"))
+      } else {
+        openSnackbar(val.message, 3000)
+        setLoading(false)
+      }
     })
   }
+
   return (
     <Container className="flex flex-alc flex-jcc">
       {openRegister ? <Register handleClose={setOpenRegister} /> : <></>}
@@ -40,7 +52,10 @@ const Login = () => {
           <p>Easy社交，简单生活,让你的生活动起来</p>
         </Desc>
         <LoginForm>
-          <form onSubmit={handleSubmit(handleLoginSubmit)} className="flex-c flex-alc">
+          <form
+            onSubmit={handleSubmit(handleLoginSubmit)}
+            className="flex-c flex-alc"
+          >
             <input
               {...register("email", { required: true })}
               type="email"
@@ -51,7 +66,10 @@ const Login = () => {
               type="password"
               placeholder="密码"
             />
-            <SubmitButton disabled={loading} type="submit">
+            <SubmitButton
+              disabled={loading}
+              type="submit"
+            >
               {loading ? <Loading /> : "登录"}
             </SubmitButton>
             <Division />
@@ -75,7 +93,6 @@ const Container = styled.div`
   height: 100vh;
   position: relative;
   background-color: #f0f2f5;
-
 `
 const Wrapper = styled.div`
   height: max-content;
@@ -164,6 +181,7 @@ const Register = (props: RegisterProps) => {
   const { handleClose } = props
   const { register, handleSubmit } = useForm<RegisterFormProps>()
   const { loading, setLoading, requestedOpt } = useRequested()
+  const [openSnackbar] = useSnackbar()
 
   const handleRegisterSubmit: SubmitHandler<RegisterFormProps> = (data: FieldValues) => {
     const userData = {
@@ -172,18 +190,31 @@ const Register = (props: RegisterProps) => {
       avatar: ""
     }
     setLoading(true)
-    sing_up(userData).then(val => requestedOpt(val, () => handleClose(false)))
+    sing_up(userData).then(val => {
+      if (val.code === 1) {
+        requestedOpt(val, () => handleClose(false))
+      } else {
+        openSnackbar(val.message, 3000)
+        setLoading(false)
+      }
+    })
   }
 
   return (
     <RegisterWrapper className="flex flex-alc flex-jcc">
       <RegisterForm>
         <h1>注册</h1>
-        <CloseIcon className="flex flex-alc" onClick={() => handleClose(false)}>
+        <CloseIcon
+          className="flex flex-alc"
+          onClick={() => handleClose(false)}
+        >
           <IoCloseOutline size={24} />
         </CloseIcon>
         <Division />
-        <form className="flex-c" onSubmit={handleSubmit(handleRegisterSubmit)}>
+        <form
+          className="flex-c"
+          onSubmit={handleSubmit(handleRegisterSubmit)}
+        >
           <input
             {...register("nick_name", { required: true })}
             type="text"
@@ -200,7 +231,10 @@ const Register = (props: RegisterProps) => {
             placeholder="密码"
           />
 
-          <SubmitButton disabled={loading} type="submit">
+          <SubmitButton
+            disabled={loading}
+            type="submit"
+          >
             {loading ? <Loading /> : "注册"}
           </SubmitButton>
         </form>
@@ -223,7 +257,7 @@ const RegisterForm = styled.div`
   border-radius: 8px;
   position: relative;
 
-  & h1{
+  & h1 {
     color: black;
   }
 

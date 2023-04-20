@@ -90,7 +90,6 @@ export const MyContextProvider = ({ children }: Props) => {
     if (state.user_info) {
       getFriends(state.user_info.result.user_id, state.user_info.token).then(val => {
         if (val.code === 1) {
-          console.log(val)
           const findFriend = findNoFriend(val.data)
           dispatch({ type: ActionTypes.FRIENDS, payload: findFriend })
         }

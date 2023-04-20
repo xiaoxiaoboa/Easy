@@ -7,50 +7,48 @@ import { NavLink } from "react-router-dom"
 const TopBarLeft = () => {
   const [isInput, setIsInput] = React.useState<boolean>(false)
   const bottomRef = React.useRef<HTMLDivElement>(null)
-  const inputRef = React.useRef<HTMLInputElement>(null)
-
-  React.useEffect(() => {
-    // document.onclick = e => {
-    //   if (e.target === bottomRef.current || e.target === inputRef.current) return
-    //   setIsInput(false)
-    // }
-
-    return () => {
-      // document.onclick = null
-    }
-  }, [])
-
-  /* 处理点击输入框 */
-  const handleClickInput = (): void => {
-    if (isInput) return
-    setIsInput(true)
-  }
 
   return (
-    <Container className="flex-c flex-jcc" isInput={isInput}>
-      <LeftContainerTop className="flex-r flex-alc flex-jce" isInput={isInput}>
-        <NavLink to={"/"} className="logo flex">
+    <Container
+      className="flex-c flex-jcc"
+      isInput={isInput}
+    >
+      <LeftContainerTop
+        className="flex-r flex-alc flex-jce"
+        isInput={isInput}
+      >
+        <NavLink
+          to={"/"}
+          className="logo flex"
+        >
           <img src={logo} />
         </NavLink>
         <div className="flex-r flex-alc flex-jcc close">
           <div className=" flex-r flex-alc flex-jcc closewrapper">
-            <BiArrowBack size="20" className="BiArrowBack" />
+            <BiArrowBack
+              size="20"
+              className="BiArrowBack"
+            />
           </div>
         </div>
         <Input isInput={isInput}>
           <InputWrapper className="flex-r flex-alc wrapper">
-            <BiSearch size="20" className="BiSearch" />
+            <BiSearch
+              size="20"
+              className="BiSearch"
+            />
             <input
               type="text"
               placeholder="搜索"
               className="input"
-              onClick={handleClickInput}
-              ref={inputRef}
             />
           </InputWrapper>
         </Input>
       </LeftContainerTop>
-      <LeftContainerBottom ref={bottomRef} isInput={isInput}>
+      <LeftContainerBottom
+        ref={bottomRef}
+        isInput={isInput}
+      >
         <h1>hello</h1>
         <h1>hello</h1>
         <h1>hello</h1>
