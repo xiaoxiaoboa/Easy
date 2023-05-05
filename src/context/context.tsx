@@ -11,9 +11,13 @@ import findNoFriend from "../utils/findNoFriend"
 const initSocket = () =>
   getLocalData("user_info")
     ? {
-        chat: io("ws://192.168.1.104:8000/chat", { autoConnect: true }),
-        group: io("ws://192.168.1.104:8000/group_chat", { autoConnect: true }),
-        notice: io("ws://192.168.1.104:8000", { autoConnect: true })
+        chat: io(`${import.meta.env.VITE_SOCKET_BASE_URL}/chat`, {
+          autoConnect: true
+        }),
+        group: io(`${import.meta.env.VITE_SOCKET_BASE_URL}/group_chat`, {
+          autoConnect: true
+        }),
+        notice: io(import.meta.env.VITE_SOCKET_BASE_URL, { autoConnect: true })
       }
     : null
 
