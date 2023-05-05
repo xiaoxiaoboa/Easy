@@ -5,6 +5,7 @@ export interface ResponseType<T> {
   code: number
   message: string
   data: T
+  more?:boolean //临时给首页帖子使用
 }
 
 export interface DataType {

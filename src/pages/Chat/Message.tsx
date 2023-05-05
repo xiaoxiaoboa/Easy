@@ -38,6 +38,7 @@ const Message = () => {
 
   React.useEffect(() => {
     setFindFriend(state.friends.find(i => i.friend_id === params.id))
+    console.log(params.id)
   }, [state.friends])
   /* 缓存current_messages */
   React.useEffect(() => {

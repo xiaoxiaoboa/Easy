@@ -85,6 +85,17 @@ const HomeRight: React.FC<HomeRightProps> = props => {
               <span>好友请求</span>
             </RequestHead>
             <Main className="flex-c">
+              {/* <h1>kajbdakj</h1>
+              <h1>kajbdakj</h1>
+              <h1>kajbdakj</h1>
+              <h1>kajbdakj</h1>
+              <h1>kajbdakj</h1>
+              <h1>kajbdakj</h1>
+              <h1>kajbdakj</h1>
+              <h1>kajbdakj</h1>
+              <h1>kajbdakj</h1>
+              <h1>kajbdakj</h1>
+              <h1>kajbdakj</h1> */}
               {friendRequests.map(item => (
                 <UserItem
                   key={item.source.user_id}
@@ -127,16 +138,19 @@ const Container = styled.div`
   flex: 1;
   position: sticky;
   top: 60px;
-  height: 100%;
+  height: calc(100vh - 60px);
 `
 const Wrapper = styled.div`
   padding: 20px 10px;
+  height: 100%;
   @media (max-width: 1300px) {
     display: none;
   }
 `
 const FriendsRequest = styled.div`
   gap: 8px;
+  flex: 1;
+  overflow: auto;
 `
 
 const RequestHead = styled.div`
@@ -149,11 +163,12 @@ const RequestHead = styled.div`
 `
 const Main = styled.div`
   gap: 4px;
-  /* min-width: 320px; */
 `
 
 const Contacts = styled.div`
   gap: 8px;
+  flex: 1;
+  overflow: auto;
 `
 const ContactsHead = styled.div`
   font-weight: bold;

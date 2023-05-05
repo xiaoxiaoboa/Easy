@@ -23,29 +23,27 @@ const HomeMiddle: React.FC = () => {
   /* 子组件骨架屏的元素 */
   const [element, setElement] = React.useState<HTMLDivElement | null>(null)
   /* 是否还有数据，显示文字 */
-  const [nothing, setNothing] = React.useState<boolean>(false)
+  const [more, setMore] = React.useState<boolean>(true)
   /* 骨架屏是否在视口内 */
-  const [inViewport] = useInViewport(element, {
+  const [inViewport, ratio] = useInViewport(element, {
     threshold: 1
   })
   const limit = 10
   const offsetRef = React.useRef<number>(0)
 
   React.useEffect(() => {
-    if (inViewport) {
-      feeds_all(limit, offsetRef.current).then(val => {
-        if (val.code !== 1) return
-        if (val.data.length === 0) {
-          setNothing(true)
-          return
-        }
+    if (!inViewport) return
+    feeds_all(limit, offsetRef.current).then(val => {
+      if (val.code === 1) {
         dispatch({
           type: ActionTypes.HOME_FEEDS,
           payload: [...state.home_feeds, ...val.data]
         })
         offsetRef.current += limit
-      })
-    }
+
+        setMore(val.more!)
+      }
+    })
   }, [inViewport])
 
   return (
@@ -53,10 +51,19 @@ const HomeMiddle: React.FC = () => {
       <Wrapper className="flex-c flex-alc">
         {state.user_info && <Publish user_info={state.user_info.result} />}
         {state.home_feeds.map(item => (
-          <FeedCard key={item.feed_id} user_info={state.user_info!} feed={item} />
+          <FeedCard
+            key={item.feed_id}
+            user_info={state.user_info!}
+            feed={item}
+          />
         ))}
-        {!nothing && <SkeletonFeed setElement={setElement} theme={state.theme} />}
-        {nothing && <Tip>没有啦！看看别的吧~</Tip>}
+        {more && (
+          <SkeletonFeed
+            setElement={setElement}
+            theme={state.theme}
+          />
+        )}
+        {!more && <Tip>没有啦！看看别的吧~</Tip>}
       </Wrapper>
     </Container>
   )
@@ -94,14 +101,28 @@ const Publish: React.FC<PublishProps> = props => {
 
   return (
     <PublishContainer className="flex-c test">
-      {open ? <PublishLayer user_info={user_info} handleClose={setOpen} /> : <></>}
+      {open ? (
+        <PublishLayer
+          user_info={user_info}
+          handleClose={setOpen}
+        />
+      ) : (
+        <></>
+      )}
 
       <div className="top flex-r flex-jcsb">
         <div className="avatar">
-          <Avatar id={user_info?.user_id} src={user_info?.avatar} size="40" />
+          <Avatar
+            id={user_info?.user_id}
+            src={user_info?.avatar}
+            size="40"
+          />
         </div>
-        <div className="inputbtn flex-r flex-alc" onClick={handleOpen}>
-          Xiaoxin Yuan，分享你的瞬间把！
+        <div
+          className="inputbtn flex-r flex-alc"
+          onClick={handleOpen}
+        >
+          {user_info?.nick_name}，分享你的瞬间把！
         </div>
       </div>
       <Division margin="10px 0 6px 0" />
@@ -273,7 +294,10 @@ const PublishLayer: React.FC<PublishLayerProps> = props => {
   return (
     <PublishLayerContainer className="flex-r flex-alc flex-jcc">
       <PublishLayerWrapper className="flex-c">
-        <ClosePublishLayer className="flex flex-alc click" onClick={handleCloseSelf}>
+        <ClosePublishLayer
+          className="flex flex-alc click"
+          onClick={handleCloseSelf}
+        >
           <MdClear size={22} />
         </ClosePublishLayer>
         <div className="flex-r flex-jcc">
@@ -281,18 +305,36 @@ const PublishLayer: React.FC<PublishLayerProps> = props => {
         </div>
         <PublishLayerMain className="flex-c">
           <UserInfo className="flex-r flex-alc">
-            <Avatar src={user_info?.avatar} size="36" />
+            <Avatar
+              src={user_info?.avatar}
+              size="36"
+            />
             Xiaoxin Yuan
           </UserInfo>
           <EditableArea onClick={handleClick}>
-            <MyInput ref={childInputRef} placeholder="Xiaoxin Yuan，分享你的瞬间把！" />
+            <MyInput
+              ref={childInputRef}
+              placeholder="Xiaoxin Yuan，分享你的瞬间把！"
+            />
           </EditableArea>
         </PublishLayerMain>
         <Files className="flex">
-          <Upload id="image" accept="image/*" multiple handleChange={handleChange}>
-            <div className="addPic click" title="上传图片"></div>
+          <Upload
+            id="image"
+            accept="image/*"
+            multiple
+            handleChange={handleChange}
+          >
+            <div
+              className="addPic click"
+              title="上传图片"
+            ></div>
           </Upload>
-          <Upload id="video" accept="video/*" handleChange={handleChange}>
+          <Upload
+            id="video"
+            accept="video/*"
+            handleChange={handleChange}
+          >
             <div className="addVid click"></div>
           </Upload>
         </Files>
@@ -300,7 +342,10 @@ const PublishLayer: React.FC<PublishLayerProps> = props => {
           {loading ? (
             <Loading />
           ) : (
-            <button className="click" onClick={handleCommit}>
+            <button
+              className="click"
+              onClick={handleCommit}
+            >
               发布
             </button>
           )}
@@ -309,7 +354,10 @@ const PublishLayer: React.FC<PublishLayerProps> = props => {
 
       {files.length > 0 ? (
         <FilesPreview>
-          <ImagePreview files={files} handleDeleteItem={handleDeleteItem} />
+          <ImagePreview
+            files={files}
+            handleDeleteItem={handleDeleteItem}
+          />
         </FilesPreview>
       ) : (
         <></>
